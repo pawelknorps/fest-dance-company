@@ -1,0 +1,18 @@
+import festLogo from '../assets/logo/logo-cropped.png?format=webp&w=400&as=url'
+import type { BrandData } from '../types'
+
+export const brand: BrandData = {
+  name: 'FEST Dance Company',
+  shortName: 'FEST',
+  logo: festLogo,
+  claim: 'Ruch łączy się z wizją',
+  intro:
+    'FEST Dance Company to miejsce, w którym ruch łączy się z wizją. Tworzymy choreografie do teledysków, koncertów, kampanii reklamowych oraz eventów specjalnych. W naszych projektach łączymy różne style tańca, aby najlepiej dopasować się do charakteru marki i wydarzenia.',
+  ctaPrimary: 'Umów konsultację',
+  ctaSecondary: 'Zobacz portfolio',
+  socialLinks: [
+    { label: 'Instagram', href: 'https://instagram.com/' },
+    { label: 'TikTok', href: 'https://tiktok.com/' },
+    { label: 'Vimeo', href: 'https://vimeo.com/' },
+  ],
+} as const
