@@ -13,21 +13,29 @@ interface KineticCardProps {
   isIntersecting: boolean
 }
 
-// Shared Geometry for all cards to reduce memory footprint
-const sharedPlaneGeometry = new THREE.PlaneGeometry(1, 1)
+// Increased segments for smooth vertex deformation (SOTA Drag Effect)
+const sharedPlaneGeometry = new THREE.PlaneGeometry(1, 1, 32, 32)
 
-// Artistic SOTA Shader Material
-// Features: Chromatic Aberration, Edge Vignette, and Texture Filtering
 const vertexShader = `
   varying vec2 vUv;
-  varying vec3 vNormal;
-  varying vec3 vViewDir;
+  uniform float uTime;
+  uniform float uInertia;
+  uniform float uOffset;
   
   void main() {
     vUv = uv;
-    vNormal = normalize(normalMatrix * normal);
-    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-    vViewDir = normalize(-mvPosition.xyz);
+    vec3 pos = position;
+    
+    // SOTA Vertex Inertia (Cloth/Drag Simulation)
+    // We bend the vertices based on their position and the scroll velocity (uInertia)
+    // The "drag" is stronger at the edges and based on the Y-axis distance from center
+    float drag = sin(uv.y * 3.14159) * uInertia * 0.15;
+    pos.z += drag * sin(uv.x * 3.14159 + uTime * 2.0);
+    
+    // Longitudinal curvature (bend the card as it scrolls)
+    pos.z += abs(uOffset) * pow(uv.x - 0.5, 2.0) * 2.5;
+    
+    vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
     gl_Position = projectionMatrix * mvPosition;
   }
 `
@@ -40,22 +48,20 @@ const fragmentShader = `
   varying vec2 vUv;
 
   void main() {
-    // Chromatic Aberration logic
-    // We shift the Red and Blue channels slightly based on uDistortion (velocity)
-    float r = texture2D(uTexture, vUv + vec2(uDistortion * 0.02, 0.0)).r;
+    // SOTA Chromatic Aberration with Velocity-base intensity
+    vec2 distortion = vec2(uDistortion * 0.015, 0.0);
+    float r = texture2D(uTexture, vUv + distortion).r;
     float g = texture2D(uTexture, vUv).g;
-    float b = texture2D(uTexture, vUv - vec2(uDistortion * 0.02, 0.0)).b;
+    float b = texture2D(uTexture, vUv - distortion).b;
     
     vec3 color = vec3(r, g, b);
     
-    // Smooth Edge Vignette / Card Masking
-    float edgeX = smoothstep(0.0, 0.08, vUv.x) * smoothstep(1.0, 0.92, vUv.x);
-    float edgeY = smoothstep(0.0, 0.08, vUv.y) * smoothstep(1.0, 0.92, vUv.y);
-    float edgeMask = edgeX * edgeY;
+    // Physical Edge Masking (Premium vignette)
+    float edgeMask = smoothstep(0.0, 0.12, vUv.x) * smoothstep(1.0, 0.88, vUv.x) *
+                     smoothstep(0.0, 0.12, vUv.y) * smoothstep(1.0, 0.88, vUv.y);
     
-    // Soft inner glow based on UV
-    float glow = (1.0 - length(vUv - 0.5) * 1.5) * 0.15;
-    color += vec3(0.6, 0.5, 0.8) * glow * uDistortion;
+    // Dynamic Luminance Boost on movement
+    color += uDistortion * vec3(0.1, 0.05, 0.2) * (1.0 - edgeMask);
     
     gl_FragColor = vec4(color, uOpacity * edgeMask);
   }
@@ -130,7 +136,7 @@ function CardContent({
     if (!imageBitmap) return null
     const tex = new THREE.Texture(imageBitmap)
     tex.colorSpace = THREE.SRGBColorSpace
-    tex.anisotropy = isMobile ? 1 : 8 // High quality for desktop
+    tex.anisotropy = isMobile ? 1 : 16 // Max quality for SOTA
     tex.needsUpdate = true 
     return tex
   }, [imageBitmap, isMobile])
@@ -139,6 +145,8 @@ function CardContent({
     uTexture: { value: texture },
     uOpacity: { value: 0 },
     uDistortion: { value: 0 },
+    uInertia: { value: 0 },
+    uOffset: { value: 0 },
     uTime: { value: 0 }
   }), [texture])
 
@@ -167,37 +175,40 @@ function CardContent({
     const absOffset = Math.abs(offset)
     const velocity = velocityRef.current
 
-    // Artistic Kinetic Movement
+    // SOTA Position & Inertia
     const radius = 12
     const angle = offset * 0.35
     const x = Math.sin(angle) * radius
+    const zBase = (Math.cos(angle) * radius) - radius
     const zOffset = (1 - Math.min(absOffset * 0.8, 1)) * 1.5
-    const z = (Math.cos(angle) * radius) - radius + zOffset
     
-    groupRef.current.position.set(x, 0, z)
+    groupRef.current.position.set(x, 0, zBase + zOffset)
     
-    // Interactive Tilt Logic: Scroll Velocity + Mouse Position
+    // SOTA Interactive Tilt & Drag
     const mouseX = mouseRef.current?.x || 0
     const mouseY = mouseRef.current?.y || 0
     
-    const targetRotY = angle * 1.1 + (mouseX * 0.15)
-    const targetRotX = absOffset * 0.08 - (mouseY * 0.1)
-    const tilt = velocity * offset * 0.15
+    const targetRotY = angle * 1.1 + (mouseX * 0.2)
+    const targetRotX = absOffset * 0.1 - (mouseY * 0.15)
+    // Inertial tilt (drag) based on velocity
+    const tilt = velocity * (index > currentScroll ? -1 : 1) * 0.2
     
-    groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetRotY, 0.1)
-    groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, targetRotX, 0.1)
-    groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, -tilt, 0.08)
+    groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetRotY, 0.08)
+    groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, targetRotX, 0.08)
+    groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, tilt, 0.06)
 
     const s = 1.05 - Math.min(absOffset * 0.2, 0.35)
     groupRef.current.scale.set(s, s, s)
 
-    // Update Shader Uniforms
+    // Update SOTA Uniforms
     const mat = meshRef.current.material as THREE.ShaderMaterial
     const baseOpacity = 1 - Math.min(absOffset * 0.45, 0.98)
     const targetOpacity = isVisible ? baseOpacity : 0
     
-    mat.uniforms.uOpacity.value = THREE.MathUtils.lerp(mat.uniforms.uOpacity.value, targetOpacity, 0.12)
-    mat.uniforms.uDistortion.value = THREE.MathUtils.lerp(mat.uniforms.uDistortion.value, Math.min(velocity * 0.8, 1.2), 0.1)
+    mat.uniforms.uOpacity.value = THREE.MathUtils.lerp(mat.uniforms.uOpacity.value, targetOpacity, 0.1)
+    mat.uniforms.uDistortion.value = THREE.MathUtils.lerp(mat.uniforms.uDistortion.value, Math.min(velocity * 0.6, 1.0), 0.08)
+    mat.uniforms.uInertia.value = THREE.MathUtils.lerp(mat.uniforms.uInertia.value, velocity * (offset > 0 ? 1 : -1), 0.05)
+    mat.uniforms.uOffset.value = offset
     mat.uniforms.uTime.value = state.clock.elapsedTime
   })
 
@@ -216,12 +227,12 @@ function CardContent({
         scale={[cardW, cardH, 1]}
       >
         <shaderMaterial 
-          key={index}
           vertexShader={vertexShader}
           fragmentShader={fragmentShader}
           uniforms={shaderUniforms}
           transparent
           depthWrite={false}
+          side={THREE.DoubleSide}
         />
       </mesh>
     </group>

@@ -1,6 +1,7 @@
 // Kinetic Portfolio — 2026 Premium Choreography Showcase
 import { Suspense, useRef, useState, useEffect, useCallback } from 'react'
 import { Canvas } from '@react-three/fiber'
+import { EffectComposer, DepthOfField, Bloom, Noise, Vignette, ChromaticAberration } from '@react-three/postprocessing'
 import { portfolio } from '../../data/portfolio'
 import { KineticCard } from './KineticCard'
 import { KineticScene } from './KineticScene'
@@ -23,21 +24,17 @@ export function KineticPortfolio() {
     const handleMql = (e: MediaQueryListEvent) => setIsMobile(e.matches)
     mql.addEventListener('change', handleMql)
 
-    // Register global trigger for external callers (like SmoothScroll)
     window.__fest_trigger_portfolio = () => setShouldLoad(true)
 
-    // 1. Check initial hash
     if (window.location.hash === '#portfolio') {
       setShouldLoad(true)
     }
 
-    // 2. Listen for hash changes
     const handleHash = () => {
       if (window.location.hash === '#portfolio') setShouldLoad(true)
     }
     window.addEventListener('hashchange', handleHash)
 
-    // 3. Standard Intersection Observer for scroll-based loading
     const node = sectionRef.current
     if (!node) return
 
@@ -83,7 +80,6 @@ export function KineticPortfolio() {
     lastValue.current = currentProgress
   })
 
-  // Track mouse position for interactive tilt
   useEffect(() => {
     if (isMobile) return
     const handleMouseMove = (e: MouseEvent) => {
@@ -96,7 +92,6 @@ export function KineticPortfolio() {
     return () => window.removeEventListener('mousemove', handleMouseMove)
   }, [isMobile])
 
-  // Sync active card index to React state ONLY when it changes (for indicator dots)
   useMotionValueEvent(scrollYProgress, 'change', (value) => {
     const idx = Math.round(value * (portfolio.length - 1))
     if (idx !== activeIndex) {
@@ -106,7 +101,6 @@ export function KineticPortfolio() {
 
   const lenis = useLenis()
 
-  // Scroll page to the right position for a given card index
   const navigateTo = useCallback((idx: number) => {
     const clamped = Math.min(Math.max(idx, 0), portfolio.length - 1)
     const fraction = clamped / (portfolio.length - 1)
@@ -123,7 +117,6 @@ export function KineticPortfolio() {
     })
   }, [lenis])
 
-  // Keyboard navigation ← →
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'ArrowRight') navigateTo(activeIndex + 1)
@@ -142,7 +135,6 @@ export function KineticPortfolio() {
       <div className="sticky top-0 h-screen w-full overflow-hidden">
         {shouldLoad ? (
           <>
-            {/* ── 3-D WebGL Canvas ─────────────────────────────────────── */}
             <Canvas
               camera={{ position: [0, 0, 8], fov: 40 }}
               dpr={isMobile ? 1 : [1, 1.5]}
@@ -155,29 +147,51 @@ export function KineticPortfolio() {
                 powerPreference: 'high-performance'
               }}
               onCreated={({ gl }) => {
-                gl.setClearColor('#070410')
+                gl.setClearColor('#05030a')
               }}
             >
               <KineticScene isMobile={isMobile} velocityRef={velocityRef} isIntersecting={isIntersecting} />
-              {portfolio.length > 0 && (
-                <KineticContent 
-                  progress={smoothProgress} 
-                  velocityRef={velocityRef}
-                  mouseRef={mouseRef}
-                  isMobile={isMobile}
-                  isIntersecting={isIntersecting}
-                />
+              
+              <Suspense fallback={null}>
+                {portfolio.length > 0 && (
+                  <KineticContent 
+                    progress={smoothProgress} 
+                    velocityRef={velocityRef}
+                    mouseRef={mouseRef}
+                    isMobile={isMobile}
+                    isIntersecting={isIntersecting}
+                  />
+                )}
+              </Suspense>
+
+              {/* SOTA Post-Processing Stack */}
+              {!isMobile && (
+                <EffectComposer disableNormalPass>
+                  <DepthOfField 
+                    focusDistance={0.012} 
+                    focalLength={0.015} 
+                    bokehScale={4.5} 
+                    height={480} 
+                  />
+                  <Bloom 
+                    luminanceThreshold={0.8} 
+                    mipmapBlur 
+                    intensity={0.4} 
+                    radius={0.3} 
+                  />
+                  <Noise opacity={0.02} />
+                  <Vignette eskil={false} offset={0.1} darkness={1.1} />
+                </EffectComposer>
               )}
             </Canvas>
 
-            {/* ── HTML Overlay ──────────────────────────────────────────── */}
+            {/* Indicator Dots Overlay */}
             <div className="absolute inset-0 pointer-events-none z-10">
               <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 items-center pointer-events-auto">
                 {portfolio.map((_, i) => (
                   <button
                     key={i}
                     onClick={() => navigateTo(i)}
-                    aria-label={`Go to project ${i + 1}`}
                     className="p-1.5 group"
                   >
                     <div
@@ -190,19 +204,16 @@ export function KineticPortfolio() {
                   </button>
                 ))}
               </div>
-              <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-[#070410]/60 to-transparent" />
-              <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-[#070410]/60 to-transparent" />
             </div>
           </>
         ) : (
-          <div className="h-full w-full bg-[#070410]" />
+          <div className="h-full w-full bg-[#05030a]" />
         )}
       </div>
     </section>
   )
 }
 
-// Inner R3F component — must live inside <Canvas>
 function KineticContent({ 
   progress, 
   velocityRef, 

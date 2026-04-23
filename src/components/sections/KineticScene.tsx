@@ -1,6 +1,6 @@
-import { Sparkles, PerspectiveCamera } from '@react-three/drei'
+import { Sparkles, PerspectiveCamera, MeshTransmissionMaterial } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
-import { useRef } from 'react'
+import { useRef, useMemo } from 'react'
 import * as THREE from 'three'
 
 export function KineticScene({ 
@@ -15,34 +15,37 @@ export function KineticScene({
   const accentLightRef = useRef<THREE.PointLight>(null)
   const sparklesGroupRef = useRef<THREE.Group>(null)
   const cameraRef = useRef<THREE.PerspectiveCamera>(null)
+  const glassRef = useRef<THREE.Mesh>(null)
 
   useFrame((state) => {
     if (!isIntersecting) return
     const velocity = velocityRef.current || 0
 
-    // Cinematic Camera Interaction
-    // We subtely shift FOV based on velocity to create a "dolly zoom" feel
+    // SOTA Cinematic Camera Interaction
     if (cameraRef.current) {
-      const targetFOV = 40 + velocity * 1.5
+      const targetFOV = 40 + velocity * 1.8
       cameraRef.current.fov = THREE.MathUtils.lerp(cameraRef.current.fov, targetFOV, 0.05)
       cameraRef.current.updateProjectionMatrix()
       
-      // Gentle camera sway
-      cameraRef.current.position.x = Math.sin(state.clock.elapsedTime * 0.3) * 0.15
-      cameraRef.current.position.y = Math.cos(state.clock.elapsedTime * 0.2) * 0.12
+      cameraRef.current.position.x = Math.sin(state.clock.elapsedTime * 0.4) * 0.12
+      cameraRef.current.position.y = Math.cos(state.clock.elapsedTime * 0.3) * 0.08
     }
 
     if (accentLightRef.current) {
-      // Artistic pulsing light
       const pulse = Math.sin(state.clock.elapsedTime * 0.7) * 0.25 + 0.75
-      accentLightRef.current.intensity = pulse * (2.2 + velocity * 2.0)
+      accentLightRef.current.intensity = pulse * (2.8 + velocity * 2.5)
     }
 
-    // Interactive Atmosphere
+    // SOTA Interactive Atmosphere (Fluid-like reaction)
     if (sparklesGroupRef.current) {
-      // Only show sparkles if movement is controlled
-      sparklesGroupRef.current.visible = velocity < 0.25
-      sparklesGroupRef.current.rotation.y += 0.001 + velocity * 0.01
+      sparklesGroupRef.current.rotation.y += 0.001 + velocity * 0.015
+      sparklesGroupRef.current.rotation.z = THREE.MathUtils.lerp(sparklesGroupRef.current.rotation.z, velocity * 0.1, 0.05)
+    }
+
+    // Interactive Glass Refraction (Parallax)
+    if (glassRef.current) {
+      glassRef.current.rotation.y = state.clock.elapsedTime * 0.05
+      glassRef.current.position.z = THREE.MathUtils.lerp(glassRef.current.position.z, -8 + velocity * 1.5, 0.05)
     }
   })
 
@@ -50,63 +53,76 @@ export function KineticScene({
     <>
       <PerspectiveCamera ref={cameraRef} makeDefault position={[0, 0, 8]} fov={40} />
       
-      {/* Deep Artistic Background */}
       <color attach="background" args={['#05030a']} />
-      <fog attach="fog" args={['#09050d', 6, 28]} />
+      <fog attach="fog" args={['#08040d', 5, 25]} />
 
-      {/* Cinematic Lighting System */}
-      <ambientLight intensity={0.15} />
+      <ambientLight intensity={0.2} />
       
-      {/* Key light — dramatic top-right */}
       <spotLight
-        position={[8, 12, 8]}
-        angle={0.18}
+        position={[10, 15, 10]}
+        angle={0.15}
         penumbra={1}
-        intensity={3.5}
-        color="#fffaf5"
-        castShadow
+        intensity={4}
+        color="#ffffff"
       />
       
-      {/* Fill light — artistic violet/indigo */}
       <spotLight
-        position={[-10, 4, 6]}
+        position={[-12, 5, 8]}
         angle={0.4}
         penumbra={1}
-        intensity={1.8}
-        color="#a855f7"
+        intensity={2.2}
+        color="#9333ea"
       />
       
-      {/* Rim light — back accent pulsing with movement */}
       <pointLight
         ref={accentLightRef}
-        position={[0, 2, -6]}
-        intensity={2.5}
+        position={[0, 3, -7]}
+        intensity={3}
         color="#c084fc"
-        distance={20}
+        distance={25}
       />
 
-      {/* Atmospheric Particles - Enhanced for Desktop */}
+      {/* SOTA Physical Refraction Element (MeshTransmissionMaterial) */}
+      {!isMobile && (
+        <mesh ref={glassRef} position={[0, 0, -8]} scale={25}>
+          <planeGeometry args={[1, 1]} />
+          <MeshTransmissionMaterial
+            backside
+            samples={4}
+            thickness={2.5}
+            chromaticAberration={0.05}
+            anisotropy={0.1}
+            distortion={0.1}
+            distortionScale={0.2}
+            temporalDistortion={0.1}
+            clearcoat={1}
+            attenuationDistance={0.5}
+            attenuationColor="#ffffff"
+            color="#08040d"
+          />
+        </mesh>
+      )}
+
+      {/* Atmospheric Particles */}
       {!isMobile && (
         <group ref={sparklesGroupRef}>
-          {/* Main Stage Dust */}
           <Sparkles
-            count={35}
-            scale={20}
-            size={1.8}
-            speed={0.25}
-            opacity={0.5}
+            count={45}
+            scale={22}
+            size={2}
+            speed={0.3}
+            opacity={0.6}
             color="#ffd700"
-            noise={0.5}
+            noise={0.6}
           />
-          {/* Ambient Violet Essence */}
           <Sparkles
-            count={60}
-            scale={30}
-            size={0.8}
-            speed={0.6}
-            opacity={0.25}
-            color="#e9d5ff"
-            noise={1.5}
+            count={80}
+            scale={35}
+            size={1}
+            speed={0.8}
+            opacity={0.3}
+            color="#d8b4fe"
+            noise={1.2}
           />
         </group>
       )}
