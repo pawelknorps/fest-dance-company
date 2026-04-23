@@ -10,7 +10,7 @@ export function FounderFeature() {
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start end', 'end start'] })
 
   return (
-    <section ref={sectionRef} id="founder" className="section-premium relative py-16 md:py-24">
+    <section ref={sectionRef} id="founder" className="section-premium relative pt-16 pb-12 md:pt-24 md:pb-16">
       <div className="section-shell w-full max-w-[1300px]">
         <div className="grid items-center gap-16 lg:grid-cols-[1fr_1.1fr] lg:gap-20">
           <motion.div
