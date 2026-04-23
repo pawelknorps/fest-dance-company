@@ -66,3 +66,5 @@ export function PortfolioRail() {
     </section>
   )
 }
+
+export default PortfolioRail

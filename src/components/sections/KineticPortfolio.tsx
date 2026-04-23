@@ -14,6 +14,7 @@ export function KineticPortfolio() {
   const [activeIndex, setActiveIndex] = useState(0)
   const [shouldLoad, setShouldLoad] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const [isIntersecting, setIsIntersecting] = useState(false)
 
   // Internal deferred loading logic
   useEffect(() => {
@@ -42,12 +43,12 @@ export function KineticPortfolio() {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
+        setIsIntersecting(entry.isIntersecting)
         if (entry.isIntersecting) {
           setShouldLoad(true)
-          observer.disconnect()
         }
       },
-      { rootMargin: '2000px 0px' }
+      { rootMargin: '400px 0px' }
     )
     observer.observe(node)
 
@@ -130,7 +131,8 @@ export function KineticPortfolio() {
             {/* ── 3-D WebGL Canvas ─────────────────────────────────────── */}
             <Canvas
               camera={{ position: [0, 0, 8], fov: 40 }}
-              dpr={1}
+              dpr={isMobile ? 1 : [1, 1.5]}
+              frameloop={isIntersecting ? 'always' : 'never'}
               gl={{ 
                 antialias: false, 
                 alpha: false, 
@@ -142,12 +144,13 @@ export function KineticPortfolio() {
                 gl.setClearColor('#070410')
               }}
             >
-              <KineticScene isMobile={isMobile} velocityRef={velocityRef} />
+              <KineticScene isMobile={isMobile} velocityRef={velocityRef} isIntersecting={isIntersecting} />
               {portfolio.length > 0 && (
                 <KineticContent 
                   progress={smoothProgress} 
                   velocityRef={velocityRef}
                   isMobile={isMobile}
+                  isIntersecting={isIntersecting}
                 />
               )}
             </Canvas>
@@ -188,11 +191,13 @@ export function KineticPortfolio() {
 function KineticContent({ 
   progress, 
   velocityRef, 
-  isMobile 
+  isMobile,
+  isIntersecting
 }: { 
   progress: MotionValue<number>, 
   velocityRef: React.MutableRefObject<number>,
-  isMobile: boolean
+  isMobile: boolean,
+  isIntersecting: boolean
 }) {
 
   return (
@@ -206,8 +211,11 @@ function KineticContent({
           progress={progress}
           velocityRef={velocityRef}
           isMobile={isMobile}
+          isIntersecting={isIntersecting}
         />
       ))}
     </>
   )
 }
+
+export default KineticPortfolio

@@ -9,6 +9,7 @@ interface KineticCardProps {
   progress: any
   velocityRef: React.MutableRefObject<number>
   isMobile: boolean
+  isIntersecting: boolean
 }
 
 // Shared Geometry for all cards to reduce memory footprint
@@ -57,8 +58,6 @@ function CardPlaceholder({ index, count, progress }: Omit<KineticCardProps, 'ite
       </mesh>
     </group>
   )
-}
-
 function CardContent({ 
   item, 
   index, 
@@ -66,7 +65,8 @@ function CardContent({
   progress, 
   velocityRef, 
   isVisible, 
-  isMobile 
+  isMobile,
+  isIntersecting
 }: KineticCardProps & { isVisible: boolean }) {
   const groupRef = useRef<THREE.Group>(null)
   const meshRef = useRef<THREE.Mesh>(null)
@@ -103,7 +103,7 @@ function CardContent({
   }, [item.image.width, item.image.height])
 
   useFrame(() => {
-    if (!groupRef.current || !meshRef.current) return
+    if (!groupRef.current || !meshRef.current || !isIntersecting) return
 
     const currentScroll = progress.get() * (count - 1)
     const currentActive = Math.round(currentScroll)

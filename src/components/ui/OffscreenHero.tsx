@@ -19,28 +19,38 @@ export function OffscreenHero({ isVisible, scrubProgress, videoUrl }: Props) {
 
   useEffect(() => {
     if (!canvasRef.current || isReduced) return
+    
+    // Check for OffscreenCanvas support (Crucial for iOS stability)
+    if (!canvasRef.current.transferControlToOffscreen) {
+      console.warn('OffscreenCanvas not supported, falling back to simplified hero.')
+      return
+    }
 
     // Apple-tier performance: initialize during idle time to avoid LCP impact
     const initTask = (window.requestIdleCallback || ((cb) => setTimeout(cb, 1)))(async () => {
-      const worker = new Worker(new URL('../../workers/video-decoder-worker.ts', import.meta.url), {
-        type: 'module'
-      })
-      workerRef.current = worker
+      try {
+        const worker = new Worker(new URL('../../workers/video-decoder-worker.ts', import.meta.url), {
+          type: 'module'
+        })
+        workerRef.current = worker
 
-      const canvas = canvasRef.current!
-      const offscreen = canvas.transferControlToOffscreen()
+        const canvas = canvasRef.current!
+        const offscreen = canvas.transferControlToOffscreen()
 
-      worker.postMessage({
-        type: 'INIT',
-        payload: {
-          canvas: offscreen,
-          width: window.innerWidth,
-          height: window.innerHeight
+        worker.postMessage({
+          type: 'INIT',
+          payload: {
+            canvas: offscreen,
+            width: window.innerWidth,
+            height: window.innerHeight
+          }
+        }, [offscreen])
+
+        if (videoUrl) {
+          startVideoPipeline(worker, videoUrl)
         }
-      }, [offscreen])
-
-      if (videoUrl) {
-        startVideoPipeline(worker, videoUrl)
+      } catch (e) {
+        console.error('OffscreenHero initialization failed:', e)
       }
     })
 

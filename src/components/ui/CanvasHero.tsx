@@ -176,7 +176,13 @@ function createSample(texture: THREE.Texture): Sample {
   return { positions, colors, edges, width: fitted.width, height: fitted.height }
 }
 
-function ParticleImage({ scrubProgress }: { scrubProgress: number | MotionValue<number> }) {
+function ParticleImage({ 
+  scrubProgress, 
+  isVisible 
+}: { 
+  scrubProgress: number | MotionValue<number>,
+  isVisible: boolean
+}) {
   const textures = useLoader(THREE.TextureLoader, IMAGE_SOURCES)
   const pointsRef = useRef<THREE.Points>(null)
   const currentPlaneRef = useRef<THREE.Mesh>(null)
@@ -253,7 +259,7 @@ function ParticleImage({ scrubProgress }: { scrubProgress: number | MotionValue<
     const activeMaterial = materialRef.current
     const points = pointsRef.current
 
-    if (!activeGeometry || !activeMaterial || !points) {
+    if (!activeGeometry || !activeMaterial || !points || !isVisible) {
       return
     }
 
@@ -380,11 +386,17 @@ function Atmosphere() {
   )
 }
 
-function Scene({ scrubProgress }: { scrubProgress: number | MotionValue<number> }) {
+function Scene({ 
+  scrubProgress, 
+  isVisible 
+}: { 
+  scrubProgress: number | MotionValue<number>,
+  isVisible: boolean
+}) {
   return (
     <>
       <Atmosphere />
-      <ParticleImage scrubProgress={scrubProgress} />
+      <ParticleImage scrubProgress={scrubProgress} isVisible={isVisible} />
     </>
   )
 }
@@ -407,11 +419,11 @@ const CanvasHero = memo(function CanvasHero({ isVisible, prefersReducedMotion, s
       camera={{ position: [0, 0, 5.4], fov: 40 }}
       style={{ position: 'absolute', inset: 0, background: 'transparent' }}
       gl={{ alpha: true, antialias: true, powerPreference: 'high-performance' }}
-      dpr={[1, 2]}
+      dpr={window.matchMedia('(max-width: 1024px)').matches ? 1 : [1, 2]}
       frameloop={isVisible ? 'always' : 'never'}
     >
       <Suspense fallback={null}>
-        <Scene scrubProgress={scrubProgress} />
+        <Scene scrubProgress={scrubProgress} isVisible={isVisible} />
       </Suspense>
     </Canvas>
   )

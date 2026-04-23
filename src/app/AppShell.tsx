@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, lazy, Suspense } from 'react'
 import { SmoothScroll } from '../components/layout/SmoothScroll'
 import { SiteHeader } from '../components/layout/SiteHeader'
 import { HeroStage } from '../components/sections/HeroStage'
@@ -12,9 +12,11 @@ import { CustomCursor } from '../components/ui/CustomCursor'
 import { StructuredData } from '../components/seo/StructuredData'
 import { LoadingScreen } from '../components/ui/LoadingScreen'
 import { ScrollProgress } from '../components/ui/ScrollProgress'
-import { KineticPortfolio } from '../components/sections/KineticPortfolio'
 import { portfolio } from '../data/portfolio'
-import * as THREE from 'three'
+
+// KineticPortfolio is now lazy loaded to avoid Three.js bundle on mobile
+const KineticPortfolio = lazy(() => import('../components/sections/KineticPortfolio'))
+const PortfolioRail = lazy(() => import('../components/sections/PortfolioRail'))
 
 // Global trigger for portfolio loading to be called from anywhere (e.g. SmoothScroll)
 declare global {
@@ -28,15 +30,27 @@ export function AppShell() {
 
   useEffect(() => {
     const isMobile = window.matchMedia('(max-width: 768px)').matches
-    const loader = new THREE.ImageBitmapLoader()
-    loader.setOptions({ imageOrientation: 'flipY' })
     
-    portfolio.slice(0, 4).forEach(item => {
-      try {
-        const src = (isMobile && item.image.srcMobile) ? item.image.srcMobile : item.image.src
-        loader.load(src)
-      } catch (e) {}
-    })
+    if (isMobile) {
+      // Standard DOM image preloading for mobile
+      portfolio.slice(0, 4).forEach(item => {
+        const img = new Image()
+        img.src = item.image.srcMobile || item.image.src
+      })
+    } else {
+      // SOTA ImageBitmapLoader for Desktop/Tablet (VRAM optimization)
+      // Use dynamic import for THREE to avoid loading it on mobile
+      import('three').then((THREE) => {
+        const loader = new THREE.ImageBitmapLoader()
+        loader.setOptions({ imageOrientation: 'flipY' })
+        
+        portfolio.slice(0, 4).forEach(item => {
+          try {
+            loader.load(item.image.src)
+          } catch (e) {}
+        })
+      })
+    }
   }, [])
 
   return (
@@ -57,7 +71,13 @@ export function AppShell() {
             <CredibilityBand />
             
             <div id="portfolio">
-              <KineticPortfolio />
+              <Suspense fallback={<div className="h-[100vh] bg-[#070410]" />}>
+                {window.matchMedia('(max-width: 768px)').matches ? (
+                  <PortfolioRail />
+                ) : (
+                  <KineticPortfolio />
+                )}
+              </Suspense>
             </div>
 
             <ProcessStrip />

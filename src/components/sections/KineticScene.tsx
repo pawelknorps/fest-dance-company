@@ -9,7 +9,8 @@ export function KineticScene({
   velocityRef 
 }: { 
   isMobile?: boolean,
-  velocityRef: React.MutableRefObject<number>
+  velocityRef: React.MutableRefObject<number>,
+  isIntersecting: boolean
 }) {
   const accentLightRef = useRef<THREE.PointLight>(null)
   const sparklesVisibleRef = useRef(true)
@@ -17,6 +18,7 @@ export function KineticScene({
   const sparklesGroupRef = useRef<THREE.Group>(null)
 
   useFrame((state) => {
+    if (!isIntersecting) return
     if (accentLightRef.current) {
       // Slow pulse on the rear accent light
       const pulse = Math.sin(state.clock.elapsedTime * 0.7) * 0.25 + 0.75
