@@ -13,8 +13,8 @@ interface KineticCardProps {
   isIntersecting: boolean
 }
 
-// Increased segments for smooth vertex deformation (SOTA Drag Effect)
-const sharedPlaneGeometry = new THREE.PlaneGeometry(1, 1, 32, 32)
+// Higher resolution for better vertex deformation quality
+const sharedPlaneGeometry = new THREE.PlaneGeometry(1, 1, 48, 48)
 
 const vertexShader = `
   varying vec2 vUv;
@@ -26,14 +26,12 @@ const vertexShader = `
     vUv = uv;
     vec3 pos = position;
     
-    // SOTA Vertex Inertia (Cloth/Drag Simulation)
-    // We bend the vertices based on their position and the scroll velocity (uInertia)
-    // The "drag" is stronger at the edges and based on the Y-axis distance from center
-    float drag = sin(uv.y * 3.14159) * uInertia * 0.15;
-    pos.z += drag * sin(uv.x * 3.14159 + uTime * 2.0);
+    // Artistic Vertex Inertia
+    float drag = sin(uv.y * 3.14159) * uInertia * 0.22;
+    pos.z += drag * sin(uv.x * 3.14159 + uTime * 2.5);
     
-    // Longitudinal curvature (bend the card as it scrolls)
-    pos.z += abs(uOffset) * pow(uv.x - 0.5, 2.0) * 2.5;
+    // Parallax curvature
+    pos.z += abs(uOffset) * pow(uv.x - 0.5, 2.0) * 3.0;
     
     vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
     gl_Position = projectionMatrix * mvPosition;
@@ -48,20 +46,20 @@ const fragmentShader = `
   varying vec2 vUv;
 
   void main() {
-    // SOTA Chromatic Aberration with Velocity-base intensity
-    vec2 distortion = vec2(uDistortion * 0.015, 0.0);
+    // Sharp Chromatic Aberration
+    vec2 distortion = vec2(uDistortion * 0.02, 0.0);
     float r = texture2D(uTexture, vUv + distortion).r;
     float g = texture2D(uTexture, vUv).g;
     float b = texture2D(uTexture, vUv - distortion).b;
     
     vec3 color = vec3(r, g, b);
     
-    // Physical Edge Masking (Premium vignette)
-    float edgeMask = smoothstep(0.0, 0.12, vUv.x) * smoothstep(1.0, 0.88, vUv.x) *
-                     smoothstep(0.0, 0.12, vUv.y) * smoothstep(1.0, 0.88, vUv.y);
+    // High-fidelity edge mask
+    float edgeMask = smoothstep(0.0, 0.05, vUv.x) * smoothstep(1.0, 0.95, vUv.x) *
+                     smoothstep(0.0, 0.05, vUv.y) * smoothstep(1.0, 0.95, vUv.y);
     
-    // Dynamic Luminance Boost on movement
-    color += uDistortion * vec3(0.1, 0.05, 0.2) * (1.0 - edgeMask);
+    // Subtle movement-based highlight
+    color += uDistortion * vec3(0.2, 0.1, 0.4) * (1.0 - edgeMask) * 0.5;
     
     gl_FragColor = vec4(color, uOpacity * edgeMask);
   }
@@ -104,7 +102,7 @@ function CardPlaceholder({ index, count, progress }: Omit<KineticCardProps, 'ite
   return (
     <group ref={groupRef}>
       <mesh geometry={sharedPlaneGeometry} scale={[4.8, 4.8, 1]}>
-        <meshBasicMaterial color="#050505" transparent opacity={0.15} />
+        <meshBasicMaterial color="#050505" transparent opacity={0.1} />
       </mesh>
     </group>
   )
@@ -136,7 +134,7 @@ function CardContent({
     if (!imageBitmap) return null
     const tex = new THREE.Texture(imageBitmap)
     tex.colorSpace = THREE.SRGBColorSpace
-    tex.anisotropy = isMobile ? 1 : 16 // Max quality for SOTA
+    tex.anisotropy = isMobile ? 1 : 16 
     tex.needsUpdate = true 
     return tex
   }, [imageBitmap, isMobile])
@@ -175,38 +173,45 @@ function CardContent({
     const absOffset = Math.abs(offset)
     const velocity = velocityRef.current
 
-    // SOTA Position & Inertia
+    // Position Calculations
     const radius = 12
     const angle = offset * 0.35
     const x = Math.sin(angle) * radius
     const zBase = (Math.cos(angle) * radius) - radius
     const zOffset = (1 - Math.min(absOffset * 0.8, 1)) * 1.5
     
-    groupRef.current.position.set(x, 0, zBase + zOffset)
-    
-    // SOTA Interactive Tilt & Drag
+    // SOTA Interactive Tilt & Follow (Aggressive & Premium)
     const mouseX = mouseRef.current?.x || 0
     const mouseY = mouseRef.current?.y || 0
     
-    const targetRotY = angle * 1.1 + (mouseX * 0.2)
-    const targetRotX = absOffset * 0.1 - (mouseY * 0.15)
-    // Inertial tilt (drag) based on velocity
-    const tilt = velocity * (index > currentScroll ? -1 : 1) * 0.2
+    // Target position with mouse parallax
+    const targetX = x + (mouseX * 0.4)
+    const targetY = -(mouseY * 0.2)
+    groupRef.current.position.set(
+      THREE.MathUtils.lerp(groupRef.current.position.x, targetX, 0.1),
+      THREE.MathUtils.lerp(groupRef.current.position.y, targetY, 0.1),
+      zBase + zOffset
+    )
+    
+    // Aggressive Tilt
+    const targetRotY = angle * 1.1 + (mouseX * 0.4) // Increased mouse influence
+    const targetRotX = absOffset * 0.12 - (mouseY * 0.3) // Increased mouse influence
+    const tiltZ = velocity * (index > currentScroll ? -1 : 1) * 0.25
     
     groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetRotY, 0.08)
     groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, targetRotX, 0.08)
-    groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, tilt, 0.06)
+    groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, tiltZ, 0.06)
 
     const s = 1.05 - Math.min(absOffset * 0.2, 0.35)
     groupRef.current.scale.set(s, s, s)
 
-    // Update SOTA Uniforms
+    // Uniforms
     const mat = meshRef.current.material as THREE.ShaderMaterial
     const baseOpacity = 1 - Math.min(absOffset * 0.45, 0.98)
     const targetOpacity = isVisible ? baseOpacity : 0
     
     mat.uniforms.uOpacity.value = THREE.MathUtils.lerp(mat.uniforms.uOpacity.value, targetOpacity, 0.1)
-    mat.uniforms.uDistortion.value = THREE.MathUtils.lerp(mat.uniforms.uDistortion.value, Math.min(velocity * 0.6, 1.0), 0.08)
+    mat.uniforms.uDistortion.value = THREE.MathUtils.lerp(mat.uniforms.uDistortion.value, Math.min(velocity * 0.5, 0.8), 0.08)
     mat.uniforms.uInertia.value = THREE.MathUtils.lerp(mat.uniforms.uInertia.value, velocity * (offset > 0 ? 1 : -1), 0.05)
     mat.uniforms.uOffset.value = offset
     mat.uniforms.uTime.value = state.clock.elapsedTime

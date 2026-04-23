@@ -1,7 +1,7 @@
 // Kinetic Portfolio — 2026 Premium Choreography Showcase
 import { Suspense, useRef, useState, useEffect, useCallback } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { EffectComposer, DepthOfField, Bloom, Noise, Vignette, ChromaticAberration } from '@react-three/postprocessing'
+import { EffectComposer, DepthOfField, Bloom, Noise, Vignette } from '@react-three/postprocessing'
 import { portfolio } from '../../data/portfolio'
 import { KineticCard } from './KineticCard'
 import { KineticScene } from './KineticScene'
@@ -130,7 +130,7 @@ export function KineticPortfolio() {
     <section
       ref={sectionRef}
       className="relative h-[700vh] w-full"
-      style={{ background: '#070410' }}
+      style={{ background: '#05030a' }}
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden">
         {shouldLoad ? (
@@ -164,23 +164,23 @@ export function KineticPortfolio() {
                 )}
               </Suspense>
 
-              {/* SOTA Post-Processing Stack */}
+              {/* SOTA Post-Processing Stack — Refined for Sharpness */}
               {!isMobile && (
                 <EffectComposer disableNormalPass>
                   <DepthOfField 
-                    focusDistance={0.012} 
-                    focalLength={0.015} 
-                    bokehScale={4.5} 
-                    height={480} 
+                    focusDistance={0.015} // Adjusted for camera at z=8 and objects at z~0
+                    focalLength={0.02} 
+                    bokehScale={2.5} // Reduced for better sharpness
+                    height={720} 
                   />
                   <Bloom 
-                    luminanceThreshold={0.8} 
+                    luminanceThreshold={0.9} 
                     mipmapBlur 
-                    intensity={0.4} 
-                    radius={0.3} 
+                    intensity={0.25} 
+                    radius={0.2} 
                   />
-                  <Noise opacity={0.02} />
-                  <Vignette eskil={false} offset={0.1} darkness={1.1} />
+                  <Noise opacity={0.01} />
+                  <Vignette eskil={false} offset={0.05} darkness={1.1} />
                 </EffectComposer>
               )}
             </Canvas>
