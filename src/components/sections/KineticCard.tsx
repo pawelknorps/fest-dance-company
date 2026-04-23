@@ -1,6 +1,5 @@
 import { useRef, useMemo, Suspense, useState, useEffect } from 'react'
-import { useFrame } from '@react-three/fiber'
-import { useTexture } from '@react-three/drei'
+import { useFrame, useLoader } from '@react-three/fiber'
 import * as THREE from 'three'
 
 interface KineticCardProps {
@@ -12,18 +11,18 @@ interface KineticCardProps {
 }
 
 export function KineticCard(props: KineticCardProps) {
-  const [shouldLoad, setShouldLoad] = useState(false)
+  // Stagger visibility, not loading.
+  // We want the network to start immediately for all, but cards to "appear" in sequence.
+  const [shouldShow, setShouldShow] = useState(false)
 
-  // 1. Staggered priority loading - sequential trigger from left to right
   useEffect(() => {
-    // 80ms stagger is enough to feel sequential without being slow
-    const timer = setTimeout(() => setShouldLoad(true), props.index * 80)
+    const timer = setTimeout(() => setShouldShow(true), props.index * 60)
     return () => clearTimeout(timer)
   }, [props.index])
 
   return (
     <Suspense fallback={<CardPlaceholder {...props} />}>
-      {shouldLoad ? <CardContent {...props} /> : <CardPlaceholder {...props} />}
+      <CardContent {...props} isVisible={shouldShow} />
     </Suspense>
   )
 }
@@ -57,21 +56,23 @@ function CardPlaceholder({ index, count, progress }: Omit<KineticCardProps, 'ite
   )
 }
 
-function CardContent({ item, index, count, progress, velocityRef }: KineticCardProps) {
+function CardContent({ item, index, count, progress, velocityRef, isVisible }: KineticCardProps & { isVisible: boolean }) {
   const groupRef = useRef<THREE.Group>(null)
   const meshRef = useRef<THREE.Mesh>(null)
   
-  // hook only called when component is rendered by KineticCard (staggered)
-  const texture = useTexture(item.image.src) as THREE.Texture
+  // SOTA: Use ImageBitmapLoader to decode images on a background thread (Web Worker).
+  // This eliminates Main Thread "jank" during image decoding.
+  const imageBitmap = useLoader(THREE.ImageBitmapLoader, item.image.src)
   
-  useMemo(() => {
-    if (texture) {
-      texture.colorSpace = THREE.SRGBColorSpace
-      texture.anisotropy = 4 // Balanced for speed and quality
-      texture.minFilter = THREE.LinearFilter
-      texture.magFilter = THREE.LinearFilter
-    }
-  }, [texture])
+  const texture = useMemo(() => {
+    if (!imageBitmap) return null
+    const tex = new THREE.Texture(imageBitmap)
+    tex.colorSpace = THREE.SRGBColorSpace
+    tex.anisotropy = 4
+    tex.flipY = false // Fix for upside-down ImageBitmap textures
+    tex.needsUpdate = true // Required for ImageBitmap
+    return tex
+  }, [imageBitmap])
 
   const { cardW, cardH } = useMemo(() => {
     const w = item.image.width || 567
@@ -108,7 +109,10 @@ function CardContent({ item, index, count, progress, velocityRef }: KineticCardP
 
     const mat = meshRef.current.material as THREE.MeshBasicMaterial
     const baseOpacity = 1 - Math.min(absOffset * 0.45, 0.98)
-    mat.opacity = THREE.MathUtils.lerp(mat.opacity, baseOpacity, 0.15)
+    
+    // Smoothly fade in only if staggered visibility is ready
+    const targetOpacity = isVisible ? baseOpacity : 0
+    mat.opacity = THREE.MathUtils.lerp(mat.opacity, targetOpacity, 0.12)
   })
 
   return (
