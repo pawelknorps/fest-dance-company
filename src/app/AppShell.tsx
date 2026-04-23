@@ -110,7 +110,7 @@ function DeferredPortfolio() {
   }, [])
 
   return (
-    <div ref={sentinelRef}>
+    <div ref={sentinelRef} id="portfolio">
       {shouldLoad ? (
         <KineticPortfolio />
       ) : (

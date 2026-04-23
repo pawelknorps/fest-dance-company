@@ -55,7 +55,6 @@ export function KineticPortfolio() {
   return (
     <section
       ref={sectionRef}
-      id="portfolio"
       className="relative h-[700vh] w-full"
       style={{ background: '#070410' }}
     >
