@@ -5,6 +5,7 @@ import { brand } from '../../data/brand'
 export function LoadingScreen() {
   const [isVisible, setIsVisible] = useState(true)
   const [progress, setProgress] = useState(0)
+  const [isFinishing, setIsFinishing] = useState(false)
 
   useEffect(() => {
     // SOTA Snappy Loading Logic
@@ -12,14 +13,15 @@ export function LoadingScreen() {
       setProgress(prev => {
         if (prev >= 100) {
           clearInterval(timer)
+          setIsFinishing(true)
           // Instant release once 100 is reached
-          setTimeout(() => setIsVisible(false), 150)
+          setTimeout(() => setIsVisible(false), 200)
           return 100
         }
         // Faster increments for snappier feedback
-        return prev + Math.random() * 25
+        return prev + Math.random() * 20
       })
-    }, 45)
+    }, 40)
 
     // Fallback: Force clear if page is fully loaded
     const handleLoad = () => setProgress(100)
@@ -39,14 +41,13 @@ export function LoadingScreen() {
     <AnimatePresence>
       {isVisible && (
         <motion.div
-          exit={{ opacity: 0, y: '-100%' }}
-          transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-          className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#050505] text-white relative"
-          style={{ position: 'fixed' }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#050505] text-white ${isFinishing ? 'pointer-events-none' : 'pointer-events-auto'}`}
         >
           <div className="relative mb-8 h-px w-64 overflow-hidden bg-white/10">
             <motion.div 
-              className="absolute inset-y-0 left-0 bg-fuchsia-500"
+              className="absolute inset-y-0 left-0 bg-fuchsia-500 shadow-[0_0_15px_rgba(217,70,239,0.5)]"
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
               transition={{ duration: 0.1 }}
