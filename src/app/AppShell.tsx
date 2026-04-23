@@ -20,17 +20,13 @@ export function AppShell() {
   const [menuOpen, setMenuOpen] = useState(false)
 
   // SOTA: Aggressive pre-loading of the first portfolio assets
-  // This happens in the background without blocking the Main Thread
   useEffect(() => {
     const loader = new THREE.ImageBitmapLoader()
     loader.setOptions({ imageOrientation: 'flipY' })
-    // Pre-load first 4 items immediately
     portfolio.slice(0, 4).forEach(item => {
       try {
         loader.load(item.image.src)
-      } catch (e) {
-        // Silently fail pre-load if anything goes wrong
-      }
+      } catch (e) {}
     })
   }, [])
 
@@ -50,7 +46,12 @@ export function AppShell() {
             <ServiceGrid />
             <FounderFeature />
             <CredibilityBand />
-            <DeferredPortfolio />
+            
+            {/* Portfolio section with permanent ID for navigation stability */}
+            <div id="portfolio">
+              <KineticPortfolio />
+            </div>
+
             <ProcessStrip />
             <InquiryForm />
           </main>
@@ -59,63 +60,5 @@ export function AppShell() {
         </div>
       </SmoothScroll>
     </>
-  )
-}
-
-function DeferredPortfolio() {
-  const [shouldLoad, setShouldLoad] = useState(false)
-  const sentinelRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    // If we're already at #portfolio, load immediately
-    if (window.location.hash === '#portfolio') {
-      setShouldLoad(true)
-    }
-
-    const handleHashChange = () => {
-      if (window.location.hash === '#portfolio') {
-        setShouldLoad(true)
-      }
-    }
-    
-    const handleGlobalClick = (e: MouseEvent) => {
-      const anchor = (e.target as HTMLElement).closest('a')
-      if (anchor && anchor.hash === '#portfolio') {
-        setShouldLoad(true)
-      }
-    }
-
-    window.addEventListener('hashchange', handleHashChange)
-    document.addEventListener('click', handleGlobalClick, { capture: true })
-
-    const node = sentinelRef.current
-    if (!node) return
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry?.isIntersecting) return
-        setShouldLoad(true)
-        observer.disconnect()
-      },
-      { rootMargin: '2000px 0px' },
-    )
-
-    observer.observe(node)
-    
-    return () => {
-      window.removeEventListener('hashchange', handleHashChange)
-      document.removeEventListener('click', handleGlobalClick)
-      observer.disconnect()
-    }
-  }, [])
-
-  return (
-    <div ref={sentinelRef} id="portfolio">
-      {shouldLoad ? (
-        <KineticPortfolio />
-      ) : (
-        <div className="relative h-[700vh] w-full bg-[#070410]" aria-hidden="true" />
-      )}
-    </div>
   )
 }
