@@ -13,8 +13,8 @@ interface KineticCardProps {
   isIntersecting: boolean
 }
 
-// Higher resolution for better vertex deformation quality
-const sharedPlaneGeometry = new THREE.PlaneGeometry(1, 1, 48, 48)
+// Optimized resolution: Balanced between quality and performance
+const sharedPlaneGeometry = new THREE.PlaneGeometry(1, 1, 24, 24)
 
 const vertexShader = `
   varying vec2 vUv;
@@ -26,12 +26,12 @@ const vertexShader = `
     vUv = uv;
     vec3 pos = position;
     
-    // Artistic Vertex Inertia
-    float drag = sin(uv.y * 3.14159) * uInertia * 0.22;
-    pos.z += drag * sin(uv.x * 3.14159 + uTime * 2.5);
+    // Subtle Vertex Inertia
+    float drag = sin(uv.y * 3.14159) * uInertia * 0.15;
+    pos.z += drag * sin(uv.x * 3.14159 + uTime * 2.0);
     
-    // Parallax curvature
-    pos.z += abs(uOffset) * pow(uv.x - 0.5, 2.0) * 3.0;
+    // Smooth curvature
+    pos.z += abs(uOffset) * pow(uv.x - 0.5, 2.0) * 2.0;
     
     vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
     gl_Position = projectionMatrix * mvPosition;
@@ -42,24 +42,19 @@ const fragmentShader = `
   uniform sampler2D uTexture;
   uniform float uOpacity;
   uniform float uDistortion;
-  uniform float uTime;
   varying vec2 vUv;
 
   void main() {
-    // Sharp Chromatic Aberration
-    vec2 distortion = vec2(uDistortion * 0.02, 0.0);
-    float r = texture2D(uTexture, vUv + distortion).r;
+    // Optimized Chromatic Aberration
+    float r = texture2D(uTexture, vUv + vec2(uDistortion * 0.012, 0.0)).r;
     float g = texture2D(uTexture, vUv).g;
-    float b = texture2D(uTexture, vUv - distortion).b;
+    float b = texture2D(uTexture, vUv - vec2(uDistortion * 0.012, 0.0)).b;
     
     vec3 color = vec3(r, g, b);
     
-    // High-fidelity edge mask
-    float edgeMask = smoothstep(0.0, 0.05, vUv.x) * smoothstep(1.0, 0.95, vUv.x) *
-                     smoothstep(0.0, 0.05, vUv.y) * smoothstep(1.0, 0.95, vUv.y);
-    
-    // Subtle movement-based highlight
-    color += uDistortion * vec3(0.2, 0.1, 0.4) * (1.0 - edgeMask) * 0.5;
+    // High-performance edge mask
+    float edgeMask = smoothstep(0.0, 0.06, vUv.x) * smoothstep(1.0, 0.94, vUv.x) *
+                     smoothstep(0.0, 0.06, vUv.y) * smoothstep(1.0, 0.94, vUv.y);
     
     gl_FragColor = vec4(color, uOpacity * edgeMask);
   }
@@ -69,7 +64,7 @@ export function KineticCard(props: KineticCardProps) {
   const [shouldShow, setShouldShow] = useState(false)
 
   useEffect(() => {
-    const timer = setTimeout(() => setShouldShow(true), props.index * 60)
+    const timer = setTimeout(() => setShouldShow(true), props.index * 50)
     return () => clearTimeout(timer)
   }, [props.index])
 
@@ -102,7 +97,7 @@ function CardPlaceholder({ index, count, progress }: Omit<KineticCardProps, 'ite
   return (
     <group ref={groupRef}>
       <mesh geometry={sharedPlaneGeometry} scale={[4.8, 4.8, 1]}>
-        <meshBasicMaterial color="#050505" transparent opacity={0.1} />
+        <meshBasicMaterial color="#050505" transparent opacity={0.08} />
       </mesh>
     </group>
   )
@@ -134,7 +129,7 @@ function CardContent({
     if (!imageBitmap) return null
     const tex = new THREE.Texture(imageBitmap)
     tex.colorSpace = THREE.SRGBColorSpace
-    tex.anisotropy = isMobile ? 1 : 16 
+    tex.anisotropy = isMobile ? 1 : 8 // Balanced anisotropy
     tex.needsUpdate = true 
     return tex
   }, [imageBitmap, isMobile])
@@ -173,34 +168,34 @@ function CardContent({
     const absOffset = Math.abs(offset)
     const velocity = velocityRef.current
 
-    // Position Calculations
+    // Position
     const radius = 12
     const angle = offset * 0.35
     const x = Math.sin(angle) * radius
     const zBase = (Math.cos(angle) * radius) - radius
     const zOffset = (1 - Math.min(absOffset * 0.8, 1)) * 1.5
     
-    // SOTA Interactive Tilt & Follow (Aggressive & Premium)
+    // Subtle Interactive Tilt & Follow
     const mouseX = mouseRef.current?.x || 0
     const mouseY = mouseRef.current?.y || 0
     
-    // Target position with mouse parallax
-    const targetX = x + (mouseX * 0.4)
-    const targetY = -(mouseY * 0.2)
+    // Reduced parallax movement
+    const targetX = x + (mouseX * 0.15)
+    const targetY = -(mouseY * 0.08)
     groupRef.current.position.set(
-      THREE.MathUtils.lerp(groupRef.current.position.x, targetX, 0.1),
-      THREE.MathUtils.lerp(groupRef.current.position.y, targetY, 0.1),
+      THREE.MathUtils.lerp(groupRef.current.position.x, targetX, 0.08),
+      THREE.MathUtils.lerp(groupRef.current.position.y, targetY, 0.08),
       zBase + zOffset
     )
     
-    // Aggressive Tilt
-    const targetRotY = angle * 1.1 + (mouseX * 0.4) // Increased mouse influence
-    const targetRotX = absOffset * 0.12 - (mouseY * 0.3) // Increased mouse influence
-    const tiltZ = velocity * (index > currentScroll ? -1 : 1) * 0.25
+    // Subtle Tilt
+    const targetRotY = angle * 1.1 + (mouseX * 0.12)
+    const targetRotX = absOffset * 0.08 - (mouseY * 0.08)
+    const tiltZ = velocity * (index > currentScroll ? -1 : 1) * 0.15
     
-    groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetRotY, 0.08)
-    groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, targetRotX, 0.08)
-    groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, tiltZ, 0.06)
+    groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetRotY, 0.1)
+    groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, targetRotX, 0.1)
+    groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, tiltZ, 0.08)
 
     const s = 1.05 - Math.min(absOffset * 0.2, 0.35)
     groupRef.current.scale.set(s, s, s)
@@ -211,7 +206,7 @@ function CardContent({
     const targetOpacity = isVisible ? baseOpacity : 0
     
     mat.uniforms.uOpacity.value = THREE.MathUtils.lerp(mat.uniforms.uOpacity.value, targetOpacity, 0.1)
-    mat.uniforms.uDistortion.value = THREE.MathUtils.lerp(mat.uniforms.uDistortion.value, Math.min(velocity * 0.5, 0.8), 0.08)
+    mat.uniforms.uDistortion.value = THREE.MathUtils.lerp(mat.uniforms.uDistortion.value, Math.min(velocity * 0.4, 0.6), 0.08)
     mat.uniforms.uInertia.value = THREE.MathUtils.lerp(mat.uniforms.uInertia.value, velocity * (offset > 0 ? 1 : -1), 0.05)
     mat.uniforms.uOffset.value = offset
     mat.uniforms.uTime.value = state.clock.elapsedTime

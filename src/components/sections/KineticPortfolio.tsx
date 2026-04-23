@@ -1,7 +1,7 @@
 // Kinetic Portfolio — 2026 Premium Choreography Showcase
 import { Suspense, useRef, useState, useEffect, useCallback } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { EffectComposer, DepthOfField, Bloom, Noise, Vignette } from '@react-three/postprocessing'
+import { EffectComposer, DepthOfField, Bloom, Vignette } from '@react-three/postprocessing'
 import { portfolio } from '../../data/portfolio'
 import { KineticCard } from './KineticCard'
 import { KineticScene } from './KineticScene'
@@ -164,23 +164,22 @@ export function KineticPortfolio() {
                 )}
               </Suspense>
 
-              {/* SOTA Post-Processing Stack — Refined for Sharpness */}
+              {/* Optimized Post-Processing Stack */}
               {!isMobile && (
-                <EffectComposer disableNormalPass>
+                <EffectComposer disableNormalPass multisampling={0}>
                   <DepthOfField 
-                    focusDistance={0.015} // Adjusted for camera at z=8 and objects at z~0
+                    focusDistance={0.015}
                     focalLength={0.02} 
-                    bokehScale={2.5} // Reduced for better sharpness
-                    height={720} 
+                    bokehScale={2.0} // Subtler blur
+                    height={480} // Reduced resolution for performance
                   />
                   <Bloom 
-                    luminanceThreshold={0.9} 
+                    luminanceThreshold={0.95} 
                     mipmapBlur 
-                    intensity={0.25} 
+                    intensity={0.2} 
                     radius={0.2} 
                   />
-                  <Noise opacity={0.01} />
-                  <Vignette eskil={false} offset={0.05} darkness={1.1} />
+                  <Vignette eskil={false} offset={0.05} darkness={1.0} />
                 </EffectComposer>
               )}
             </Canvas>
