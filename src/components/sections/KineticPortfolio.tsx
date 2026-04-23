@@ -52,8 +52,6 @@ export function KineticPortfolio() {
     return () => window.removeEventListener('keydown', handleKey)
   }, [activeIndex, navigateTo])
 
-  const activeItem = portfolio[activeIndex]
-
   return (
     <section
       ref={sectionRef}
@@ -66,9 +64,9 @@ export function KineticPortfolio() {
         {/* ── 3-D WebGL Canvas ─────────────────────────────────────── */}
         <Canvas
           camera={{ position: [0, 0, 8], fov: 40 }}
-          dpr={1}
+          dpr={[1, 1.5]}
           gl={{ 
-            antialias: false, 
+            antialias: true, 
             alpha: false, 
             stencil: false,
             depth: true,
@@ -78,9 +76,8 @@ export function KineticPortfolio() {
             gl.setClearColor('#070410')
           }}
         >
-          <Suspense fallback={null}>
-            {portfolio.length > 0 && <KineticContent progress={smoothProgress} />}
-          </Suspense>
+          <KineticScene />
+          {portfolio.length > 0 && <KineticContent progress={smoothProgress} />}
         </Canvas>
 
         {/* ── HTML Overlay ──────────────────────────────────────────── */}
@@ -119,7 +116,6 @@ export function KineticPortfolio() {
 function KineticContent({ progress }: { progress: MotionValue<number> }) {
   const velocityRef = useRef(0)
   const lastValue = useRef(0)
-  const [rangeIndex, setRangeIndex] = useState(0)
 
   // Track the current center index to drive virtualization
   useMotionValueEvent(progress, 'change', (val) => {
@@ -127,37 +123,20 @@ function KineticContent({ progress }: { progress: MotionValue<number> }) {
     const diff = currentProgress - lastValue.current
     velocityRef.current = Math.abs(diff) / 0.016 // approximate delta
     lastValue.current = currentProgress
-
-    const newIndex = Math.round(currentProgress * (portfolio.length - 1))
-    if (newIndex !== rangeIndex) {
-      setRangeIndex(newIndex)
-    }
-  })
-
-  useFrame((state) => {
-    // Camera is static to ensure stability
   })
 
   return (
     <>
-      <KineticScene />
-      {portfolio.map((item, index) => {
-        // Virtualization: Only render cards within +/- 2 of the current center
-        const isNear = Math.abs(index - rangeIndex) <= 2
-        
-        if (!isNear) return null
-        
-        return (
-          <KineticCard
-            key={item.id}
-            item={item}
-            index={index}
-            count={portfolio.length}
-            progress={progress}
-            velocityRef={velocityRef}
-          />
-        )
-      })}
+      {portfolio.map((item, index) => (
+        <KineticCard
+          key={item.id}
+          item={item}
+          index={index}
+          count={portfolio.length}
+          progress={progress}
+          velocityRef={velocityRef}
+        />
+      ))}
     </>
   )
 }

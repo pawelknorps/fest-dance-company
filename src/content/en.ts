@@ -132,7 +132,7 @@ export const en = {
 
   // Contact Details
   contactEmail: 'festdancecompany@gmail.com',
-  contactCity: 'Warsaw / Poland',
+  contactCity: 'Poznań / Poland',
   contactAvailability: 'Booking projects for 2026',
 
   footerLine:

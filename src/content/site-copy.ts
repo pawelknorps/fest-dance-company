@@ -132,7 +132,7 @@ export const siteCopy = {
 
   // Contact Details
   contactEmail: 'festdancecompany@gmail.com',
-  contactCity: 'Warszawa / Polska',
+  contactCity: 'Poznań / Polska',
   contactAvailability: 'Rezerwacje projektów 2026',
   intro: 'FEST Dance Company to miejsce, w którym ruch łączy się z wizją. Tworzymy choreografie do teledysków, koncertów, kampanii reklamowych oraz eventów specjalnych. W naszych projektach łączymy różne style tańca, aby najlepiej dopasować się do charakteru marki i wydarzenia.',
 
