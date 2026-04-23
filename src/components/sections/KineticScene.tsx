@@ -1,8 +1,7 @@
-import { Sparkles } from '@react-three/drei'
-import { EffectComposer, Bloom, Vignette, Noise } from '@react-three/postprocessing'
+import { Sparkles, PerspectiveCamera } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { useRef } from 'react'
-import type * as THREE from 'three'
+import * as THREE from 'three'
 
 export function KineticScene({ 
   isMobile, 
@@ -14,84 +13,103 @@ export function KineticScene({
   isIntersecting: boolean
 }) {
   const accentLightRef = useRef<THREE.PointLight>(null)
-  const sparklesVisibleRef = useRef(true)
-
   const sparklesGroupRef = useRef<THREE.Group>(null)
+  const cameraRef = useRef<THREE.PerspectiveCamera>(null)
 
   useFrame((state) => {
     if (!isIntersecting) return
-    if (accentLightRef.current) {
-      // Slow pulse on the rear accent light
-      const pulse = Math.sin(state.clock.elapsedTime * 0.7) * 0.25 + 0.75
-      accentLightRef.current.intensity = pulse * 2.2
+    const velocity = velocityRef.current || 0
+
+    // Cinematic Camera Interaction
+    // We subtely shift FOV based on velocity to create a "dolly zoom" feel
+    if (cameraRef.current) {
+      const targetFOV = 40 + velocity * 1.5
+      cameraRef.current.fov = THREE.MathUtils.lerp(cameraRef.current.fov, targetFOV, 0.05)
+      cameraRef.current.updateProjectionMatrix()
+      
+      // Gentle camera sway
+      cameraRef.current.position.x = Math.sin(state.clock.elapsedTime * 0.3) * 0.15
+      cameraRef.current.position.y = Math.cos(state.clock.elapsedTime * 0.2) * 0.12
     }
 
-    // Optimization: Hide sparkles if scrolling very fast to save GPU cycles
-    if (sparklesGroupRef.current && velocityRef?.current !== undefined) {
-      sparklesGroupRef.current.visible = velocityRef.current < 0.12
+    if (accentLightRef.current) {
+      // Artistic pulsing light
+      const pulse = Math.sin(state.clock.elapsedTime * 0.7) * 0.25 + 0.75
+      accentLightRef.current.intensity = pulse * (2.2 + velocity * 2.0)
+    }
+
+    // Interactive Atmosphere
+    if (sparklesGroupRef.current) {
+      // Only show sparkles if movement is controlled
+      sparklesGroupRef.current.visible = velocity < 0.25
+      sparklesGroupRef.current.rotation.y += 0.001 + velocity * 0.01
     }
   })
 
   return (
     <>
-      {/* Deep purple-black background */}
-      <color attach="background" args={['#070410']} />
-      <fog attach="fog" args={['#110814', 5, 26]} />
+      <PerspectiveCamera ref={cameraRef} makeDefault position={[0, 0, 8]} fov={40} />
+      
+      {/* Deep Artistic Background */}
+      <color attach="background" args={['#05030a']} />
+      <fog attach="fog" args={['#09050d', 6, 28]} />
 
-      {/* 3-point studio lighting */}
-      <ambientLight intensity={0.12} />
-      {/* Key light — warm white from top-right */}
+      {/* Cinematic Lighting System */}
+      <ambientLight intensity={0.15} />
+      
+      {/* Key light — dramatic top-right */}
       <spotLight
-        position={[6, 8, 6]}
-        angle={0.22}
+        position={[8, 12, 8]}
+        angle={0.18}
         penumbra={1}
-        intensity={2.8}
-        color="#fff5f0"
+        intensity={3.5}
+        color="#fffaf5"
+        castShadow
       />
-      {/* Fill light — cool purple from left */}
+      
+      {/* Fill light — artistic violet/indigo */}
       <spotLight
-        position={[-7, 3, 4]}
-        angle={0.3}
+        position={[-10, 4, 6]}
+        angle={0.4}
         penumbra={1}
-        intensity={1.2}
-        color="#c084fc"
+        intensity={1.8}
+        color="#a855f7"
       />
-      {/* Rim / backlight — pulsing accent from behind */}
+      
+      {/* Rim light — back accent pulsing with movement */}
       <pointLight
         ref={accentLightRef}
-        position={[0, 1, -5]}
-        intensity={2.2}
-        color="#b866ff"
-        distance={14}
+        position={[0, 2, -6]}
+        intensity={2.5}
+        color="#c084fc"
+        distance={20}
       />
 
-      {/* Overdraw optimization: Sparkles disabled on mobile */}
+      {/* Atmospheric Particles - Enhanced for Desktop */}
       {!isMobile && (
         <group ref={sparklesGroupRef}>
-          {/* Gold dust — slow, dreamy stage atmosphere */}
+          {/* Main Stage Dust */}
           <Sparkles
-            count={28}
-            scale={18}
-            size={1.6}
-            speed={0.18}
-            opacity={0.45}
+            count={35}
+            scale={20}
+            size={1.8}
+            speed={0.25}
+            opacity={0.5}
             color="#ffd700"
-            noise={0.4}
+            noise={0.5}
           />
-          {/* Soft violet particles — finer, quicker */}
+          {/* Ambient Violet Essence */}
           <Sparkles
-            count={44}
-            scale={24}
-            size={0.7}
-            speed={0.55}
-            opacity={0.18}
-            color="#ddc0ff"
-            noise={1.2}
+            count={60}
+            scale={30}
+            size={0.8}
+            speed={0.6}
+            opacity={0.25}
+            color="#e9d5ff"
+            noise={1.5}
           />
         </group>
       )}
-
-      {/* Post-processing disabled for absolute stability */}
     </>
   )
 }

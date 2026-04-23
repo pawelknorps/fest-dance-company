@@ -74,6 +74,7 @@ export function KineticPortfolio() {
 
   const velocityRef = useRef(0)
   const lastValue = useRef(0)
+  const mouseRef = useRef({ x: 0, y: 0 })
 
   useMotionValueEvent(smoothProgress, 'change', (val) => {
     const currentProgress = Number(val)
@@ -81,6 +82,19 @@ export function KineticPortfolio() {
     velocityRef.current = Math.abs(diff) / 0.016 
     lastValue.current = currentProgress
   })
+
+  // Track mouse position for interactive tilt
+  useEffect(() => {
+    if (isMobile) return
+    const handleMouseMove = (e: MouseEvent) => {
+      mouseRef.current = {
+        x: (e.clientX / window.innerWidth) * 2 - 1,
+        y: -(e.clientY / window.innerHeight) * 2 + 1
+      }
+    }
+    window.addEventListener('mousemove', handleMouseMove)
+    return () => window.removeEventListener('mousemove', handleMouseMove)
+  }, [isMobile])
 
   // Sync active card index to React state ONLY when it changes (for indicator dots)
   useMotionValueEvent(scrollYProgress, 'change', (value) => {
@@ -149,6 +163,7 @@ export function KineticPortfolio() {
                 <KineticContent 
                   progress={smoothProgress} 
                   velocityRef={velocityRef}
+                  mouseRef={mouseRef}
                   isMobile={isMobile}
                   isIntersecting={isIntersecting}
                 />
@@ -191,11 +206,13 @@ export function KineticPortfolio() {
 function KineticContent({ 
   progress, 
   velocityRef, 
+  mouseRef,
   isMobile,
   isIntersecting
 }: { 
   progress: MotionValue<number>, 
   velocityRef: React.MutableRefObject<number>,
+  mouseRef: React.MutableRefObject<{ x: number, y: number }>,
   isMobile: boolean,
   isIntersecting: boolean
 }) {
@@ -210,6 +227,7 @@ function KineticContent({
           count={portfolio.length}
           progress={progress}
           velocityRef={velocityRef}
+          mouseRef={mouseRef}
           isMobile={isMobile}
           isIntersecting={isIntersecting}
         />
