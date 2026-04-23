@@ -55,17 +55,19 @@ export function InquiryForm() {
         body: JSON.stringify({ ...values, turnstileToken: turnstileToken || undefined })
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        throw new Error('api_error')
+        throw new Error(data.error || 'api_error')
       }
 
       setSubmitState('success')
       reset(initialForm)
       setTurnstileToken('')
-    } catch {
+    } catch (err: any) {
       setSubmitState('error')
       setError('root', {
-        message: t.formValSubmitError,
+        message: err.message === 'api_error' ? t.formValSubmitError : err.message,
       })
     }
   })

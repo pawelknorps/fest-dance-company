@@ -23,6 +23,14 @@ export function SiteFooter() {
           <p>{contact.phone}</p>
           <p>{t.contactCity}</p>
           <p>{t.contactAvailability}</p>
+          <a
+            href="https://www.facebook.com/pawo161/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block pt-4 text-[0.72rem] tracking-[0.28em] text-fuchsia-300 transition duration-300 hover:text-fuchsia-200 hover:drop-shadow-[0_0_10px_rgba(232,121,249,0.95)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-fuchsia-300"
+          >
+            Twórca: Paweł Knorps
+          </a>
         </div>
       </div>
     </footer>
