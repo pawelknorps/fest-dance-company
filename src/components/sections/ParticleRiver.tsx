@@ -8,31 +8,29 @@ interface ParticleRiverProps {
   velocityRef: React.MutableRefObject<number>
 }
 
-export function ParticleRiver({ particleCount = 2000, width = 40, velocityRef }: ParticleRiverProps) {
+// Pre-define geometry to avoid recreation
+const _pos = new THREE.Vector3()
+
+export function ParticleRiver({ particleCount = 1800, width = 45, velocityRef }: ParticleRiverProps) {
   const pointsRef = useRef<THREE.Points>(null)
 
-  // Pre-calculate positions and custom attributes
+  // Maximum performance: Single Float32Arrays
   const [positions, progress, sizes] = useMemo(() => {
     const pos = new Float32Array(particleCount * 3)
     const prog = new Float32Array(particleCount)
     const sz = new Float32Array(particleCount)
 
     for (let i = 0; i < particleCount; i++) {
-      // Wide distribution across the gallery length (X)
       const x = (Math.random() - 0.5) * width
-      // Narrow band in Y for "river" look
       const y = (Math.random() - 0.5) * 3.5
-      // Depth spread for parallax
       const z = (Math.random() - 0.5) * 6
 
       pos[i * 3] = x
       pos[i * 3 + 1] = y
       pos[i * 3 + 2] = z
 
-      // Normalize X position (0 to 1) for gradient mapping
       prog[i] = (x / width) + 0.5
-      // Random base size for each particle
-      sz[i] = Math.random()
+      sz[i] = 0.5 + Math.random() * 0.5
     }
     return [pos, prog, sz]
   }, [particleCount, width])
@@ -41,9 +39,9 @@ export function ParticleRiver({ particleCount = 2000, width = 40, velocityRef }:
     uniforms: {
       uTime: { value: 0 },
       uVelocity: { value: 0 },
-      uColorStart: { value: new THREE.Color('#4f46e5') }, // Deep Indigo
-      uColorMid: { value: new THREE.Color('#9333ea') },   // Fest Purple
-      uColorEnd: { value: new THREE.Color('#fbbf24') }    // Gold
+      uColorStart: { value: new THREE.Color('#4f46e5') },
+      uColorMid: { value: new THREE.Color('#9333ea') },
+      uColorEnd: { value: new THREE.Color('#fbbf24') }
     },
     vertexShader: `
       uniform float uTime;
@@ -56,20 +54,17 @@ export function ParticleRiver({ particleCount = 2000, width = 40, velocityRef }:
         vProgress = progress;
         vec3 pos = position;
 
-        // Kinetic wave deformation
-        float speed = 1.0 + uVelocity * 2.0;
-        float wave1 = sin(pos.x * 0.4 + uTime * speed) * 1.5;
-        float wave2 = cos(pos.x * 0.2 - uTime * (speed * 0.6)) * 1.0;
-        
-        pos.y += wave1;
-        pos.z += wave2;
+        float speed = 1.0 + uVelocity * 1.8;
+        // Optimized wave: single sin call for major deformation
+        float wave = sin(pos.x * 0.35 + uTime * speed);
+        pos.y += wave * 1.5;
+        pos.z += cos(pos.x * 0.25 + uTime * speed * 0.5) * 1.0;
 
         vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
         gl_Position = projectionMatrix * mvPosition;
         
-        // Perspective-based size with random variation
-        float size = 18.0 * aSize * (1.0 + uVelocity * 0.5);
-        gl_PointSize = size / -mvPosition.z;
+        // Size attenuation optimized
+        gl_PointSize = (16.0 * aSize * (1.0 + uVelocity * 0.4)) / -mvPosition.z;
       }
     `,
     fragmentShader: `
@@ -79,21 +74,22 @@ export function ParticleRiver({ particleCount = 2000, width = 40, velocityRef }:
       varying float vProgress;
 
       void main() {
-        // Circular particle with soft falloff
-        float d = distance(gl_PointCoord, vec2(0.5));
-        if (d > 0.5) discard;
+        // High performance circular shape: squared distance
+        vec2 cxy = 2.0 * gl_PointCoord - 1.0;
+        float r2 = dot(cxy, cxy);
+        if (r2 > 1.0) discard;
 
-        // 3-way horizontal gradient
         vec3 color;
-        if (vProgress < 0.5) {
-          color = mix(uColorStart, uColorMid, vProgress * 2.0);
-        } else {
-          color = mix(uColorMid, uColorEnd, (vProgress - 0.5) * 2.0);
-        }
+        // Branchless-style gradient (optimized)
+        float midMask = step(0.5, vProgress);
+        color = mix(
+          mix(uColorStart, uColorMid, vProgress * 2.0),
+          mix(uColorMid, uColorEnd, (vProgress - 0.5) * 2.0),
+          midMask
+        );
 
-        // Soft glow alpha
-        float alpha = smoothstep(0.5, 0.15, d) * 0.8;
-        
+        // Soft falloff
+        float alpha = (1.0 - r2) * 0.6;
         gl_FragColor = vec4(color, alpha);
       }
     `
@@ -101,11 +97,11 @@ export function ParticleRiver({ particleCount = 2000, width = 40, velocityRef }:
 
   useFrame((state) => {
     if (!pointsRef.current) return
-    const material = pointsRef.current.material as THREE.ShaderMaterial
-    const velocity = velocityRef.current || 0
+    const mat = pointsRef.current.material as THREE.ShaderMaterial
+    const vel = velocityRef.current || 0
     
-    material.uniforms.uTime.value = state.clock.elapsedTime
-    material.uniforms.uVelocity.value = THREE.MathUtils.lerp(material.uniforms.uVelocity.value, velocity, 0.05)
+    mat.uniforms.uTime.value = state.clock.elapsedTime
+    mat.uniforms.uVelocity.value += (vel - mat.uniforms.uVelocity.value) * 0.1
   })
 
   return (
