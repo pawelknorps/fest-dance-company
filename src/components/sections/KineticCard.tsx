@@ -62,7 +62,7 @@ function CardContent({ item, index, count, progress, velocityRef }: KineticCardP
   const meshRef = useRef<THREE.Mesh>(null)
   
   // hook only called when component is rendered by KineticCard (staggered)
-  const texture = useTexture(item.image.src)
+  const texture = useTexture(item.image.src) as THREE.Texture
   
   useMemo(() => {
     if (texture) {
