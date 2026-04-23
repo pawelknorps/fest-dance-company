@@ -5,7 +5,6 @@ import { EffectComposer, Vignette } from '@react-three/postprocessing'
 import { portfolio } from '../../data/portfolio'
 import { KineticCard, type KineticCardRef } from './KineticCard'
 import { KineticScene } from './KineticScene'
-import { useTranslation } from '../../lib/i18n'
 import { useScroll, useSpring, useMotionValueEvent, type MotionValue } from 'framer-motion'
 import { useLenis } from 'lenis/react'
 
@@ -27,7 +26,7 @@ export function KineticPortfolio() {
         setIsIntersecting(entry.isIntersecting)
         if (entry.isIntersecting) setShouldLoad(true)
       },
-      { rootMargin: '400px 0px' }
+      { rootMargin: '600px 0px' } // Pre-load earlier to hide initialization
     )
     if (sectionRef.current) observer.observe(sectionRef.current)
 
@@ -97,20 +96,28 @@ export function KineticPortfolio() {
               camera={{ position: [0, 0, 8], fov: 40 }}
               dpr={[1, 1.5]}
               frameloop={isIntersecting ? 'always' : 'never'}
-              gl={{ antialias: true, alpha: false, stencil: false, depth: true, powerPreference: 'high-performance' }}
-              onCreated={({ gl }) => gl.setClearColor('#05030a')}
+              gl={{ 
+                antialias: true, 
+                alpha: false, 
+                stencil: false, 
+                depth: true, 
+                powerPreference: 'high-performance',
+                preserveDrawingBuffer: false 
+              }}
+              onCreated={({ gl }) => {
+                gl.setClearColor('#05030a')
+              }}
             >
               <KineticScene isMobile={isMobile} velocityRef={velocityRef} isIntersecting={isIntersecting} />
               
-              <Suspense fallback={null}>
-                <KineticContent 
-                  progress={smoothProgress} 
-                  velocityRef={velocityRef}
-                  mouseRef={mouseRef}
-                  isMobile={isMobile}
-                  isIntersecting={isIntersecting}
-                />
-              </Suspense>
+              {/* Individual Suspense per card instead of top-level to avoid mounting lag */}
+              <KineticContent 
+                progress={smoothProgress} 
+                velocityRef={velocityRef}
+                mouseRef={mouseRef}
+                isMobile={isMobile}
+                isIntersecting={isIntersecting}
+              />
 
               {!isMobile && (
                 <EffectComposer disableNormalPass>
@@ -158,6 +165,7 @@ function KineticContent({
     const m = mouseRef.current
     const t = state.clock.elapsedTime
     
+    // Efficient sparse update
     for (let i = 0; i < cardRefs.current.length; i++) {
       cardRefs.current[i]?.update(p, v, m, t, isIntersecting)
     }

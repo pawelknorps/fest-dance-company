@@ -49,29 +49,57 @@ const fragmentShader = `
 `
 
 export const KineticCard = forwardRef<KineticCardRef, KineticCardProps>((props, ref) => {
-  const [isVisible, setIsVisible] = useState(false)
-
-  useEffect(() => {
-    const timer = setTimeout(() => setIsVisible(true), props.index * 40)
-    return () => clearTimeout(timer)
-  }, [props.index])
-
   return (
-    <Suspense fallback={null}>
-      <CardContent {...props} ref={ref} isVisible={isVisible} />
+    <Suspense fallback={<CardPlaceholder {...props} ref={ref} />}>
+      <CardContent {...props} ref={ref} />
     </Suspense>
   )
 })
 
-const CardContent = forwardRef<KineticCardRef, KineticCardProps & { isVisible: boolean }>(({ 
-  item, 
-  index, 
-  count, 
-  isMobile,
-  isVisible
-}, ref) => {
+// Placeholder keeps the object in the parent's loop even before texture is loaded
+const CardPlaceholder = forwardRef<KineticCardRef, KineticCardProps>((props, ref) => {
+  const groupRef = useRef<THREE.Group>(null)
+  const { cardW, cardH } = useMemo(() => {
+    const aspect = (props.item.image.width || 567) / (props.item.image.height || 423)
+    const cH = 4.8
+    const cW = aspect < 1 ? cH * aspect : Math.min(aspect * 3.0, 7.0)
+    return { cardW: cW, cardH: cH }
+  }, [props.item.image.width, props.item.image.height])
+
+  useImperativeHandle(ref, () => ({
+    update: (progress, velocity, mouse, time, isIntersecting) => {
+      if (!groupRef.current || !isIntersecting) return
+      const scrollPos = progress * (props.count - 1)
+      const offset = props.index - scrollPos
+      const absOffset = Math.abs(offset)
+      const radius = 12
+      const angle = offset * 0.35
+      const targetX = Math.sin(angle) * radius + (mouse.x * 0.15)
+      groupRef.current.position.x += (targetX - groupRef.current.position.x) * 0.1
+      groupRef.current.position.z = (Math.cos(angle) * radius) - radius + (1 - Math.min(absOffset * 0.8, 1)) * 1.5
+      groupRef.current.rotation.y = angle * 1.1
+    }
+  }))
+
+  return (
+    <group ref={groupRef}>
+      <mesh geometry={sharedPlaneGeometry} scale={[cardW, cardH, 1]}>
+        <meshBasicMaterial color="#05030a" transparent opacity={0.05} />
+      </mesh>
+    </group>
+  )
+})
+
+const CardContent = forwardRef<KineticCardRef, KineticCardProps>((props, ref) => {
+  const { item, index, count, isMobile } = props
   const groupRef = useRef<THREE.Group>(null)
   const meshRef = useRef<THREE.Mesh>(null)
+  const [isVisible, setIsVisible] = useState(false)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsVisible(true), index * 50)
+    return () => clearTimeout(timer)
+  }, [index])
   
   const imageSrc = (isMobile && item.image.srcMobile) ? item.image.srcMobile : item.image.src
   const imageBitmap = useLoader(THREE.ImageBitmapLoader, imageSrc, (loader: any) => {
@@ -106,17 +134,13 @@ const CardContent = forwardRef<KineticCardRef, KineticCardProps & { isVisible: b
   useImperativeHandle(ref, () => ({
     update: (progress, velocity, mouse, time, isIntersecting) => {
       if (!groupRef.current || !meshRef.current || !isIntersecting) return
-
       const scrollPos = progress * (count - 1)
       const offset = index - scrollPos
       const absOffset = Math.abs(offset)
-      
-      // Visibility culling
       const isCardVisible = isMobile ? absOffset <= 2 : absOffset <= 3
       meshRef.current.visible = isCardVisible
       if (!isCardVisible) return
 
-      // Transform
       const radius = 12
       const angle = offset * 0.35
       const targetX = Math.sin(angle) * radius + (mouse.x * 0.15)
@@ -127,15 +151,11 @@ const CardContent = forwardRef<KineticCardRef, KineticCardProps & { isVisible: b
       groupRef.current.position.x += (targetX - groupRef.current.position.x) * 0.1
       groupRef.current.position.y += (targetY - groupRef.current.position.y) * 0.1
       groupRef.current.position.z = zBase + zOffset
-      
       groupRef.current.rotation.y += (angle * 1.1 + mouse.x * 0.1 - groupRef.current.rotation.y) * 0.1
       groupRef.current.rotation.x += (absOffset * 0.08 - mouse.y * 0.1 - groupRef.current.rotation.x) * 0.1
       groupRef.current.rotation.z += (velocity * (offset > 0 ? -1 : 1) * 0.15 - groupRef.current.rotation.z) * 0.1
+      groupRef.current.scale.setScalar(1.05 - Math.min(absOffset * 0.2, 0.35))
 
-      const s = 1.05 - Math.min(absOffset * 0.2, 0.35)
-      groupRef.current.scale.set(s, s, s)
-
-      // Uniforms
       const mat = meshRef.current.material as THREE.ShaderMaterial
       const baseOpacity = 1 - Math.min(absOffset * 0.45, 0.98)
       mat.uniforms.uOpacity.value += ((isVisible ? baseOpacity : 0) - mat.uniforms.uOpacity.value) * 0.1
