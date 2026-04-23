@@ -8,7 +8,6 @@ interface KineticCardProps {
   count: number
   progress: any
   velocityRef: React.MutableRefObject<number>
-  activeIndex: number
   isMobile: boolean
 }
 
@@ -32,7 +31,7 @@ export function KineticCard(props: KineticCardProps) {
   )
 }
 
-function CardPlaceholder({ index, count, progress }: Omit<KineticCardProps, 'item' | 'velocityRef' | 'activeIndex' | 'isMobile'>) {
+function CardPlaceholder({ index, count, progress }: Omit<KineticCardProps, 'item' | 'velocityRef' | 'isMobile'>) {
   const groupRef = useRef<THREE.Group>(null)
 
   useFrame(() => {
@@ -68,7 +67,7 @@ function CardContent({
   velocityRef, 
   isVisible, 
   isMobile 
-}: Omit<KineticCardProps, 'activeIndex'> & { isVisible: boolean }) {
+}: KineticCardProps & { isVisible: boolean }) {
   const groupRef = useRef<THREE.Group>(null)
   const meshRef = useRef<THREE.Mesh>(null)
   
