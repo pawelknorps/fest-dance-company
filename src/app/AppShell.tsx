@@ -67,6 +67,27 @@ function DeferredPortfolio() {
   const sentinelRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    // If we're already at #portfolio, load immediately
+    if (window.location.hash === '#portfolio') {
+      setShouldLoad(true)
+    }
+
+    const handleHashChange = () => {
+      if (window.location.hash === '#portfolio') {
+        setShouldLoad(true)
+      }
+    }
+    
+    const handleGlobalClick = (e: MouseEvent) => {
+      const anchor = (e.target as HTMLElement).closest('a')
+      if (anchor && anchor.hash === '#portfolio') {
+        setShouldLoad(true)
+      }
+    }
+
+    window.addEventListener('hashchange', handleHashChange)
+    document.addEventListener('click', handleGlobalClick)
+
     const node = sentinelRef.current
     if (!node) return
 
@@ -80,7 +101,12 @@ function DeferredPortfolio() {
     )
 
     observer.observe(node)
-    return () => observer.disconnect()
+    
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange)
+      document.removeEventListener('click', handleGlobalClick)
+      observer.disconnect()
+    }
   }, [])
 
   return (
