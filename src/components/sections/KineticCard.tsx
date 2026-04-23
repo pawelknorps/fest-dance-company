@@ -62,15 +62,19 @@ function CardContent({ item, index, count, progress, velocityRef, isVisible }: K
   
   // SOTA: Use ImageBitmapLoader to decode images on a background thread (Web Worker).
   // This eliminates Main Thread "jank" during image decoding.
-  const imageBitmap = useLoader(THREE.ImageBitmapLoader, item.image.src)
+  const imageBitmap = useLoader(THREE.ImageBitmapLoader, item.image.src, (loader: any) => {
+    if (loader.setOptions) {
+      loader.setOptions({ imageOrientation: 'flipY' })
+    }
+  })
   
   const texture = useMemo(() => {
     if (!imageBitmap) return null
     const tex = new THREE.Texture(imageBitmap)
     tex.colorSpace = THREE.SRGBColorSpace
     tex.anisotropy = 4
-    tex.flipY = false // Fix for upside-down ImageBitmap textures
-    tex.needsUpdate = true // Required for ImageBitmap
+    // We handle flip in the loader options above for better performance
+    tex.needsUpdate = true 
     return tex
   }, [imageBitmap])
 
