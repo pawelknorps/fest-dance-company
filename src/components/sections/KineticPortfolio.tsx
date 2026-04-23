@@ -1,7 +1,7 @@
 // Kinetic Portfolio — 2026 Premium Choreography Showcase
 import { Suspense, useRef, useState, useEffect, useCallback } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { EffectComposer, DepthOfField, Bloom, Noise, Vignette } from '@react-three/postprocessing'
+import { EffectComposer, Vignette, Noise } from '@react-three/postprocessing'
 import { portfolio } from '../../data/portfolio'
 import { KineticCard } from './KineticCard'
 import { KineticScene } from './KineticScene'
@@ -17,7 +17,6 @@ export function KineticPortfolio() {
   const [isMobile, setIsMobile] = useState(false)
   const [isIntersecting, setIsIntersecting] = useState(false)
 
-  // Internal deferred loading logic
   useEffect(() => {
     const mql = window.matchMedia('(max-width: 768px)')
     setIsMobile(mql.matches)
@@ -137,7 +136,7 @@ export function KineticPortfolio() {
           <>
             <Canvas
               camera={{ position: [0, 0, 8], fov: 40 }}
-              dpr={isMobile ? 1 : [1, 2]} // Quality dpr for desktop
+              dpr={[1, 1.5]} // Capped for performance while keeping sharpness
               frameloop={isIntersecting ? 'always' : 'never'}
               gl={{ 
                 antialias: true, 
@@ -164,22 +163,9 @@ export function KineticPortfolio() {
                 )}
               </Suspense>
 
-              {/* SOTA Quality Post-Processing Stack */}
+              {/* Ultra-Fast Post-Processing (No DoF/Bloom for maximum clarity) */}
               {!isMobile && (
-                <EffectComposer disableNormalPass multisampling={4}>
-                  <DepthOfField 
-                    focusDistance={0.015}
-                    focalLength={0.02} 
-                    bokehScale={3.5} 
-                    height={720} // High resolution Bokeh
-                  />
-                  <Bloom 
-                    luminanceThreshold={0.9} 
-                    mipmapBlur 
-                    intensity={0.35} 
-                    radius={0.3} 
-                  />
-                  <Noise opacity={0.015} />
+                <EffectComposer disableNormalPass>
                   <Vignette eskil={false} offset={0.1} darkness={1.1} />
                 </EffectComposer>
               )}
