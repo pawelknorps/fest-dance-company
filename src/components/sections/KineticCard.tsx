@@ -58,6 +58,8 @@ function CardPlaceholder({ index, count, progress }: Omit<KineticCardProps, 'ite
       </mesh>
     </group>
   )
+}
+
 function CardContent({ 
   item, 
   index, 
