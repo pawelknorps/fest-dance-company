@@ -29,8 +29,12 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
         if (element) {
           e.preventDefault();
           
+          // SOTA: Signal portfolio to pre-warm if that's where we are going
+          if (targetId === 'portfolio' && typeof window.__fest_trigger_portfolio === 'function') {
+            window.__fest_trigger_portfolio();
+          }
+          
           // Force Lenis to recalculate dimensions right before scrolling
-          // This is critical if Three.js just finished loading or changed layout
           lenis.dimensions.onWindowResize();
           
           lenis.scrollTo(element, {
@@ -56,6 +60,10 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     // Immediate and deferred hash handling for deep links
     const handleInitialHash = () => {
       if (window.location.hash) {
+        const targetId = window.location.hash.slice(1);
+        if (targetId === 'portfolio' && typeof window.__fest_trigger_portfolio === 'function') {
+          window.__fest_trigger_portfolio();
+        }
         const element = document.querySelector(window.location.hash);
         if (element) {
           lenis.scrollTo(element as HTMLElement, { immediate: true });

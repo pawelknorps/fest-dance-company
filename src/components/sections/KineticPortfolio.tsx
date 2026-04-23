@@ -15,6 +15,9 @@ export function KineticPortfolio() {
 
   // Internal deferred loading logic
   useEffect(() => {
+    // Register global trigger for external callers (like SmoothScroll)
+    window.__fest_trigger_portfolio = () => setShouldLoad(true)
+
     // 1. Check initial hash
     if (window.location.hash === '#portfolio') {
       setShouldLoad(true)
@@ -26,14 +29,7 @@ export function KineticPortfolio() {
     }
     window.addEventListener('hashchange', handleHash)
 
-    // 3. Global click interceptor for immediate response
-    const handleGlobalClick = (e: MouseEvent) => {
-      const anchor = (e.target as HTMLElement).closest('a')
-      if (anchor && anchor.hash === '#portfolio') setShouldLoad(true)
-    }
-    document.addEventListener('click', handleGlobalClick, { capture: true })
-
-    // 4. Standard Intersection Observer for scroll-based loading
+    // 3. Standard Intersection Observer for scroll-based loading
     const node = sectionRef.current
     if (!node) return
 
@@ -50,8 +46,8 @@ export function KineticPortfolio() {
 
     return () => {
       window.removeEventListener('hashchange', handleHash)
-      document.removeEventListener('click', handleGlobalClick, { capture: true })
       observer.disconnect()
+      delete window.__fest_trigger_portfolio
     }
   }, [])
 

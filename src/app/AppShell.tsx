@@ -16,10 +16,16 @@ import { KineticPortfolio } from '../components/sections/KineticPortfolio'
 import { portfolio } from '../data/portfolio'
 import * as THREE from 'three'
 
+// Global trigger for portfolio loading to be called from anywhere (e.g. SmoothScroll)
+declare global {
+  interface Window {
+    __fest_trigger_portfolio?: () => void
+  }
+}
+
 export function AppShell() {
   const [menuOpen, setMenuOpen] = useState(false)
 
-  // SOTA: Aggressive pre-loading of the first portfolio assets
   useEffect(() => {
     const loader = new THREE.ImageBitmapLoader()
     loader.setOptions({ imageOrientation: 'flipY' })
@@ -47,7 +53,6 @@ export function AppShell() {
             <FounderFeature />
             <CredibilityBand />
             
-            {/* Portfolio section with permanent ID for navigation stability */}
             <div id="portfolio">
               <KineticPortfolio />
             </div>
