@@ -58,7 +58,7 @@ export function KineticPortfolio() {
     <section
       ref={sectionRef}
       id="portfolio"
-      className="relative h-[500vh] w-full"
+      className="relative h-[700vh] w-full"
       style={{ background: '#070410' }}
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden">
@@ -85,45 +85,6 @@ export function KineticPortfolio() {
 
         {/* ── HTML Overlay ──────────────────────────────────────────── */}
         <div className="absolute inset-0 pointer-events-none z-10">
-
-          {/* Top bar — eyebrow + counter */}
-          <div className="absolute top-8 left-8 right-8 flex items-start justify-between">
-            <div>
-              <p className="text-[0.58rem] uppercase tracking-[0.55em] text-white/35 mb-1">
-                {t.portfolioEyebrow ?? 'Portfolio'}
-              </p>
-              <p className="text-[0.7rem] uppercase tracking-[0.22em] text-white/18">
-                {t.portfolioTitle ?? 'Selected Works'}
-              </p>
-            </div>
-            <p className="text-[0.62rem] uppercase tracking-[0.3em] text-white/30 font-mono tabular-nums">
-              {String(activeIndex + 1).padStart(2, '0')}&thinsp;/&thinsp;{String(portfolio.length).padStart(2, '0')}
-            </p>
-          </div>
-
-          {/* Bottom — active card meta */}
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeIndex}
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute bottom-20 left-8 right-8 flex items-end justify-between"
-            >
-              <div>
-                <p className="text-[0.56rem] uppercase tracking-[0.52em] text-purple-400/70 mb-2">
-                  {activeItem?.role}
-                </p>
-                <p className="text-[clamp(1.3rem,2.8vw,2rem)] font-display uppercase tracking-[0.06em] text-white leading-none">
-                  {activeItem?.title}
-                </p>
-              </div>
-              <p className="text-[0.58rem] uppercase tracking-[0.38em] text-white/22 text-right">
-                {activeItem?.client}
-              </p>
-            </motion.div>
-          </AnimatePresence>
 
           {/* Dot navigation — bottom centre */}
           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 items-center pointer-events-auto">

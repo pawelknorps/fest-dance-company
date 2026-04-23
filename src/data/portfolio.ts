@@ -1,26 +1,20 @@
-import portfolio1 from '../assets/images/portfolio-1.jpg?format=webp&w=800;1400&as=url'
-import portfolio1SrcSet from '../assets/images/portfolio-1.jpg?format=webp&w=800;1400&as=srcset'
-import portfolio2 from '../assets/images/portfolio-2.jpg?format=webp&w=800;1400&as=url'
-import portfolio2SrcSet from '../assets/images/portfolio-2.jpg?format=webp&w=800;1400&as=srcset'
-import portfolio3 from '../assets/images/portfolio-3.jpg?format=webp&w=600;1000&as=url'
-import portfolio3SrcSet from '../assets/images/portfolio-3.jpg?format=webp&w=600;1000&as=srcset'
-import portfolio4 from '../assets/images/portfolio-4.jpg?format=webp&w=600;1000&as=url'
-import portfolio4SrcSet from '../assets/images/portfolio-4.jpg?format=webp&w=600;1000&as=srcset'
-import portfolio5 from '../assets/images/portfolio-5.jpg?format=webp&w=600;1000&as=url'
-import portfolio5SrcSet from '../assets/images/portfolio-5.jpg?format=webp&w=600;1000&as=srcset'
-import portfolio6 from '../assets/images/portfolio-6.jpg?format=webp&w=600;1000&as=url'
-import portfolio6SrcSet from '../assets/images/portfolio-6.jpg?format=webp&w=600;1000&as=srcset'
-import reelBts from '../assets/images/reel-bts.jpeg?format=webp&w=800;1400&as=url'
-import reelBtsSrcSet from '../assets/images/reel-bts.jpeg?format=webp&w=800;1400&as=srcset'
+import portfolio1 from '../assets/images/portfolio-1.JPG?format=webp&w=1600&q=85&as=url'
+import portfolio2 from '../assets/images/portfolio-2.JPG?format=webp&w=1600&q=85&as=url'
+import portfolio3 from '../assets/images/portfolio-3.JPG?format=webp&w=1600&q=85&as=url'
+import portfolio4 from '../assets/images/portfolio-4.JPG?format=webp&w=1600&q=85&as=url'
+import portfolio5 from '../assets/images/portfolio-5.JPG?format=webp&w=1600&q=85&as=url'
+import portfolio6 from '../assets/images/portfolio-6.JPG?format=webp&w=1200&q=85&as=url'
+import portfolio7 from '../assets/images/portfolio-7.JPG?format=webp&w=1200&q=85&as=url'
+import portfolio8 from '../assets/images/portfolio-8.JPG?format=webp&w=1200&q=85&as=url'
+import reelBts from '../assets/images/service-campaigns.jpeg?format=webp&w=1600&q=80&as=url'
 import type { PortfolioItem } from '../types'
 
 export const featuredReel = {
   image: {
     src: reelBts,
-    srcSet: reelBtsSrcSet,
     alt: 'Backstage showreel FEST Dance Company - Premium Movement Direction',
-    width: 2048,
-    height: 1536,
+    width: 4016,
+    height: 6016,
   },
   title: 'Showreel / movement direction',
   copy:
@@ -31,85 +25,105 @@ export const portfolio: PortfolioItem[] = [
   {
     id: 'p1',
     category: 'Koncerty',
-    title: 'Stage energy studies',
+    title: 'Urban Motion',
     image: {
       src: portfolio1,
-      srcSet: portfolio1SrcSet,
-      alt: 'Performerka w dynamicznym kadrze scenicznym - FEST Choreografia',
-      width: 1366,
-      height: 2048,
+      alt: 'Portfolio work 1 - FEST Dance Company',
+      width: 2480,
+      height: 3307,
     },
     role: 'Choreografia',
-    client: 'Live artist format',
+    client: 'Live Project',
   },
   {
     id: 'p2',
     category: 'Teledyski',
-    title: 'Camera-led gesture work',
+    title: 'Studio Essence',
     image: {
       src: portfolio2,
-      srcSet: portfolio2SrcSet,
-      alt: 'Grupa tancerek w kompozycji pod teledysk - Movement Direction FEST',
-      width: 1366,
-      height: 2048,
+      alt: 'Portfolio work 2 - FEST Dance Company',
+      width: 4000,
+      height: 6000,
     },
     role: 'Movement direction',
-    client: 'Music video concept',
+    client: 'Music Production',
   },
   {
     id: 'p3',
     category: 'Eventy',
-    title: 'Performance entrance',
+    title: 'Flow State',
     image: {
       src: portfolio3,
-      srcSet: portfolio3SrcSet,
-      alt: 'Jasny kadr performance na evencie premium - FEST Dance Company',
-      width: 567,
-      height: 423,
+      alt: 'Portfolio work 3 - FEST Dance Company',
+      width: 5560,
+      height: 3707,
     },
-    role: 'Opening act',
-    client: 'Premium event',
+    role: 'Performance',
+    client: 'Corporate Event',
   },
   {
     id: 'p4',
     category: 'Kampanie',
-    title: 'Brand rhythm frames',
+    title: 'Rhythmic Frames',
     image: {
       src: portfolio4,
-      srcSet: portfolio4SrcSet,
-      alt: 'Rozmyty ruch budujący atmosferę kampanii reklamowej - FEST',
-      width: 567,
-      height: 423,
+      alt: 'Portfolio work 4 - FEST Dance Company',
+      width: 5716,
+      height: 3811,
     },
-    role: 'Performance concept',
-    client: 'Campaign shoot',
+    role: 'Choreografia',
+    client: 'Brand Identity',
   },
   {
     id: 'p5',
     category: 'Teledyski',
-    title: 'Minimal movement score',
+    title: 'Portrait of Move',
     image: {
       src: portfolio5,
-      srcSet: portfolio5SrcSet,
-      alt: 'Kadr ruchowy z miękkim światłem i sceniczną ekspresją - Choreografia FEST',
-      width: 567,
-      height: 423,
+      alt: 'Portfolio work 5 - FEST Dance Company',
+      width: 1170,
+      height: 1453,
     },
-    role: 'Set coaching',
-    client: 'Visual storytelling',
+    role: 'Movement direction',
+    client: 'Visual Concept',
   },
   {
     id: 'p6',
-    category: 'Koncerty',
-    title: 'Large format composition',
+    category: 'Eventy',
+    title: 'Event Horizon',
     image: {
       src: portfolio6,
-      srcSet: portfolio6SrcSet,
-      alt: 'Performatywny detal użyty jako materiał portfolio - FEST Dance',
+      alt: 'Portfolio work 6 - FEST Dance Company',
       width: 567,
       height: 423,
     },
-    role: 'Scenic movement',
-    client: 'Concert performance',
+    role: 'Performance',
+    client: 'Gala Night',
+  },
+  {
+    id: 'p7',
+    category: 'Koncerty',
+    title: 'Static Pulse',
+    image: {
+      src: portfolio7,
+      alt: 'Portfolio work 7 - FEST Dance Company',
+      width: 567,
+      height: 423,
+    },
+    role: 'Choreografia',
+    client: 'Stage Design',
+  },
+  {
+    id: 'p8',
+    category: 'Kampanie',
+    title: 'Kinetic Study',
+    image: {
+      src: portfolio8,
+      alt: 'Portfolio work 8 - FEST Dance Company',
+      width: 567,
+      height: 423,
+    },
+    role: 'Movement direction',
+    client: 'Ad Campaign',
   },
 ]

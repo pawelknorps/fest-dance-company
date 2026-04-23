@@ -1,5 +1,4 @@
-import founderPortrait from '../assets/images/IMG_3587.jpg?format=webp&w=800;1200&as=url'
-import founderSrcSet from '../assets/images/IMG_3587.jpg?format=webp&w=800;1200&as=srcset'
+import founderPortrait from '../assets/images/10-2.JPEG?format=webp&w=1200&q=85&as=url'
 import type { FounderData } from '../types'
 
 export const founder: FounderData = {
@@ -7,10 +6,9 @@ export const founder: FounderData = {
   name: 'Inia Nuckowska',
   portrait: {
     src: founderPortrait,
-    srcSet: founderSrcSet,
     alt: 'Portret Inii Nuckowskiej - Założycielka FEST Dance Company',
-    width: 1170,
-    height: 1453,
+    width: 5427,
+    height: 8137,
   },
   bio: [
     'Licencjonowana choreograf i tancerka z ponad dziewiętnastoletnim doświadczeniem scenicznym oraz założycielka FEST Dance Company. Ukończyła z wyróżnieniem studia choreograficzne oraz liczne kursy i warsztaty.',

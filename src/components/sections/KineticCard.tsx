@@ -1,6 +1,6 @@
 import { useRef, useMemo, Suspense } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { Text, useTexture } from '@react-three/drei'
+import { useTexture } from '@react-three/drei'
 import * as THREE from 'three'
 import { useTranslation } from '../../lib/i18n'
 
@@ -11,9 +11,6 @@ interface KineticCardProps {
   progress: any
   velocityRef: React.MutableRefObject<number>
 }
-
-const _pos = new THREE.Vector3()
-const _scl = new THREE.Vector3()
 
 export function KineticCard(props: KineticCardProps) {
   return (
@@ -26,8 +23,6 @@ export function KineticCard(props: KineticCardProps) {
 function CardContent({ item, index, count, progress, velocityRef }: KineticCardProps) {
   const groupRef = useRef<THREE.Group>(null)
   const meshRef = useRef<THREE.Mesh>(null)
-  const titleRef = useRef<any>(null)
-  const metaRef = useRef<any>(null)
 
   const t = useTranslation()
   
@@ -47,8 +42,9 @@ function CardContent({ item, index, count, progress, velocityRef }: KineticCardP
     const w = item.image.width || 567
     const h = item.image.height || 423
     const aspect = w / h
-    const cH = 4.0
-    const cW = aspect < 1 ? cH * aspect : Math.min(aspect * 2.6, 5.2)
+    // Slightly larger cards for impact
+    const cH = 4.8
+    const cW = aspect < 1 ? cH * aspect : Math.min(aspect * 3.0, 7.0)
     return { cardW: cW, cardH: cH }
   }, [item.image.width, item.image.height])
 
@@ -58,33 +54,35 @@ function CardContent({ item, index, count, progress, velocityRef }: KineticCardP
     const scrollVal = progress.get() * (count - 1)
     const offset = index - scrollVal
     const absOffset = Math.abs(offset)
+    const velocity = velocityRef.current
 
-    // Ultra-stable positioning (no parallax for now to fix the "disappearing" issue)
-    _pos.set(offset * 5.0, 0, -absOffset * 2.6)
-    groupRef.current.position.copy(_pos)
+    // 1. Curved arc positioning
+    const radius = 12
+    const angle = offset * 0.35
+    const x = Math.sin(angle) * radius
+    // More subtle Z "pop"
+    const zOffset = (1 - Math.min(absOffset * 0.8, 1)) * 1.5
+    const z = (Math.cos(angle) * radius) - radius + zOffset
+    
+    groupRef.current.position.set(x, 0, z)
 
-    // Simple rotation
-    const targetRotY = -offset * 0.15
-    groupRef.current.rotation.y = targetRotY
+    // 2. Orientation: Face the camera/center
+    groupRef.current.rotation.y = angle * 1.1
 
-    // Simple scale
-    const s = 1 - Math.min(absOffset * 0.18, 0.45)
+    // 3. Velocity-based tilt (dynamic leaning)
+    const tilt = velocity * offset * 0.15
+    groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, -tilt, 0.1)
+    groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, absOffset * 0.08, 0.1)
+
+    // 4. Scale effect: Subtle zoom
+    const s = 1.05 - Math.min(absOffset * 0.2, 0.35)
     groupRef.current.scale.set(s, s, s)
 
-    // Simple opacity
-    const targetOpacity = 1 - Math.min(absOffset * 0.35, 0.9)
+    // 5. Opacity management
+    const targetOpacity = 1 - Math.min(absOffset * 0.45, 0.98)
     const mat = meshRef.current.material as THREE.MeshBasicMaterial
-    mat.opacity = targetOpacity
-
-    // Text opacity
-    const textAlpha = Math.max(0, 1 - absOffset * 2.2)
-    if (titleRef.current) titleRef.current.fillOpacity = textAlpha
-    if (metaRef.current) metaRef.current.fillOpacity = textAlpha * 0.7
+    mat.opacity = THREE.MathUtils.lerp(mat.opacity, targetOpacity, 0.15)
   })
-
-  const category =
-    t.portfolioCategories?.[item?.category?.toLowerCase() as keyof typeof t.portfolioCategories] ??
-    item?.category ?? ''
 
   return (
     <group ref={groupRef}>
@@ -96,31 +94,6 @@ function CardContent({ item, index, count, progress, velocityRef }: KineticCardP
           opacity={0} 
         />
       </mesh>
-
-      <Text
-        ref={titleRef}
-        position={[0, -(cardH / 2 + 0.45), 0.1]}
-        fontSize={0.24}
-        color="white"
-        anchorX="center"
-        textAlign="center"
-        maxWidth={cardW + 1}
-        frustumCulled={false}
-      >
-        {item.title}
-      </Text>
-
-      <Text
-        ref={metaRef}
-        position={[0, -(cardH / 2 + 0.75), 0.1]}
-        fontSize={0.12}
-        color="#c084fc"
-        anchorX="center"
-        letterSpacing={0.1}
-        frustumCulled={false}
-      >
-        {`${item.role}  ·  ${category}`}
-      </Text>
     </group>
   )
 }
