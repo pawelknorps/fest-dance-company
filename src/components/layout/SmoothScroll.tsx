@@ -12,31 +12,38 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
 
     const lenis = new Lenis({
       duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Apple-like easing
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
       wheelMultiplier: 1,
       lerp: 0.1,
     });
 
-    // Handle anchor links manually to ensure they work even during heavy loading
+    // Handle anchor links with extra stability for Three.js sections
     const handleAnchorClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      const anchor = target.closest('a');
+      const anchor = (e.target as HTMLElement).closest('a');
       
       if (anchor && anchor.hash && anchor.origin === window.location.origin) {
-        const element = document.querySelector(anchor.hash);
+        const targetId = anchor.hash.slice(1);
+        const element = document.getElementById(targetId);
+        
         if (element) {
           e.preventDefault();
-          lenis.scrollTo(element as HTMLElement, {
+          
+          // Force Lenis to recalculate dimensions right before scrolling
+          // This is critical if Three.js just finished loading or changed layout
+          lenis.dimensions.onWindowResize();
+          
+          lenis.scrollTo(element, {
             offset: 0,
             duration: 1.5,
             immediate: false,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
           });
         }
       }
     };
 
-    document.addEventListener('click', handleAnchorClick);
+    document.addEventListener('click', handleAnchorClick, { capture: true });
 
     let frameId = 0;
     function raf(time: number) {
@@ -46,17 +53,23 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     
     frameId = requestAnimationFrame(raf);
 
-    // Handle initial hash on load
-    if (window.location.hash) {
-      setTimeout(() => {
+    // Immediate and deferred hash handling for deep links
+    const handleInitialHash = () => {
+      if (window.location.hash) {
         const element = document.querySelector(window.location.hash);
         if (element) {
           lenis.scrollTo(element as HTMLElement, { immediate: true });
         }
-      }, 800); // Wait for initial layout to stabilize
-    }
+      }
+    };
 
-    // Refresh Lenis on window resize and content changes
+    // Try multiple times to catch late-loading Three.js height changes
+    handleInitialHash();
+    const t1 = setTimeout(handleInitialHash, 200);
+    const t2 = setTimeout(handleInitialHash, 800);
+    const t3 = setTimeout(handleInitialHash, 2000);
+
+    // Refresh Lenis on window resize and any DOM mutations
     const resizeObserver = new ResizeObserver(() => {
       lenis.dimensions.onWindowResize();
     });
@@ -64,8 +77,11 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
 
     return () => {
       cancelAnimationFrame(frameId);
-      document.removeEventListener('click', handleAnchorClick);
+      document.removeEventListener('click', handleAnchorClick, { capture: true });
       resizeObserver.disconnect();
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
       lenis.destroy();
     };
   }, []);

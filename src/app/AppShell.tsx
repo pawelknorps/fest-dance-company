@@ -86,7 +86,7 @@ function DeferredPortfolio() {
     }
 
     window.addEventListener('hashchange', handleHashChange)
-    document.addEventListener('click', handleGlobalClick)
+    document.addEventListener('click', handleGlobalClick, { capture: true })
 
     const node = sentinelRef.current
     if (!node) return
