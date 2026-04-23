@@ -1,9 +1,14 @@
 import { brand } from '../../data/brand'
+import { contact } from '../../data/contact'
 import { portfolio } from '../../data/portfolio'
 import { useTranslation } from '../../lib/i18n'
 
 export function StructuredData() {
   const t = useTranslation()
+  const sameAs = brand.socialLinks
+    .map(link => link.href)
+    .filter(link => /^https?:\/\/[^/]+\/.+/.test(link))
+
   const organizationSchema = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
@@ -11,11 +16,11 @@ export function StructuredData() {
     url: 'https://festdance.company',
     logo: `https://festdance.company${brand.logo}`,
     description: t.intro,
-    sameAs: brand.socialLinks.map(link => link.href),
+    sameAs,
     contactPoint: {
       '@type': 'ContactPoint',
       contactType: 'inquiry',
-      email: 'hello@festdance.company'
+      email: contact.email
     }
   }
 
@@ -48,17 +53,6 @@ export function StructuredData() {
     }))
   }
 
-  const videoObjectSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'VideoObject',
-    name: 'FEST Dance Company Showreel',
-    description: t.heroBody,
-    thumbnailUrl: `https://festdance.company${portfolio[0].image.src}`,
-    uploadDate: '2026-04-20T20:00:00Z',
-    contentUrl: 'https://vimeo.com/festdancecompany', // Update with actual URL if available
-    embedUrl: 'https://vimeo.com/festdancecompany'
-  }
-
   return (
     <>
       <script
@@ -68,10 +62,6 @@ export function StructuredData() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(creativeWorkSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(videoObjectSchema) }}
       />
     </>
   )

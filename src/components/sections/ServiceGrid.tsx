@@ -26,7 +26,7 @@ export function ServiceGrid() {
         </div>
 
         <motion.div 
-          style={{ x, wheel: 'none', willChange: 'transform' }}
+          style={{ x, willChange: 'transform' }}
           className="flex gap-4 px-[clamp(1.25rem,1.05rem+0.9vw,2rem)] w-[max-content] md:gap-6 lg:gap-8"
         >
           {services.map((service) => {
@@ -78,4 +78,3 @@ export function ServiceGrid() {
     </section>
   )
 }
-

@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { brand } from '../../data/brand'
+import { contact } from '../../data/contact'
 import { MagneticButton } from '../ui/MagneticButton'
 import { useI18n, useTranslation } from '../../lib/i18n'
 
@@ -30,13 +31,6 @@ type SiteHeaderProps = {
   open: boolean
   setOpen: (open: boolean) => void
 }
-
-const navItems = [
-  { label: 'Oferta',    href: '#oferta' },
-  { label: 'Founder',   href: '#founder' },
-  { label: 'Portfolio', href: '#portfolio' },
-  { label: 'Kontakt',   href: '#kontakt' },
-]
 
 export function SiteHeader({ open, setOpen }: SiteHeaderProps) {
   const t = useTranslation()
@@ -182,7 +176,12 @@ export function SiteHeader({ open, setOpen }: SiteHeaderProps) {
               <div className="mt-auto grid gap-10 border-t border-white/10 pt-10 md:grid-cols-2 md:items-end">
                 <div>
                     <p className="text-[10px] uppercase tracking-[0.3em] text-white/30 mb-4">{t.contactLabel}</p>
-                    <p className="text-sm tracking-[0.1em] text-white/60 hover:text-white transition-colors">{brand.email}</p>
+                    <a
+                      href={`mailto:${contact.email}`}
+                      className="text-sm tracking-[0.1em] text-white/60 transition-colors hover:text-white"
+                    >
+                      {contact.email}
+                    </a>
                 </div>
                 <div className="flex flex-wrap justify-start md:justify-end gap-6 text-[10px] font-bold uppercase tracking-[0.3em] text-white/45">
                     {brand.socialLinks.map((item) => (
@@ -190,7 +189,7 @@ export function SiteHeader({ open, setOpen }: SiteHeaderProps) {
                         key={item.label}
                         href={item.href}
                         target="_blank"
-                        rel="noreferrer"
+                        rel="noopener noreferrer"
                         className="transition-colors hover:text-fuchsia-400"
                     >
                         {item.label}

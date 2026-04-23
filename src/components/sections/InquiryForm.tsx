@@ -3,10 +3,8 @@ import { motion } from 'framer-motion'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { Turnstile } from '@marsidev/react-turnstile'
 import { contact } from '../../data/contact'
 import { SectionHeading } from '../ui/SectionHeading'
-import type { CTAInquiry } from '../../types'
 import { MagneticButton } from '../ui/MagneticButton'
 import { useTranslation } from '../../lib/i18n'
 
@@ -19,24 +17,20 @@ export function InquiryForm() {
   )
 
   const inquirySchema = z.object({
-    serviceType: z.string().min(1, t.formValService),
     name: z.string().min(2, t.formValName),
     company: z.string(),
     email: z.string().email(t.formValEmail),
     deadline: z.string().min(2, t.formValDeadline),
-    budget: z.string().min(1, t.formValBudget),
     brief: z.string().min(20, t.formValBrief),
   })
 
   type InquiryInput = z.infer<typeof inquirySchema>
 
-  const initialForm: CTAInquiry = {
-    serviceType: t.lang === 'pl' ? contact.serviceOptions[0] : 'Concerts',
+  const initialForm: InquiryInput = {
     name: '',
     company: '',
     email: '',
     deadline: '',
-    budget: t.lang === 'pl' ? contact.budgetOptions[1] : '10–25k',
     brief: '',
   }
 
@@ -52,18 +46,13 @@ export function InquiryForm() {
   })
 
   const onSubmit = handleSubmit(async (values) => {
-    if (!turnstileToken) {
-      setError('root', { message: t.formValTurnstile })
-      return
-    }
-
     setSubmitState('idle')
 
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...values, turnstileToken })
+        body: JSON.stringify({ ...values, turnstileToken: turnstileToken || undefined })
       })
 
       if (!response.ok) {
@@ -81,13 +70,6 @@ export function InquiryForm() {
     }
   })
 
-  const budgetOptions = t.lang === 'pl' 
-    ? contact.budgetOptions 
-    : ['< 10k', '10–25k', '25–50k', '50k +']
-    
-  const serviceOptions = t.lang === 'pl'
-    ? contact.serviceOptions
-    : ['Concerts', 'Music Videos', 'Events', 'Ad Campaigns']
 
   return (
     <section id="kontakt" className="section-premium section-shell">
@@ -118,21 +100,6 @@ export function InquiryForm() {
           className="rounded-[32px] border border-white/10 bg-white/[0.035] p-[clamp(1.5rem,1.1rem+1.4vw,2rem)]"
         >
           <div className="grid gap-4 md:grid-cols-2">
-            <FormField label={t.formService} error={errors.serviceType?.message}>
-              <select {...register('serviceType')} className="field-base" data-cursor={t.cursorClick}>
-                {serviceOptions.map((option) => (
-                  <option key={option} value={option}>{option}</option>
-                ))}
-              </select>
-            </FormField>
-
-            <FormField label={t.formBudget} error={errors.budget?.message}>
-              <select {...register('budget')} className="field-base" data-cursor={t.cursorClick}>
-                {budgetOptions.map((option) => (
-                  <option key={option} value={option}>{option}</option>
-                ))}
-              </select>
-            </FormField>
 
             <FormField label={t.formName} error={errors.name?.message}>
               <input {...register('name')} className="field-base" data-cursor={t.cursorType} />

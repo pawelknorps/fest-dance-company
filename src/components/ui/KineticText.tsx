@@ -3,15 +3,18 @@ import { motion, useScroll, useTransform, useVelocity, useSpring } from 'framer-
 import type { ReactNode } from 'react'
 
 interface Props {
+  text?: string
   children: ReactNode
   className?: string
+  inView?: boolean
+  delay?: number
 }
 
 /**
  * SOTA Kinetic Typography
  * Implements scroll-velocity based skewing on large text elements.
  */
-export function KineticText({ children, className = '' }: Props) {
+export function KineticText({ text, children, className = '' }: Partial<Props> & { className?: string }) {
   const ref = useRef<HTMLDivElement>(null)
   
   const { scrollYProgress } = useScroll({
@@ -33,7 +36,7 @@ export function KineticText({ children, className = '' }: Props) {
       style={{ skewX: skew }}
       className={`will-change-transform ${className}`}
     >
-      {children}
+      {text ?? children}
     </motion.div>
   )
 }

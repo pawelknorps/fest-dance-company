@@ -91,7 +91,7 @@ function CardContent({ item, index, count, progress, velocityRef }: KineticCardP
       <mesh ref={meshRef} frustumCulled={false}>
         <planeGeometry args={[cardW, cardH]} />
         <meshBasicMaterial 
-          map={texture} 
+          map={texture as THREE.Texture} 
           transparent 
           opacity={0} 
         />

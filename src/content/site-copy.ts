@@ -110,8 +110,6 @@ export const siteCopy = {
     'Wyślij brief lub kilka zdań o kierunku artystycznym. Wrócimy z propozycją formy współpracy i pierwszym zakresem działań.',
   
   // Form Labels & Data
-  formService: 'Usługa',
-  formBudget: 'Budżet',
   formName: 'Imię i nazwisko',
   formCompany: 'Firma / artysta',
   formEmail: 'E-mail',
@@ -125,17 +123,15 @@ export const siteCopy = {
   formIdle: 'Wypełnij wszystkie pola, abyśmy mogli przygotować dla Ciebie wstępną propozycję współpracy.',
   
   // Form Validation
-  formValService: 'Wybierz typ usługi.',
   formValName: 'Podaj imię i nazwisko.',
   formValEmail: 'Podaj poprawny adres e-mail.',
   formValDeadline: 'Podaj orientacyjny termin.',
-  formValBudget: 'Wybierz budżet.',
   formValBrief: 'Dodaj kilka zdań o projekcie lub link do referencji.',
   formValTurnstile: 'Proszę potwierdzić, że nie jesteś robotem.',
   formValSubmitError: 'Nie udało się wysłać formularza. Sprawdź połączenie lub spróbuj ponownie później.',
 
   // Contact Details
-  contactEmail: 'booking@festdancecompany.com',
+  contactEmail: 'festdancecompany@gmail.com',
   contactCity: 'Warszawa / Polska',
   contactAvailability: 'Rezerwacje projektów 2026',
   intro: 'FEST Dance Company to miejsce, w którym ruch łączy się z wizją. Tworzymy choreografie do teledysków, koncertów, kampanii reklamowych oraz eventów specjalnych. W naszych projektach łączymy różne style tańca, aby najlepiej dopasować się do charakteru marki i wydarzenia.',

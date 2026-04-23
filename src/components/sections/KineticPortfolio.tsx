@@ -1,13 +1,11 @@
 // Kinetic Portfolio — 2026 Premium Choreography Showcase
 import { Suspense, useRef, useState, useEffect, useCallback } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import * as THREE from 'three'
 import { portfolio } from '../../data/portfolio'
 import { KineticCard } from './KineticCard'
 import { KineticScene } from './KineticScene'
-import { KineticPerformance } from './KineticPerformance'
 import { useTranslation } from '../../lib/i18n'
-import { motion, AnimatePresence, useScroll, useSpring, useMotionValueEvent } from 'framer-motion'
+import { motion, AnimatePresence, useScroll, useSpring, useMotionValueEvent, type MotionValue } from 'framer-motion'
 
 export function KineticPortfolio() {
   const t = useTranslation()
@@ -157,19 +155,19 @@ export function KineticPortfolio() {
 }
 
 // Inner R3F component — must live inside <Canvas>
-function KineticContent({ progress }: { progress: any }) {
+function KineticContent({ progress }: { progress: MotionValue<number> }) {
   const velocityRef = useRef(0)
   const lastValue = useRef(0)
   const [rangeIndex, setRangeIndex] = useState(0)
 
   // Track the current center index to drive virtualization
   useMotionValueEvent(progress, 'change', (val) => {
-    const currentProgress = val
+    const currentProgress = Number(val)
     const diff = currentProgress - lastValue.current
     velocityRef.current = Math.abs(diff) / 0.016 // approximate delta
     lastValue.current = currentProgress
 
-    const newIndex = Math.round(val * (portfolio.length - 1))
+    const newIndex = Math.round(currentProgress * (portfolio.length - 1))
     if (newIndex !== rangeIndex) {
       setRangeIndex(newIndex)
     }

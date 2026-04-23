@@ -110,8 +110,6 @@ export const en = {
     'Send a brief or a few sentences about the artistic direction. We will return with a cooperation proposal and the first scope of actions.',
   
   // Form Labels & Data
-  formService: 'Service',
-  formBudget: 'Budget',
   formName: 'Full Name',
   formCompany: 'Company / Artist',
   formEmail: 'E-mail',
@@ -125,17 +123,15 @@ export const en = {
   formIdle: 'Please fill out all fields so we can prepare an initial collaboration proposal for you.',
   
   // Form Validation
-  formValService: 'Please select a service type.',
   formValName: 'Please provide your full name.',
   formValEmail: 'Please provide a valid email address.',
   formValDeadline: 'Please provide an approximate deadline.',
-  formValBudget: 'Please select a budget.',
   formValBrief: 'Please add a few sentences about the project or reference links.',
   formValTurnstile: 'Please confirm that you are not a robot.',
   formValSubmitError: 'Failed to send the form. Please check your connection or try again later.',
 
   // Contact Details
-  contactEmail: 'booking@festdancecompany.com',
+  contactEmail: 'festdancecompany@gmail.com',
   contactCity: 'Warsaw / Poland',
   contactAvailability: 'Booking projects for 2026',
 

@@ -1,12 +1,10 @@
-import { useState } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { SmoothScroll } from '../components/layout/SmoothScroll'
 import { SiteHeader } from '../components/layout/SiteHeader'
 import { HeroStage } from '../components/sections/HeroStage'
 import { ServiceGrid } from '../components/sections/ServiceGrid'
 import { FounderFeature } from '../components/sections/FounderFeature'
 import { CredibilityBand } from '../components/sections/CredibilityBand'
-import { PortfolioRail } from '../components/sections/PortfolioRail'
-import { KineticPortfolio } from '../components/sections/KineticPortfolio'
 import { ProcessStrip } from '../components/sections/ProcessStrip'
 import { InquiryForm } from '../components/sections/InquiryForm'
 import { SiteFooter } from '../components/layout/SiteFooter'
@@ -14,6 +12,8 @@ import { CustomCursor } from '../components/ui/CustomCursor'
 import { StructuredData } from '../components/seo/StructuredData'
 import { LoadingScreen } from '../components/ui/LoadingScreen'
 import { ScrollProgress } from '../components/ui/ScrollProgress'
+
+const KineticPortfolio = lazy(() => import('../components/sections/KineticPortfolio').then(module => ({ default: module.KineticPortfolio })))
 
 export function AppShell() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -34,7 +34,7 @@ export function AppShell() {
           <FounderFeature />
           <CredibilityBand />
           {/* <ReelShowcase /> */}
-          <KineticPortfolio />
+          <DeferredPortfolio />
           {/* <PortfolioRail /> */}
           <ProcessStrip />
           <InquiryForm />
@@ -43,5 +43,39 @@ export function AppShell() {
         <SiteFooter />
       </div>
     </SmoothScroll>
+  )
+}
+
+function DeferredPortfolio() {
+  const [shouldLoad, setShouldLoad] = useState(false)
+  const sentinelRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const node = sentinelRef.current
+    if (!node) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting) return
+        setShouldLoad(true)
+        observer.disconnect()
+      },
+      { rootMargin: '1200px 0px' },
+    )
+
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <div ref={sentinelRef}>
+      {shouldLoad ? (
+        <Suspense fallback={<div className="relative h-[500vh] w-full bg-[#070410]" aria-hidden="true" />}>
+          <KineticPortfolio />
+        </Suspense>
+      ) : (
+        <div className="relative h-[500vh] w-full bg-[#070410]" aria-hidden="true" />
+      )}
+    </div>
   )
 }
