@@ -13,9 +13,26 @@ import { StructuredData } from '../components/seo/StructuredData'
 import { LoadingScreen } from '../components/ui/LoadingScreen'
 import { ScrollProgress } from '../components/ui/ScrollProgress'
 import { KineticPortfolio } from '../components/sections/KineticPortfolio'
+import { portfolio } from '../data/portfolio'
+import * as THREE from 'three'
 
 export function AppShell() {
   const [menuOpen, setMenuOpen] = useState(false)
+
+  // SOTA: Aggressive pre-loading of the first portfolio assets
+  // This happens in the background without blocking the Main Thread
+  useEffect(() => {
+    const loader = new THREE.ImageBitmapLoader()
+    loader.setOptions({ imageOrientation: 'flipY' })
+    // Pre-load first 4 items immediately
+    portfolio.slice(0, 4).forEach(item => {
+      try {
+        loader.load(item.image.src)
+      } catch (e) {
+        // Silently fail pre-load if anything goes wrong
+      }
+    })
+  }, [])
 
   return (
     <>
@@ -59,7 +76,7 @@ function DeferredPortfolio() {
         setShouldLoad(true)
         observer.disconnect()
       },
-      { rootMargin: '1200px 0px' },
+      { rootMargin: '2000px 0px' },
     )
 
     observer.observe(node)
