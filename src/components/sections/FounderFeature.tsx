@@ -24,19 +24,19 @@ export function FounderFeature() {
               Founder & Lead Choreographer
             </p>
             <h2 className="font-display uppercase leading-[0.85] tracking-[0.02em] text-white">
-              <span className="mb-6 block text-[clamp(1.8rem,4vw,2.8rem)] text-white/30">
+              <span className="mb-6 block text-fluid-small text-white/30">
                 {t.founderEyebrow}
               </span>
-              <span className="text-[clamp(5rem,9vw,9.5rem)]">
+              <span className="text-fluid-h2">
                 {founder.name.split(' ').map((part) => (
-                  <span key={part} className="text-glow block text-white">
+                   <span key={part} className="text-glow block text-white">
                     {part}
                   </span>
                 ))}
               </span>
             </h2>
 
-            <div className="mt-12 space-y-8 text-[1.05rem] leading-9 text-white/60">
+            <div className="mt-12 space-y-8 text-fluid-body leading-relaxed text-white/60">
               {t.founderBio.map((paragraph: string) => (
                 <p key={paragraph} className="max-w-[45ch]">{paragraph}</p>
               ))}
@@ -94,10 +94,10 @@ export function FounderFeature() {
             transition={{ duration: 0.55, delay: index * 0.08 }}
             className="border-t border-white/12 pt-5"
           >
-            <p className="font-display text-6xl uppercase leading-none tracking-[0.1em] text-white">
+            <p className="font-display text-fluid-h3 uppercase leading-none tracking-[0.1em] text-white">
               <span className="text-glow">{metric.value}</span>
             </p>
-            <p className="mt-3 max-w-[18ch] text-sm uppercase tracking-[0.24em] text-white/55">
+            <p className="mt-3 max-w-[18ch] text-[11px] uppercase tracking-[0.24em] text-white/55">
               {translatedLabel}
             </p>
           </motion.div>

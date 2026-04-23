@@ -1,4 +1,4 @@
-import founderPortrait from '../assets/images/10-2.JPEG?format=webp&w=1200&q=85&as=url'
+import founderPortrait from '../assets/images/10-2.JPEG?format=webp&w=1000&q=80&as=url'
 import type { FounderData } from '../types'
 
 export const founder: FounderData = {

@@ -27,8 +27,8 @@ export function HeroStage() {
   const scrubProgress = useTransform(scrollYProgress, [0.24, 0.96], [0, 1])
 
   return (
-    <section ref={sectionRef} id="top" className="relative isolate h-[320vh] bg-[#060609]">
-      <div className="sticky top-0 h-[100svh] w-full overflow-hidden">
+    <section ref={sectionRef} id="top" className="relative isolate h-[320dvh] bg-[#060609]">
+      <div className="sticky top-0 h-[100dvh] w-full overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_62%_42%,rgba(184,92,255,0.16),transparent_0_18%),linear-gradient(180deg,#060609_0%,#07070a_52%,#050507_100%)]" />
         <div className="noise-mask absolute inset-0 opacity-18" />
 
@@ -121,7 +121,7 @@ export function HeroStage() {
 
         <motion.div
           style={{ y: textY, opacity: textOpacity, willChange: 'transform, opacity' }}
-          className="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-[1440px] flex-col justify-center px-[clamp(1.25rem,1.05rem+0.9vw,2rem)] pt-[12svh] pb-[6svh]"
+          className="relative z-10 mx-auto flex min-h-[100dvh] w-full max-w-[1440px] flex-col justify-center px-[clamp(1rem,0.8rem+1vw,2.5rem)] pt-[12dvh] pb-[6dvh]"
         >
           <div className="grid w-full gap-6 lg:grid-cols-[minmax(0,0.82fr)_minmax(260px,0.34fr)] lg:items-end">
             <div className="max-w-[620px]">
@@ -129,7 +129,7 @@ export function HeroStage() {
                 initial={{ opacity: 0, y: 18 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.65, delay: 0.15 }}
-                className="mb-2 text-[0.68rem] uppercase tracking-[0.42em] text-white/54 md:mb-5 md:text-xs"
+                className="mb-2 text-fluid-small uppercase tracking-[0.42em] text-white/54 md:mb-5"
               >
                 {t.heroKicker}
               </motion.p>
@@ -143,7 +143,7 @@ export function HeroStage() {
               </motion.p>
 
                 <motion.h1
-                  className="font-display text-[clamp(3.6rem,8.5vw,7.6rem)] uppercase leading-[0.82] tracking-[0.02em] text-white"
+                  className="font-display text-fluid-hero uppercase leading-[0.82] tracking-[0.02em] text-white"
                 >
                   {t.heroVisualLines.map((line, i) => (
                     <motion.span
@@ -162,7 +162,7 @@ export function HeroStage() {
                 initial={{ opacity: 0, y: 18 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.72, delay: 0.36 }}
-                className="mt-3 max-w-[30rem] text-[clamp(0.95rem,0.92rem+0.15vw,1.05rem)] leading-6 text-white/76 md:mt-6 md:leading-7"
+                className="mt-3 max-w-[30rem] text-fluid-body leading-relaxed text-white/76 md:mt-6"
               >
                 {t.heroHeadline}
               </motion.p>
@@ -186,7 +186,7 @@ export function HeroStage() {
               transition={{ duration: 0.78, delay: 0.42 }}
               className="w-full max-w-[340px] justify-self-end border-t border-white/10 pt-4 md:pt-6"
             >
-              <p className="text-[0.88rem] leading-7 text-white/50 md:text-[0.94rem] md:leading-8">
+              <p className="text-[0.88rem] leading-7 text-white/50 md:text-fluid-body md:leading-8">
                 {t.heroBody}
               </p>
             </motion.div>

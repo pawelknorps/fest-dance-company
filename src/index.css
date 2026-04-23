@@ -5,6 +5,13 @@
   --font-display: 'Teko', sans-serif;
   --color-night: #0a0a0a;
   --color-night-soft: #111111;
+
+  /* Fluid Typography System (320px -> 1440px) */
+  --text-fluid-hero: clamp(3.5rem, 2.36rem + 5.71vw, 7.5rem);
+  --text-fluid-h2: clamp(2.5rem, 1.36rem + 5.71vw, 6.5rem);
+  --text-fluid-h3: clamp(2rem, 1.43rem + 2.86vw, 4rem);
+  --text-fluid-body: clamp(0.95rem, 0.92rem + 0.15vw, 1.05rem);
+  --text-fluid-small: clamp(0.7rem, 0.64rem + 0.27vw, 0.85rem);
 }
 
 :root {
@@ -22,6 +29,10 @@ html {
   scroll-behavior: smooth;
 }
 
+[id] {
+  scroll-margin-top: var(--header-height, 80px);
+}
+
 body {
   margin: 0;
   min-width: 320px;
@@ -32,7 +43,7 @@ body {
 
 body,
 #root {
-  min-height: 100svh;
+  min-height: 100dvh;
 }
 
 a {
@@ -61,8 +72,8 @@ img {
   .section-shell {
     margin-inline: auto;
     width: min(100%, 1440px);
-    padding-inline: clamp(1.25rem, 1.05rem + 0.9vw, 2rem);
-    padding-block: clamp(4rem, 2.85rem + 4.8vw, 7.5rem);
+    padding-inline: clamp(1rem, 0.8rem + 1vw, 2.5rem);
+    padding-block: clamp(3rem, 2rem + 5dvh, 8rem);
   }
 
   .text-glow {
@@ -73,7 +84,9 @@ img {
   }
 
   .field-base {
-    @apply w-full rounded-[20px] border border-white/12 bg-black/30 px-4 py-4 text-white outline-none transition placeholder:text-white/28 focus:border-fuchsia-300/70 focus:bg-black/45 focus-visible:ring-2 focus-visible:ring-fuchsia-300/40;
+    @apply w-full rounded-[20px] border border-white/12 bg-black/30 px-4 py-4 text-base text-white outline-none transition placeholder:text-white/28 focus:border-fuchsia-300/70 focus:bg-black/45 focus-visible:ring-2 focus-visible:ring-fuchsia-300/40;
+    /* iOS Safari zoom prevention: font-size must be at least 16px */
+    font-size: 16px;
   }
 
   .section-premium {

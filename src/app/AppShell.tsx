@@ -27,11 +27,14 @@ export function AppShell() {
   const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
+    const isMobile = window.matchMedia('(max-width: 768px)').matches
     const loader = new THREE.ImageBitmapLoader()
     loader.setOptions({ imageOrientation: 'flipY' })
+    
     portfolio.slice(0, 4).forEach(item => {
       try {
-        loader.load(item.image.src)
+        const src = (isMobile && item.image.srcMobile) ? item.image.srcMobile : item.image.src
+        loader.load(src)
       } catch (e) {}
     })
   }, [])

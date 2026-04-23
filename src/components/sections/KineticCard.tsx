@@ -8,7 +8,12 @@ interface KineticCardProps {
   count: number
   progress: any
   velocityRef: React.MutableRefObject<number>
+  activeIndex: number
+  isMobile: boolean
 }
+
+// Shared Geometry for all cards to reduce memory footprint
+const sharedPlaneGeometry = new THREE.PlaneGeometry(1, 1)
 
 export function KineticCard(props: KineticCardProps) {
   // Stagger visibility, not loading.
@@ -27,7 +32,7 @@ export function KineticCard(props: KineticCardProps) {
   )
 }
 
-function CardPlaceholder({ index, count, progress }: Omit<KineticCardProps, 'item' | 'velocityRef'>) {
+function CardPlaceholder({ index, count, progress }: Omit<KineticCardProps, 'item' | 'velocityRef' | 'activeIndex' | 'isMobile'>) {
   const groupRef = useRef<THREE.Group>(null)
 
   useFrame(() => {
@@ -48,21 +53,31 @@ function CardPlaceholder({ index, count, progress }: Omit<KineticCardProps, 'ite
 
   return (
     <group ref={groupRef}>
-      <mesh>
-        <planeGeometry args={[4.8, 4.8]} />
+      <mesh geometry={sharedPlaneGeometry} scale={[4.8, 4.8, 1]}>
         <meshBasicMaterial color="#050505" transparent opacity={0.15} />
       </mesh>
     </group>
   )
 }
 
-function CardContent({ item, index, count, progress, velocityRef, isVisible }: KineticCardProps & { isVisible: boolean }) {
+function CardContent({ 
+  item, 
+  index, 
+  count, 
+  progress, 
+  velocityRef, 
+  isVisible, 
+  isMobile 
+}: Omit<KineticCardProps, 'activeIndex'> & { isVisible: boolean }) {
   const groupRef = useRef<THREE.Group>(null)
   const meshRef = useRef<THREE.Mesh>(null)
   
+  // Choose mobile-optimized asset if available
+  const imageSrc = (isMobile && item.image.srcMobile) ? item.image.srcMobile : item.image.src
+
   // SOTA: Use ImageBitmapLoader to decode images on a background thread (Web Worker).
   // This eliminates Main Thread "jank" during image decoding.
-  const imageBitmap = useLoader(THREE.ImageBitmapLoader, item.image.src, (loader: any) => {
+  const imageBitmap = useLoader(THREE.ImageBitmapLoader, imageSrc, (loader: any) => {
     if (loader.setOptions) {
       loader.setOptions({ imageOrientation: 'flipY' })
     }
@@ -72,11 +87,12 @@ function CardContent({ item, index, count, progress, velocityRef, isVisible }: K
     if (!imageBitmap) return null
     const tex = new THREE.Texture(imageBitmap)
     tex.colorSpace = THREE.SRGBColorSpace
-    tex.anisotropy = 4
+    // Disable anisotropy on mobile for performance
+    tex.anisotropy = isMobile ? 1 : 4
     // We handle flip in the loader options above for better performance
     tex.needsUpdate = true 
     return tex
-  }, [imageBitmap])
+  }, [imageBitmap, isMobile])
 
   const { cardW, cardH } = useMemo(() => {
     const w = item.image.width || 567
@@ -90,8 +106,19 @@ function CardContent({ item, index, count, progress, velocityRef, isVisible }: K
   useFrame(() => {
     if (!groupRef.current || !meshRef.current) return
 
-    const scrollVal = progress.get() * (count - 1)
-    const offset = index - scrollVal
+    const currentScroll = progress.get() * (count - 1)
+    const currentActive = Math.round(currentScroll)
+
+    // Visibility Culling: If the card is far from the active view, hide it.
+    // Three.js will skip rendering it (0 GPU load), but it stays in VRAM.
+    const distToActive = Math.abs(index - currentActive)
+    const isVisibleNow = isMobile ? distToActive <= 2 : distToActive <= 3
+    meshRef.current.visible = isVisibleNow
+
+    // CPU Optimization: Skip expensive math and lerps if not visible
+    if (!isVisibleNow) return
+
+    const offset = index - currentScroll
     const absOffset = Math.abs(offset)
     const velocity = velocityRef.current
 
@@ -119,10 +146,21 @@ function CardContent({ item, index, count, progress, velocityRef, isVisible }: K
     mat.opacity = THREE.MathUtils.lerp(mat.opacity, targetOpacity, 0.12)
   })
 
+  // Cleanup textures to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (texture) texture.dispose()
+    }
+  }, [texture])
+
   return (
     <group ref={groupRef}>
-      <mesh ref={meshRef} frustumCulled={false}>
-        <planeGeometry args={[cardW, cardH]} />
+      <mesh 
+        ref={meshRef} 
+        frustumCulled={false} 
+        geometry={sharedPlaneGeometry} 
+        scale={[cardW, cardH, 1]}
+      >
         <meshBasicMaterial 
           map={texture} 
           transparent 

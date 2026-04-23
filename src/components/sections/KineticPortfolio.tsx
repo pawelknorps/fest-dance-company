@@ -6,15 +6,22 @@ import { KineticCard } from './KineticCard'
 import { KineticScene } from './KineticScene'
 import { useTranslation } from '../../lib/i18n'
 import { motion, useScroll, useSpring, useMotionValueEvent, type MotionValue } from 'framer-motion'
+import { useLenis } from 'lenis/react'
 
 export function KineticPortfolio() {
   const t = useTranslation()
   const sectionRef = useRef<HTMLElement>(null)
   const [activeIndex, setActiveIndex] = useState(0)
   const [shouldLoad, setShouldLoad] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
   // Internal deferred loading logic
   useEffect(() => {
+    const mql = window.matchMedia('(max-width: 768px)')
+    setIsMobile(mql.matches)
+    const handleMql = (e: MediaQueryListEvent) => setIsMobile(e.matches)
+    mql.addEventListener('change', handleMql)
+
     // Register global trigger for external callers (like SmoothScroll)
     window.__fest_trigger_portfolio = () => setShouldLoad(true)
 
@@ -45,6 +52,7 @@ export function KineticPortfolio() {
     observer.observe(node)
 
     return () => {
+      mql.removeEventListener('change', handleMql)
       window.removeEventListener('hashchange', handleHash)
       observer.disconnect()
       delete window.__fest_trigger_portfolio
@@ -63,23 +71,42 @@ export function KineticPortfolio() {
     restDelta: 0.001,
   })
 
-  // Sync active card index to React state
+  const velocityRef = useRef(0)
+  const lastValue = useRef(0)
+
+  useMotionValueEvent(smoothProgress, 'change', (val) => {
+    const currentProgress = Number(val)
+    const diff = currentProgress - lastValue.current
+    velocityRef.current = Math.abs(diff) / 0.016 
+    lastValue.current = currentProgress
+  })
+
+  // Sync active card index to React state ONLY when it changes (for indicator dots)
   useMotionValueEvent(scrollYProgress, 'change', (value) => {
     const idx = Math.round(value * (portfolio.length - 1))
-    setActiveIndex(Math.min(Math.max(idx, 0), portfolio.length - 1))
+    if (idx !== activeIndex) {
+      setActiveIndex(idx)
+    }
   })
+
+  const lenis = useLenis()
 
   // Scroll page to the right position for a given card index
   const navigateTo = useCallback((idx: number) => {
     const clamped = Math.min(Math.max(idx, 0), portfolio.length - 1)
     const fraction = clamped / (portfolio.length - 1)
     const section = sectionRef.current
-    if (!section) return
+    if (!section || !lenis) return
+    
     const sectionTop = section.offsetTop
     const sectionHeight = section.offsetHeight
     const targetScroll = sectionTop + fraction * (sectionHeight - window.innerHeight)
-    window.scrollTo({ top: targetScroll, behavior: 'smooth' })
-  }, [])
+    
+    lenis.scrollTo(targetScroll, {
+      duration: 1.2,
+      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    })
+  }, [lenis])
 
   // Keyboard navigation ← →
   useEffect(() => {
@@ -103,9 +130,9 @@ export function KineticPortfolio() {
             {/* ── 3-D WebGL Canvas ─────────────────────────────────────── */}
             <Canvas
               camera={{ position: [0, 0, 8], fov: 40 }}
-              dpr={[1, 1.5]}
+              dpr={1}
               gl={{ 
-                antialias: true, 
+                antialias: false, 
                 alpha: false, 
                 stencil: false,
                 depth: true,
@@ -115,8 +142,14 @@ export function KineticPortfolio() {
                 gl.setClearColor('#070410')
               }}
             >
-              <KineticScene />
-              {portfolio.length > 0 && <KineticContent progress={smoothProgress} />}
+              <KineticScene isMobile={isMobile} velocityRef={velocityRef} />
+              {portfolio.length > 0 && (
+                <KineticContent 
+                  progress={smoothProgress} 
+                  velocityRef={velocityRef}
+                  isMobile={isMobile}
+                />
+              )}
             </Canvas>
 
             {/* ── HTML Overlay ──────────────────────────────────────────── */}
@@ -152,16 +185,15 @@ export function KineticPortfolio() {
 }
 
 // Inner R3F component — must live inside <Canvas>
-function KineticContent({ progress }: { progress: MotionValue<number> }) {
-  const velocityRef = useRef(0)
-  const lastValue = useRef(0)
-
-  useMotionValueEvent(progress, 'change', (val) => {
-    const currentProgress = Number(val)
-    const diff = currentProgress - lastValue.current
-    velocityRef.current = Math.abs(diff) / 0.016 
-    lastValue.current = currentProgress
-  })
+function KineticContent({ 
+  progress, 
+  velocityRef, 
+  isMobile 
+}: { 
+  progress: MotionValue<number>, 
+  velocityRef: React.MutableRefObject<number>,
+  isMobile: boolean
+}) {
 
   return (
     <>
@@ -173,6 +205,7 @@ function KineticContent({ progress }: { progress: MotionValue<number> }) {
           count={portfolio.length}
           progress={progress}
           velocityRef={velocityRef}
+          isMobile={isMobile}
         />
       ))}
     </>

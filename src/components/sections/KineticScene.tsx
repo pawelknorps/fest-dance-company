@@ -4,16 +4,28 @@ import { useFrame } from '@react-three/fiber'
 import { useRef } from 'react'
 import type * as THREE from 'three'
 
-
-
-export function KineticScene() {
+export function KineticScene({ 
+  isMobile, 
+  velocityRef 
+}: { 
+  isMobile?: boolean,
+  velocityRef: React.MutableRefObject<number>
+}) {
   const accentLightRef = useRef<THREE.PointLight>(null)
+  const sparklesVisibleRef = useRef(true)
+
+  const sparklesGroupRef = useRef<THREE.Group>(null)
 
   useFrame((state) => {
     if (accentLightRef.current) {
       // Slow pulse on the rear accent light
       const pulse = Math.sin(state.clock.elapsedTime * 0.7) * 0.25 + 0.75
       accentLightRef.current.intensity = pulse * 2.2
+    }
+
+    // Optimization: Hide sparkles if scrolling very fast to save GPU cycles
+    if (sparklesGroupRef.current && velocityRef?.current !== undefined) {
+      sparklesGroupRef.current.visible = velocityRef.current < 0.12
     }
   })
 
@@ -50,26 +62,31 @@ export function KineticScene() {
         distance={14}
       />
 
-      {/* Gold dust — slow, dreamy stage atmosphere */}
-      <Sparkles
-        count={28}
-        scale={18}
-        size={1.6}
-        speed={0.18}
-        opacity={0.45}
-        color="#ffd700"
-        noise={0.4}
-      />
-      {/* Soft violet particles — finer, quicker */}
-      <Sparkles
-        count={44}
-        scale={24}
-        size={0.7}
-        speed={0.55}
-        opacity={0.18}
-        color="#ddc0ff"
-        noise={1.2}
-      />
+      {/* Overdraw optimization: Sparkles disabled on mobile */}
+      {!isMobile && (
+        <group ref={sparklesGroupRef}>
+          {/* Gold dust — slow, dreamy stage atmosphere */}
+          <Sparkles
+            count={28}
+            scale={18}
+            size={1.6}
+            speed={0.18}
+            opacity={0.45}
+            color="#ffd700"
+            noise={0.4}
+          />
+          {/* Soft violet particles — finer, quicker */}
+          <Sparkles
+            count={44}
+            scale={24}
+            size={0.7}
+            speed={0.55}
+            opacity={0.18}
+            color="#ddc0ff"
+            noise={1.2}
+          />
+        </group>
+      )}
 
       {/* Post-processing disabled for absolute stability */}
     </>

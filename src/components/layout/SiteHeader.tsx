@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { brand } from '../../data/brand'
 import { contact } from '../../data/contact'
 import { MagneticButton } from '../ui/MagneticButton'
@@ -56,10 +56,27 @@ export function SiteHeader({ open, setOpen }: SiteHeaderProps) {
     return () => window.removeEventListener('scroll', handler)
   }, [])
 
+  // Track header height for precise scroll offsets
+  const headerRef = useRef<HTMLElement>(null)
+  useEffect(() => {
+    if (!headerRef.current) return
+
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const height = entry.contentRect.height
+        document.documentElement.style.setProperty('--header-height', `${height}px`)
+      }
+    })
+
+    observer.observe(headerRef.current)
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <>
       {/* ── Fixed header bar ── */}
       <header
+        ref={headerRef}
         className={`pointer-events-none fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
           scrolled
             ? 'bg-[#070707]/88 backdrop-blur-md shadow-[0_1px_0_rgba(255,255,255,0.06)]'

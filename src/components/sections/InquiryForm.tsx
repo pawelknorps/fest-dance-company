@@ -148,13 +148,13 @@ export function InquiryForm() {
             />
           </div> */}
 
-          <div className="mt-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="mt-8 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <MagneticButton hitPadding={32}>
               <button
                 type="submit"
                 disabled={isSubmitting}
                 data-cursor={t.cursorClick}
-                className="inline-flex items-center justify-center rounded-full bg-[linear-gradient(135deg,#ff58f8,#a83fff)] px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-black shadow-[0_0_32px_rgba(255,88,248,0.35)] transition disabled:cursor-wait disabled:opacity-70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-fuchsia-300"
+                className="inline-flex min-h-[56px] min-w-[160px] items-center justify-center rounded-full bg-[linear-gradient(135deg,#ff58f8,#a83fff)] px-8 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-black shadow-[0_0_32px_rgba(255,88,248,0.35)] transition disabled:cursor-wait disabled:opacity-70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-fuchsia-300 active:scale-95"
               >
                 {isSubmitting ? t.formSending : t.formSubmit}
               </button>

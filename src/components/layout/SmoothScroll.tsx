@@ -1,22 +1,12 @@
 import { useEffect } from 'react';
 import type { ReactNode } from 'react';
-import Lenis from 'lenis';
+import { ReactLenis, useLenis } from 'lenis/react';
 
-export function SmoothScroll({ children }: { children: ReactNode }) {
+function ScrollLogic({ children }: { children: ReactNode }) {
+  const lenis = useLenis();
+
   useEffect(() => {
-    // Check for reduced motion preference
-    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (media.matches) {
-      return;
-    }
-
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-      wheelMultiplier: 1,
-      lerp: 0.1,
-    });
+    if (!lenis) return;
 
     // Handle anchor links with extra stability for Three.js sections
     const handleAnchorClick = (e: MouseEvent) => {
@@ -35,27 +25,21 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
           }
           
           // Force Lenis to recalculate dimensions right before scrolling
-          lenis.dimensions.onWindowResize();
+          lenis.resize();
+          
+          const headerOffset = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-height')) || 0;
           
           lenis.scrollTo(element, {
-            offset: 0,
+            offset: -headerOffset,
             duration: 1.5,
             immediate: false,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
           });
         }
       }
     };
 
     document.addEventListener('click', handleAnchorClick, { capture: true });
-
-    let frameId = 0;
-    function raf(time: number) {
-      lenis.raf(time);
-      frameId = requestAnimationFrame(raf);
-    }
-    
-    frameId = requestAnimationFrame(raf);
 
     // Immediate and deferred hash handling for deep links
     const handleInitialHash = () => {
@@ -66,7 +50,11 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
         }
         const element = document.querySelector(window.location.hash);
         if (element) {
-          lenis.scrollTo(element as HTMLElement, { immediate: true });
+          const headerOffset = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-height')) || 0;
+          lenis.scrollTo(element as HTMLElement, { 
+            offset: -headerOffset,
+            immediate: true 
+          });
         }
       }
     };
@@ -77,22 +65,39 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     const t2 = setTimeout(handleInitialHash, 800);
     const t3 = setTimeout(handleInitialHash, 2000);
 
-    // Refresh Lenis on window resize and any DOM mutations
-    const resizeObserver = new ResizeObserver(() => {
-      lenis.dimensions.onWindowResize();
-    });
-    resizeObserver.observe(document.body);
-
     return () => {
-      cancelAnimationFrame(frameId);
       document.removeEventListener('click', handleAnchorClick, { capture: true });
-      resizeObserver.disconnect();
       clearTimeout(t1);
       clearTimeout(t2);
       clearTimeout(t3);
-      lenis.destroy();
     };
-  }, []);
+  }, [lenis]);
 
   return <>{children}</>;
+}
+
+export function SmoothScroll({ children }: { children: ReactNode }) {
+  // Check for reduced motion preference
+  const media = typeof window !== 'undefined' ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+  
+  if (media?.matches) {
+    return <>{children}</>;
+  }
+
+  return (
+    <ReactLenis 
+      root 
+      options={{
+        duration: 1.0,
+        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smoothWheel: true,
+        wheelMultiplier: 1,
+        lerp: 0.12,
+      }}
+    >
+      <ScrollLogic>
+        {children}
+      </ScrollLogic>
+    </ReactLenis>
+  );
 }
