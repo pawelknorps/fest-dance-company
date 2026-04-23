@@ -6,7 +6,8 @@ import type * as THREE from 'three'
 
 export function KineticScene({ 
   isMobile, 
-  velocityRef 
+  velocityRef,
+  isIntersecting
 }: { 
   isMobile?: boolean,
   velocityRef: React.MutableRefObject<number>,
@@ -94,3 +95,5 @@ export function KineticScene({
     </>
   )
 }
+
+export default KineticScene
