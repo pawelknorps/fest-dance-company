@@ -20,12 +20,11 @@ function heroAssetsPreloadPlugin(): Plugin {
     apply: 'build',
 
     generateBundle(_options, bundle) {
-      // Find the emitted assets for hero1 and fest-logo
+      // Find the emitted assets for the critical fest-logo
       for (const [fileName, chunk] of Object.entries(bundle)) {
-        if (chunk.type === 'asset') {
-          if (fileName.match(/hero1.*\.webp$/) || fileName.match(/fest-logo.*\.webp$/)) {
-            assetsToPreload.push(`/${fileName}`)
-          }
+        if (chunk.type === 'asset' && fileName.match(/fest-logo.*\.webp$/)) {
+          assetsToPreload.push(`/${fileName}`)
+          break // Only need the first match
         }
       }
     },

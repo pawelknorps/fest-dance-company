@@ -62,46 +62,26 @@ export function HeroStage() {
             />
 
             <motion.div
-              animate={{ rotate: [0, 360], scale: [1, 1.05, 1], x: ['-2%', '2%', '-2%'], y: ['-1%', '3%', '-1%'] }}
-              transition={{
-                rotate: { duration: 35, repeat: Infinity, ease: "linear" },
-                scale: { duration: 18, repeat: Infinity, ease: "easeInOut" },
-                x: { duration: 15, repeat: Infinity, ease: "easeInOut" },
-                y: { duration: 21, repeat: Infinity, ease: "easeInOut" }
-              }}
+              animate={{ rotate: 360 }}
+              transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
               style={{ willChange: 'transform' }}
               className="absolute h-[28vw] w-[54vw] rounded-[50%] border border-white/40 opacity-80 shadow-[0_0_15px_rgba(255,255,255,0.1)_inset]"
             />
             <motion.div
-              animate={{ rotate: [45, -315], scale: [1, 1.08, 1], x: ['1%', '-3%', '1%'], y: ['2%', '-2%', '2%'] }}
-              transition={{
-                rotate: { duration: 42, repeat: Infinity, ease: "linear" },
-                scale: { duration: 22, repeat: Infinity, ease: "easeInOut" },
-                x: { duration: 19, repeat: Infinity, ease: "easeInOut" },
-                y: { duration: 17, repeat: Infinity, ease: "easeInOut" }
-              }}
+              animate={{ rotate: -360 }}
+              transition={{ duration: 42, repeat: Infinity, ease: "linear" }}
               style={{ willChange: 'transform' }}
               className="absolute h-[22vw] w-[40vw] rounded-[50%] border border-white/35 opacity-75 shadow-[0_0_12px_rgba(255,255,255,0.08)_inset]"
             />
             <motion.div
-              animate={{ rotate: [-20, 340], scale: [1, 1.04, 1], x: ['-1.5%', '1.5%', '-1.5%'], y: ['-1.5%', '1.5%', '-1.5%'] }}
-              transition={{
-                rotate: { duration: 50, repeat: Infinity, ease: "linear" },
-                scale: { duration: 25, repeat: Infinity, ease: "easeInOut" },
-                x: { duration: 24, repeat: Infinity, ease: "easeInOut" },
-                y: { duration: 28, repeat: Infinity, ease: "easeInOut" }
-              }}
+              animate={{ rotate: 360 }}
+              transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
               style={{ willChange: 'transform' }}
               className="absolute h-[36vw] w-[60vw] rounded-[50%] border border-white/30 opacity-65 shadow-[0_0_20px_rgba(255,255,255,0.05)_inset]"
             />
             <motion.div
-              animate={{ rotate: [10, -350], scale: [1, 1.06, 1], x: ['2%', '-2%', '2%'], y: ['-2%', '2%', '-2%'] }}
-              transition={{
-                rotate: { duration: 38, repeat: Infinity, ease: "linear" },
-                scale: { duration: 16, repeat: Infinity, ease: "easeInOut" },
-                x: { duration: 14, repeat: Infinity, ease: "easeInOut" },
-                y: { duration: 19, repeat: Infinity, ease: "easeInOut" }
-              }}
+              animate={{ rotate: -360 }}
+              transition={{ duration: 38, repeat: Infinity, ease: "linear" }}
               style={{ willChange: 'transform' }}
               className="absolute h-[18vw] w-[32vw] rounded-[50%] border border-white/30 opacity-70 shadow-[0_0_10px_rgba(255,255,255,0.08)_inset]"
             />

@@ -61,8 +61,12 @@ export function PortfolioRail() {
         {/* Visual progress indicator */}
         <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex gap-3 z-20">
           {portfolio.map((_, i) => {
+            const start = (i - 0.4) / portfolio.length
+            const mid = i / portfolio.length
+            const end = (i + 0.4) / portfolio.length
+            
             const opacity = useTransform(scrollYProgress, 
-              [(i - 0.5) / portfolio.length, i / portfolio.length, (i + 0.5) / portfolio.length],
+              [start, mid, end],
               [0.3, 1, 0.3]
             )
             return (
