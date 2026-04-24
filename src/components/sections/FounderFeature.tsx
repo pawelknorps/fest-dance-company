@@ -60,16 +60,21 @@ export function FounderFeature() {
               className="group relative aspect-[2/3] w-full overflow-hidden rounded-[40px] border border-white/10 bg-[#0a0a0c] shadow-2xl shadow-black/50"
             >
               <div className="absolute inset-0 h-full w-full">
-                <img
-                  src={founder.portrait.src}
-                  srcSet={founder.portrait.srcSet}
-                  sizes="(max-width: 1024px) 100vw, 600px"
-                  alt={t.founderAlt}
-                  width={founder.portrait.width}
-                  height={founder.portrait.height}
-                  loading="lazy"
-                  className="h-full w-full object-cover grayscale transition-all duration-1000 group-hover:grayscale-0 group-hover:scale-[1.05]"
-                />
+                <picture className="h-full w-full">
+                  <source
+                    media="(max-width: 768px)"
+                    srcSet={founder.portrait.srcMobile}
+                    type="image/webp"
+                  />
+                  <img
+                    src={founder.portrait.src}
+                    alt={t.founderAlt}
+                    width={founder.portrait.width}
+                    height={founder.portrait.height}
+                    loading="lazy"
+                    className="h-full w-full object-cover grayscale transition-all duration-1000 group-hover:grayscale-0 group-hover:scale-[1.05]"
+                  />
+                </picture>
               </div>
               
               {/* Refined overlays */}

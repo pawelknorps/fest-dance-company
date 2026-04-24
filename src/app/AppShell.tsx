@@ -20,11 +20,13 @@ export function AppShell() {
   const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
-    // Preload first 2 portfolio images for instant feel
-    portfolio.slice(0, 2).forEach(item => {
-      const img = new Image()
-      img.src = item.image.srcMobile || item.image.src
-    })
+    // Preload first 2 portfolio images for instant feel — Desktop only to save mobile bandwidth
+    if (window.innerWidth > 768) {
+      portfolio.slice(0, 2).forEach(item => {
+        const img = new Image()
+        img.src = item.image.srcMobile || item.image.src
+      })
+    }
   }, [])
 
   return (

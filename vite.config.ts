@@ -12,30 +12,30 @@ import { ViteImageOptimizer } from 'vite-plugin-image-optimizer'
  * In dev mode the image is served at its original path, so we inject a preload
  * pointing at the imagetools-transformed URL instead.
  */
-function heroImagePreloadPlugin(): Plugin {
-  let heroAssetUrl: string | null = null
+function heroAssetsPreloadPlugin(): Plugin {
+  const assetsToPreload: string[] = []
 
   return {
-    name: 'hero-image-preload',
+    name: 'hero-assets-preload',
     apply: 'build',
 
     generateBundle(_options, bundle) {
-      // Find the emitted asset whose original name matches hero1.jpg → webp transform
+      // Find the emitted assets for hero1 and fest-logo
       for (const [fileName, chunk] of Object.entries(bundle)) {
-        if (
-          chunk.type === 'asset' &&
-          fileName.match(/hero1.*\.webp$/)
-        ) {
-          heroAssetUrl = `/${fileName}`
-          break
+        if (chunk.type === 'asset') {
+          if (fileName.match(/hero1.*\.webp$/) || fileName.match(/fest-logo.*\.webp$/)) {
+            assetsToPreload.push(`/${fileName}`)
+          }
         }
       }
     },
 
     transformIndexHtml(html) {
-      if (!heroAssetUrl) return html
-      const preloadTag = `<link rel="preload" as="image" href="${heroAssetUrl}" type="image/webp" fetchpriority="high" />`
-      return html.replace('</head>', `  ${preloadTag}\n  </head>`)
+      if (assetsToPreload.length === 0) return html
+      const preloadTags = assetsToPreload
+        .map(url => `<link rel="preload" as="image" href="${url}" type="image/webp" fetchpriority="high" />`)
+        .join('\n  ')
+      return html.replace('</head>', `  ${preloadTags}\n  </head>`)
     },
   }
 }
@@ -47,19 +47,12 @@ export default defineConfig({
     tailwindcss(),
     imagetools(),
     ViteImageOptimizer({
-      avif: {
-        quality: 80,
-      },
-      webp: {
-        quality: 80,
-      },
-      jpeg: {
-        quality: 80,
-      },
-      png: {
-        quality: 80,
-      },
+      png: { quality: 75 },
+      jpeg: { quality: 75 },
+      jpg: { quality: 75 },
+      webp: { quality: 75 },
+      avif: { quality: 65 },
     }),
-    heroImagePreloadPlugin(),
+    heroAssetsPreloadPlugin(),
   ],
 })

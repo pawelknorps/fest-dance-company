@@ -1,4 +1,5 @@
-import founderPortrait from '../assets/images/10-2.JPEG?format=webp&w=1000&q=80&as=url'
+import founderPortrait from '../assets/images/10-2.jpg?format=webp&w=800&q=75&as=url'
+import founderPortraitMobile from '../assets/images/10-2.jpg?format=webp&w=500&q=70&as=url'
 import type { FounderData } from '../types'
 
 export const founder: FounderData = {
@@ -6,6 +7,7 @@ export const founder: FounderData = {
   name: 'Inia Nuckowska',
   portrait: {
     src: founderPortrait,
+    srcMobile: founderPortraitMobile,
     alt: 'Portret Inii Nuckowskiej - Założycielka FEST Dance Company',
     width: 5427,
     height: 8137,

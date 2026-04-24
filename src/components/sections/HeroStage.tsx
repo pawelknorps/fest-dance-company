@@ -5,7 +5,7 @@ import { brand } from '../../data/brand'
 import { siteCopy as plCopy } from '../../content/site-copy'
 import { useHeroMediaVisibility } from '../../hooks/useHeroMediaVisibility'
 import { PrimaryButton } from '../ui/PrimaryButton'
-import festLogo from '../../assets/logo/fest-logo.png'
+import festLogo from '../../assets/logo/fest-logo.png?format=webp&w=1400&q=85&as=url'
 import { OffscreenHero } from '../ui/OffscreenHero'
 import { KineticText } from '../ui/KineticText'
 import { useTranslation } from '../../lib/i18n'
@@ -108,6 +108,10 @@ export function HeroStage() {
             <img
               src={festLogo}
               alt="FEST Dance Company Logo - Premium Movement Direction & Choreography"
+              fetchPriority="high"
+              loading="eager"
+              width={1400}
+              height={360}
               className="pointer-events-none absolute left-1/2 w-[85vw] max-w-[1400px] -translate-x-1/2 object-contain opacity-55 md:opacity-65"
               style={{
                 willChange: 'transform',

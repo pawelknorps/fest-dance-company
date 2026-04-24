@@ -8,7 +8,7 @@ export function LoadingScreen() {
   const [isFinishing, setIsFinishing] = useState(false)
 
   useEffect(() => {
-    // SOTA Snappy Loading Logic
+    // SOTA Snappy Loading Logic — decoupled from network to ensure fast LCP
     const timer = setInterval(() => {
       setProgress(prev => {
         if (prev >= 100) {
@@ -18,22 +18,14 @@ export function LoadingScreen() {
           setTimeout(() => setIsVisible(false), 200)
           return 100
         }
-        // Faster increments for snappier feedback
-        return prev + Math.random() * 20
+        // Consistent snappy increments
+        const inc = Math.random() * 15 + 5
+        return Math.min(prev + inc, 100)
       })
-    }, 40)
-
-    // Fallback: Force clear if page is fully loaded
-    const handleLoad = () => setProgress(100)
-    if (document.readyState === 'complete') {
-      handleLoad()
-    } else {
-      window.addEventListener('load', handleLoad)
-    }
+    }, 60)
 
     return () => {
       clearInterval(timer)
-      window.removeEventListener('load', handleLoad)
     }
   }, [])
 

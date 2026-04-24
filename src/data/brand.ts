@@ -1,4 +1,4 @@
-import festLogo from '../assets/logo/logo-cropped.png?format=webp&w=400&as=url'
+import festLogo from '../assets/logo/logo-cropped.png?format=webp&w=400&q=75&as=url'
 import type { BrandData } from '../types'
 
 export const brand: BrandData = {

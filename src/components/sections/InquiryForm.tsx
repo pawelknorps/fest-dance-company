@@ -103,21 +103,22 @@ export function InquiryForm() {
         >
           <div className="grid gap-4 md:grid-cols-2">
 
-            <FormField label={t.formName} error={errors.name?.message}>
-              <input {...register('name')} className="field-base" data-cursor={t.cursorType} />
+            <FormField id="name" label={t.formName} error={errors.name?.message}>
+              <input {...register('name')} id="name" className="field-base" data-cursor={t.cursorType} />
             </FormField>
 
-            <FormField label={t.formCompany} error={errors.company?.message}>
-              <input {...register('company')} className="field-base" data-cursor={t.cursorType} />
+            <FormField id="company" label={t.formCompany} error={errors.company?.message}>
+              <input {...register('company')} id="company" className="field-base" data-cursor={t.cursorType} />
             </FormField>
 
-            <FormField label={t.formEmail} error={errors.email?.message}>
-              <input {...register('email')} type="email" className="field-base" data-cursor={t.cursorType} />
+            <FormField id="email" label={t.formEmail} error={errors.email?.message}>
+              <input {...register('email')} id="email" type="email" className="field-base" data-cursor={t.cursorType} />
             </FormField>
 
-            <FormField label={t.formDeadline} error={errors.deadline?.message}>
+            <FormField id="deadline" label={t.formDeadline} error={errors.deadline?.message}>
               <input
                 {...register('deadline')}
+                id="deadline"
                 type="text"
                 placeholder={t.formDeadlinePlaceholder}
                 className="field-base"
@@ -127,12 +128,14 @@ export function InquiryForm() {
           </div>
 
           <FormField
+            id="brief"
             label={t.formBrief}
             error={errors.brief?.message}
             className="mt-4"
           >
             <textarea
               {...register('brief')}
+              id="brief"
               rows={6}
               className="field-base min-h-40 resize-y"
               data-cursor={t.cursorType}
@@ -185,6 +188,7 @@ export function InquiryForm() {
 }
 
 type FormFieldProps = {
+  id: string
   label: string
   children: React.ReactNode
   className?: string
@@ -192,20 +196,24 @@ type FormFieldProps = {
 }
 
 function FormField({
+  id,
   label,
   children,
   className = '',
   error,
 }: FormFieldProps) {
   return (
-    <label className={`block ${className}`}>
-      <span className="mb-2 block text-[11px] uppercase tracking-[0.28em] text-white/54">
+    <div className={`block ${className}`}>
+      <label
+        htmlFor={id}
+        className="mb-2 block text-[11px] uppercase tracking-[0.28em] text-white/54"
+      >
         {label}
-      </span>
+      </label>
       {children}
       <span className="mt-2 block min-h-6 text-sm text-rose-300">
         {error ?? ''}
       </span>
-    </label>
+    </div>
   )
 }
