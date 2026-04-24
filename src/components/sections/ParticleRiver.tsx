@@ -8,13 +8,9 @@ interface ParticleRiverProps {
   velocityRef: React.MutableRefObject<number>
 }
 
-// Pre-define geometry to avoid recreation
-const _pos = new THREE.Vector3()
-
 export function ParticleRiver({ particleCount = 1800, width = 45, velocityRef }: ParticleRiverProps) {
   const pointsRef = useRef<THREE.Points>(null)
 
-  // Maximum performance: Single Float32Arrays
   const [positions, progress, sizes] = useMemo(() => {
     const pos = new Float32Array(particleCount * 3)
     const prog = new Float32Array(particleCount)
@@ -55,7 +51,6 @@ export function ParticleRiver({ particleCount = 1800, width = 45, velocityRef }:
         vec3 pos = position;
 
         float speed = 1.0 + uVelocity * 1.8;
-        // Optimized wave: single sin call for major deformation
         float wave = sin(pos.x * 0.35 + uTime * speed);
         pos.y += wave * 1.5;
         pos.z += cos(pos.x * 0.25 + uTime * speed * 0.5) * 1.0;
@@ -63,7 +58,6 @@ export function ParticleRiver({ particleCount = 1800, width = 45, velocityRef }:
         vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
         gl_Position = projectionMatrix * mvPosition;
         
-        // Size attenuation optimized
         gl_PointSize = (16.0 * aSize * (1.0 + uVelocity * 0.4)) / -mvPosition.z;
       }
     `,
@@ -74,13 +68,11 @@ export function ParticleRiver({ particleCount = 1800, width = 45, velocityRef }:
       varying float vProgress;
 
       void main() {
-        // High performance circular shape: squared distance
         vec2 cxy = 2.0 * gl_PointCoord - 1.0;
         float r2 = dot(cxy, cxy);
         if (r2 > 1.0) discard;
 
         vec3 color;
-        // Branchless-style gradient (optimized)
         float midMask = step(0.5, vProgress);
         color = mix(
           mix(uColorStart, uColorMid, vProgress * 2.0),
@@ -88,7 +80,6 @@ export function ParticleRiver({ particleCount = 1800, width = 45, velocityRef }:
           midMask
         );
 
-        // Soft falloff
         float alpha = (1.0 - r2) * 0.6;
         gl_FragColor = vec4(color, alpha);
       }
@@ -109,21 +100,15 @@ export function ParticleRiver({ particleCount = 1800, width = 45, velocityRef }:
       <bufferGeometry>
         <bufferAttribute 
           attach="attributes-position" 
-          count={particleCount} 
-          array={positions} 
-          itemSize={3} 
+          args={[positions, 3]} 
         />
         <bufferAttribute 
           attach="attributes-progress" 
-          count={particleCount} 
-          array={progress} 
-          itemSize={1} 
+          args={[progress, 1]} 
         />
         <bufferAttribute 
           attach="attributes-aSize" 
-          count={particleCount} 
-          array={sizes} 
-          itemSize={1} 
+          args={[sizes, 1]} 
         />
       </bufferGeometry>
       <shaderMaterial 

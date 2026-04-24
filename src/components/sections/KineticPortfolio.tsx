@@ -26,7 +26,7 @@ export function KineticPortfolio() {
         setIsIntersecting(entry.isIntersecting)
         if (entry.isIntersecting) setShouldLoad(true)
       },
-      { rootMargin: '600px 0px' } // Pre-load earlier to hide initialization
+      { rootMargin: '600px 0px' }
     )
     if (sectionRef.current) observer.observe(sectionRef.current)
 
@@ -101,8 +101,7 @@ export function KineticPortfolio() {
                 alpha: false, 
                 stencil: false, 
                 depth: true, 
-                powerPreference: 'high-performance',
-                preserveDrawingBuffer: false 
+                powerPreference: 'high-performance'
               }}
               onCreated={({ gl }) => {
                 gl.setClearColor('#05030a')
@@ -110,7 +109,6 @@ export function KineticPortfolio() {
             >
               <KineticScene isMobile={isMobile} velocityRef={velocityRef} isIntersecting={isIntersecting} />
               
-              {/* Individual Suspense per card instead of top-level to avoid mounting lag */}
               <KineticContent 
                 progress={smoothProgress} 
                 velocityRef={velocityRef}
@@ -120,7 +118,7 @@ export function KineticPortfolio() {
               />
 
               {!isMobile && (
-                <EffectComposer disableNormalPass>
+                <EffectComposer>
                   <Vignette eskil={false} offset={0.1} darkness={1.1} />
                 </EffectComposer>
               )}
@@ -165,7 +163,6 @@ function KineticContent({
     const m = mouseRef.current
     const t = state.clock.elapsedTime
     
-    // Efficient sparse update
     for (let i = 0; i < cardRefs.current.length; i++) {
       cardRefs.current[i]?.update(p, v, m, t, isIntersecting)
     }
@@ -176,7 +173,7 @@ function KineticContent({
       {portfolio.map((item, index) => (
         <KineticCard
           key={item.id}
-          ref={(el) => (cardRefs.current[index] = el)}
+          ref={(el) => { cardRefs.current[index] = el }}
           item={item}
           index={index}
           count={portfolio.length}
