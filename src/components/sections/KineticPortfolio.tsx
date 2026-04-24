@@ -88,7 +88,7 @@ export function KineticPortfolio() {
   }, [lenis])
 
   return (
-    <section ref={sectionRef} className="relative h-[700vh] w-full" style={{ background: '#05030a' }}>
+    <section ref={sectionRef} className="relative h-[550vh] w-full" style={{ background: '#05030a' }}>
       <div className="sticky top-0 h-screen w-full overflow-hidden">
         {shouldLoad && (
           <>

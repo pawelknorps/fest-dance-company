@@ -14,22 +14,12 @@ import { LoadingScreen } from '../components/ui/LoadingScreen'
 import { ScrollProgress } from '../components/ui/ScrollProgress'
 import { portfolio } from '../data/portfolio'
 
-const PortfolioRail = lazy(() => import('../components/sections/PortfolioRail'))
+const KineticPortfolio = lazy(() => import('../components/sections/KineticPortfolio'))
 
 import { ErrorBoundary } from '../components/ui/ErrorBoundary'
 
 export function AppShell() {
   const [menuOpen, setMenuOpen] = useState(false)
-
-  useEffect(() => {
-    // Preload first 2 portfolio images for instant feel
-    if (typeof window !== 'undefined' && window.innerWidth > 768) {
-      portfolio.slice(0, 2).forEach(item => {
-        const img = new Image()
-        img.src = item.image.srcMobile || item.image.src
-      })
-    }
-  }, [])
 
   return (
     <ErrorBoundary>
@@ -50,8 +40,7 @@ export function AppShell() {
             
             <div id="portfolio">
               <Suspense fallback={<div className="h-[100vh] bg-[#05030a]" />}>
-                {/* Unified Premium Portfolio for both Mobile and Desktop */}
-                <PortfolioRail />
+                <KineticPortfolio />
               </Suspense>
             </div>
 

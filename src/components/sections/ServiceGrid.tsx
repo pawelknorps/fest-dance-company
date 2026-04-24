@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { motion, useScroll, useTransform, useVelocity, useSpring } from 'framer-motion'
 import { services } from '../../data/services'
 import { SectionHeading } from '../ui/SectionHeading'
@@ -8,14 +8,35 @@ export function ServiceGrid() {
   const t = useTranslation()
   const sectionRef = useRef<HTMLElement>(null)
   
-  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start start', 'end end'] })
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start end', 'end end'] })
   
-  const imageY = useTransform(scrollYProgress, [0, 1], ['-15%', '15%'])
-  const xPercent = useTransform(scrollYProgress, [0, 1], [0, -100])
-  const x = useTransform(xPercent, (v) => `calc(${v}% + ${-v}vw)`)
+  const imageY = useTransform(scrollYProgress, [0.3, 1], ['-15%', '15%'])
+  const x = useTransform(scrollYProgress, [0.3, 0.9], ['0%', '-68%'])
+
+  const containerRef = useRef<HTMLDivElement>(null)
+  const imageRefs = useRef<(HTMLImageElement | null)[]>([])
+
+  useEffect(() => {
+    const unsubX = x.on("change", (v: string) => {
+      if (containerRef.current) {
+        containerRef.current.style.transform = `translateX(${v})`
+      }
+    })
+    
+    const unsubY = imageY.on("change", (v: string) => {
+      imageRefs.current.forEach(img => {
+        if (img) img.style.transform = `translateY(${v}) scale(1.15)`
+      })
+    })
+
+    return () => {
+      unsubX()
+      unsubY()
+    }
+  }, [x, imageY])
 
   return (
-    <section ref={sectionRef} id="oferta" className="section-premium relative h-[300dvh]">
+    <section ref={sectionRef} id="oferta" className="section-premium relative h-[200dvh]">
       <div className="sticky top-0 flex h-[100dvh] w-full flex-col justify-center overflow-hidden py-10 md:py-20">
         <div className="w-full px-[clamp(1rem,0.8rem+1vw,2.5rem)] max-w-[1440px] mx-auto mb-8 md:mb-12">
             <SectionHeading
@@ -25,24 +46,27 @@ export function ServiceGrid() {
             />
         </div>
 
-        <motion.div 
-          style={{ x, willChange: 'transform' }}
+        <div 
+          ref={containerRef}
           className="flex gap-4 px-[clamp(1rem,0.8rem+1vw,2.5rem)] w-[max-content] md:gap-6 lg:gap-8 scroll-snap-type-x-mandatory touch-action-pan-y"
+          style={{ willChange: 'transform' }}
         >
-          {services.map((service) => {
+          {services.map((service, index) => {
             const translated = t.servicesItems?.[service.id as keyof typeof t.servicesItems] || service
             return (
               <article
                 key={service.id}
                 className="group relative w-[85vw] flex-shrink-0 overflow-hidden rounded-[24px] border border-white/10 bg-black md:w-[50vw] lg:w-[42vw] h-[55dvh] min-h-[24rem] max-h-[40rem] scroll-snap-align-center"
               >
-                <div className="absolute inset-0 h-full w-full">
+                <div className="absolute inset-0 h-full w-full overflow-hidden">
                   <img
+                    ref={el => { imageRefs.current[index] = el }}
                     src={service.coverImage.src}
                     srcSet={service.coverImage.srcSet}
                     sizes="(max-width: 768px) 85vw, (max-width: 1024px) 50vw, 42vw"
                     alt={translated.alt || service.coverImage.alt}
-                    className="h-full w-full object-cover opacity-80 transition duration-700 group-hover:scale-[1.04] group-hover:opacity-100"
+                    className="h-full w-full object-cover opacity-80 transition-opacity duration-700 group-hover:opacity-100"
+                    style={{ transform: 'translateY(-15%) scale(1.15)', willChange: 'transform' }}
                   />
                 </div>
                 <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.12)_0%,rgba(0,0,0,0.75)_100%)] pointer-events-none" />
@@ -73,7 +97,7 @@ export function ServiceGrid() {
               </article>
             )
           })}
-        </motion.div>
+        </div>
       </div>
     </section>
   )

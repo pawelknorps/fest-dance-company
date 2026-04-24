@@ -1,10 +1,48 @@
-import { useRef, useMemo } from 'react'
+import { useRef, useMemo, useEffect } from 'react'
 import { motion, useScroll, useTransform, useSpring, useVelocity } from 'framer-motion'
 import { portfolio } from '../../data/portfolio'
 import { SectionHeading } from '../ui/SectionHeading'
 import { useTranslation } from '../../lib/i18n'
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useFrame } from '@react-three/fiber'
 import { ParticleRiver } from './ParticleRiver'
+
+function ProgressDot({ i, count, scrollYProgress }: { i: number, count: number, scrollYProgress: any }) {
+  const dotRef = useRef<HTMLDivElement>(null)
+  const mid = i / count
+  const start = Math.max(0, mid - 0.1)
+  const end = Math.min(1, mid + 0.1)
+
+  useEffect(() => {
+    return scrollYProgress.on("change", (latest: number) => {
+      if (!dotRef.current) return
+      let opacity = 0.3
+      if (latest >= start && latest <= end) {
+        // Simple linear interpolation for peak at mid
+        if (latest < mid) {
+          opacity = 0.3 + (0.7 * (latest - start)) / (mid - start || 0.001)
+        } else {
+          opacity = 1 - (0.7 * (latest - mid)) / (end - mid || 0.001)
+        }
+      }
+      dotRef.current.style.opacity = String(opacity)
+    })
+  }, [scrollYProgress, start, mid, end])
+  
+  return (
+    <div 
+      ref={dotRef}
+      style={{ opacity: 0.3 }}
+      className="w-2 h-2 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.5)] transition-opacity duration-200" 
+    />
+  )
+}
+
+function VelocityTracker({ velocity, velocityRef }: { velocity: any, velocityRef: React.MutableRefObject<number> }) {
+  useFrame(() => {
+    velocityRef.current = velocity.get()
+  })
+  return null
+}
 
 export function PortfolioRail() {
   const t = useTranslation()
@@ -18,14 +56,10 @@ export function PortfolioRail() {
 
   // Transform scroll progress to horizontal translation
   const x = useTransform(scrollYProgress, [0, 1], ['0%', '-85%'])
-  const springX = useSpring(x, { damping: 30, stiffness: 100, mass: 0.5 })
   
   // Velocity for kinetic effects
-  const velocity = useVelocity(scrollYProgress)
-  const skewX = useTransform(velocity, [-1, 1], [-15, 15])
-  const springSkewX = useSpring(skewX, { damping: 40, stiffness: 200 })
-
   const velocityRef = useRef(0)
+  const velocity = useVelocity(scrollYProgress)
   
   return (
     <section ref={sectionRef} id="portfolio" className="relative h-[600vh] bg-[#05030a]">
@@ -33,6 +67,7 @@ export function PortfolioRail() {
       <div className="pointer-events-none absolute inset-0 z-0">
         <Canvas camera={{ position: [0, 0, 8], fov: 40 }} dpr={[1, 1.5]}>
           <color attach="background" args={['#05030a']} />
+          <VelocityTracker velocity={velocity} velocityRef={velocityRef} />
           <group position={[0, 0, -2]}>
             <ParticleRiver particleCount={1500} width={50} velocityRef={velocityRef} />
           </group>
@@ -50,7 +85,7 @@ export function PortfolioRail() {
 
         <motion.div 
           ref={containerRef}
-          style={{ x: springX, skewX: springSkewX }}
+          style={{ x }}
           className="relative z-10 flex gap-6 md:gap-12 px-[clamp(1.25rem,1.05rem+0.9vw,2rem)] w-[max-content]"
         >
           {portfolio.map((item, index) => (
@@ -60,25 +95,9 @@ export function PortfolioRail() {
         
         {/* Visual progress indicator */}
         <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex gap-3 z-20">
-          {portfolio.map((_, i) => {
-            // Strictly monotonic range with safety margins
-            const step = 1 / portfolio.length
-            const mid = i * step
-            const start = mid - step * 0.4
-            const end = mid + step * 0.4
-            
-            const opacity = useTransform(scrollYProgress, 
-              [start, mid, end],
-              [0.3, 1, 0.3]
-            )
-            return (
-              <motion.div 
-                key={i} 
-                style={{ opacity }}
-                className="w-2 h-2 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.5)]" 
-              />
-            )
-          })}
+          {portfolio.map((_, i) => (
+            <ProgressDot key={i} i={i} count={portfolio.length} scrollYProgress={scrollYProgress} />
+          ))}
         </div>
       </div>
     </section>
@@ -111,16 +130,11 @@ function PortfolioCard({ item, index, t }: { item: any, index: number, t: any })
         <div className="absolute inset-0 bg-indigo-500/10 opacity-0 transition-opacity duration-700 group-hover:opacity-100 mix-blend-overlay" />
         
         {/* Content */}
-        <div className="absolute inset-x-0 bottom-0 p-8 md:p-10 transform transition-transform duration-700 ease-out group-hover:translate-y-[-8px]">
+        <div className="absolute inset-x-0 bottom-0 p-8 md:p-10">
           <div className="overflow-hidden">
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="text-[11px] uppercase tracking-[0.3em] text-indigo-300/80 mb-2"
-            >
+            <p className="text-[11px] uppercase tracking-[0.3em] text-indigo-300/80 mb-2">
               {t.portfolioCategories?.[item.category.toLowerCase() as keyof typeof t.portfolioCategories] || item.category}
-            </motion.p>
+            </p>
           </div>
           
           <h3 className="font-display text-3xl uppercase tracking-[0.1em] text-white md:text-4xl leading-tight">

@@ -92,9 +92,7 @@ img {
   }
 
   .section-premium {
-    content-visibility: auto;
-    contain-intrinsic-size: 800px;
-    contain: layout style paint;
+    position: relative;
   }
 }
 
@@ -118,4 +116,23 @@ img {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background: linear-gradient(135deg, #ff0080 0%, #7928ca 100%); }
+  50% { background: linear-gradient(135deg, #0070f3 0%, #00dfd8 100%); }
+  100% { background: linear-gradient(135deg, #ff0080 0%, #7928ca 100%); }
+}
+
+.animate-shimmer {
+  animation: shimmer 5s linear infinite;
 }

@@ -9,7 +9,7 @@ interface ParticleRiverProps {
   velocityRef: React.MutableRefObject<number>
 }
 
-export function ParticleRiver({ particleCount = 1800, width = 45, velocityRef }: ParticleRiverProps) {
+export function ParticleRiver({ particleCount = 1800, width = 45, velocityRef }: Partial<ParticleRiverProps>) {
   const pointsRef = useRef<Points>(null)
 
   const [positions, progress, sizes] = useMemo(() => {
@@ -90,7 +90,7 @@ export function ParticleRiver({ particleCount = 1800, width = 45, velocityRef }:
   useFrame((state) => {
     if (!pointsRef.current) return
     const mat = pointsRef.current.material as ShaderMaterial
-    const vel = velocityRef.current || 0
+    const vel = velocityRef?.current || 0
     
     mat.uniforms.uTime.value = state.clock.elapsedTime
     mat.uniforms.uVelocity.value += (vel - mat.uniforms.uVelocity.value) * 0.1

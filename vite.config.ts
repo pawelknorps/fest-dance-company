@@ -46,6 +46,7 @@ export default defineConfig({
     tailwindcss(),
     imagetools(),
     ViteImageOptimizer({
+      exclude: ['src/assets/images'],
       png: { quality: 75 },
       jpeg: { quality: 75 },
       jpg: { quality: 75 },

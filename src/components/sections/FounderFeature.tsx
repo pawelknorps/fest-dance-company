@@ -10,7 +10,7 @@ export function FounderFeature() {
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start end', 'end start'] })
 
   return (
-    <section ref={sectionRef} id="founder" className="section-premium relative pt-16 pb-12 md:pt-24 md:pb-16">
+    <section ref={sectionRef} id="founder" className="section-premium relative pt-12 pb-8 md:pt-20 md:pb-12">
       <div className="section-shell w-full max-w-[1300px]">
         <div className="grid items-center gap-16 lg:grid-cols-[1fr_1.1fr] lg:gap-20">
           <motion.div
@@ -54,10 +54,8 @@ export function FounderFeature() {
             <div className="absolute -inset-10 rounded-[60px] bg-[#ff58f8]/5 blur-[80px] opacity-40" />
             <div className="absolute -right-4 -top-4 h-32 w-32 rounded-full bg-white/5 blur-3xl" />
             
-            <motion.div 
-              animate={{ y: [0, -15, 0] }}
-              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-              className="group relative aspect-[2/3] w-full overflow-hidden rounded-[40px] border border-white/10 bg-[#0a0a0c] shadow-2xl shadow-black/50"
+            <div 
+              className="group relative aspect-[2/3] w-full overflow-hidden rounded-[40px] border border-white/10 bg-[#0a0a0c] shadow-2xl shadow-black/50 animate-float"
             >
               <div className="absolute inset-0 h-full w-full">
                 <picture className="h-full w-full">
@@ -83,30 +81,33 @@ export function FounderFeature() {
               
               {/* Dynamic light streak */}
               <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none" />
-            </motion.div>
+            </div>
           </motion.div>
         </div>
 
-        <div className="mt-16 grid gap-10 md:mt-20 md:grid-cols-3 lg:max-w-[1100px]">
-        {founder.metrics.map((metric, index) => {
-          const translatedLabel = t.founderMetrics?.[index]?.label || metric.label
-          return (
-          <motion.div
-            key={metric.label}
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.55, delay: index * 0.08 }}
-            className="border-t border-white/12 pt-5"
-          >
-            <p className="font-display text-fluid-h3 uppercase leading-none tracking-[0.1em] text-white">
-              <span className="text-glow">{metric.value}</span>
-            </p>
-            <p className="mt-3 max-w-[18ch] text-[11px] uppercase tracking-[0.24em] text-white/55">
-              {translatedLabel}
-            </p>
-          </motion.div>
-        )})}
+        <div className="mt-12 grid gap-10 border-t border-white/10 pt-12 md:mt-16 md:grid-cols-3 lg:gap-16">
+          {founder.metrics.map((metric, index) => {
+            const translatedLabel = t.founderMetrics?.[index]?.label || metric.label
+            return (
+              <motion.div
+                key={metric.label}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.7, delay: index * 0.12 }}
+                className="flex flex-col items-start gap-4"
+              >
+                <div className="font-display text-7xl uppercase leading-none tracking-tight text-white md:text-8xl">
+                  <span className="text-glow opacity-90">{metric.value}</span>
+                </div>
+                <div className="max-w-[20ch]">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-white/40">
+                    {translatedLabel}
+                  </p>
+                </div>
+              </motion.div>
+            )
+          })}
         </div>
       </div>
     </section>

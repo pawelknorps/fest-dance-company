@@ -8,43 +8,48 @@ export function CredibilityBand() {
   const pillars = t.credibilityPillars
   return (
     <section className="section-shell pt-4 md:pt-8 pb-16 md:pb-24">
-      <div className="overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.035] px-6 py-8 md:px-8 md:py-10">
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
+      <div className="overflow-hidden rounded-[40px] border border-white/10 bg-white/[0.02] px-8 py-12 md:px-16 md:py-20">
+        <div className="grid gap-16 lg:grid-cols-[0.9fr_1.1fr] lg:gap-24">
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-10% 0px' }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
           >
-            <p className="mb-4 text-sm uppercase tracking-[0.42em] text-white/45">
-              Approach
+            <p className="mb-6 text-[10px] font-bold uppercase tracking-[0.5em] text-[#ff58f8]/80">
+              {t.portfolioEyebrow || 'Approach'}
             </p>
-            <h3 className="max-w-[12ch] font-display text-5xl uppercase leading-[0.9] tracking-[0.08em] text-white md:text-6xl">
-              <span className="text-glow">{t.credibilityHeadline}</span>
+            <h3 className="max-w-[15ch] font-display text-5xl uppercase leading-[0.85] tracking-[0.04em] text-white md:text-7xl">
+              <span className="text-glow opacity-90">{t.credibilityHeadline}</span>
             </h3>
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-10% 0px' }}
-            transition={{ duration: 0.8, delay: 0.08 }}
+            transition={{ duration: 0.9, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
+            className="flex flex-col justify-between"
           >
-            <p className="max-w-2xl text-base leading-8 text-white/72">
+            <p className="max-w-2xl text-lg leading-relaxed text-white/70 md:text-xl md:leading-loose">
               {t.credibilityBody}
             </p>
-            <div className="mt-8 grid gap-5 md:grid-cols-3">
+            
+            <div className="mt-16 grid gap-8 md:grid-cols-3 lg:mt-24">
               {pillars.map((pillar, index) => (
-                <motion.p
+                <motion.div
                   key={pillar}
-                  initial={{ opacity: 0, y: 16 }}
+                  initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: '-10% 0px' }}
-                  transition={{ duration: 0.6, delay: 0.15 + index * 0.1 }}
-                  className="border-t border-white/12 pt-4 text-sm leading-7 text-white/58"
+                  transition={{ duration: 0.7, delay: 0.3 + index * 0.15 }}
+                  className="group relative"
                 >
-                  {pillar}
-                </motion.p>
+                  <div className="mb-6 h-px w-full bg-gradient-to-r from-white/20 to-transparent transition-all duration-700 group-hover:from-white/50" />
+                  <p className="text-xs font-medium leading-relaxed tracking-wider text-white/50 transition-colors duration-500 group-hover:text-white/90">
+                    {pillar}
+                  </p>
+                </motion.div>
               ))}
             </div>
           </motion.div>

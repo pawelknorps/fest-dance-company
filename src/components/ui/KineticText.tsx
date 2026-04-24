@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { motion, useScroll, useTransform, useVelocity, useSpring } from 'framer-motion'
 import type { ReactNode } from 'react'
 
@@ -14,7 +14,7 @@ interface Props {
  * SOTA Kinetic Typography
  * Implements scroll-velocity based skewing on large text elements.
  */
-export function KineticText({ text, children, className = '' }: Partial<Props> & { className?: string }) {
+export function KineticText({ text, children, className = '', inView }: Partial<Props> & { className?: string }) {
   const ref = useRef<HTMLDivElement>(null)
   
   const { scrollYProgress } = useScroll({
@@ -22,19 +22,17 @@ export function KineticText({ text, children, className = '' }: Partial<Props> &
     offset: ['start end', 'end start']
   })
 
-  // Calculate velocity of scroll
   const scrollVelocity = useVelocity(scrollYProgress)
-  
-  // Transform velocity into a skew angle
-  // Apple-tier smoothness: spring physics on the transformation
-  const skewRaw = useTransform(scrollVelocity, [-1, 1], [-20, 20])
-  const skew = useSpring(skewRaw, { stiffness: 400, damping: 90 })
+  const skewX = useSpring(useTransform(scrollVelocity, [-1, 1], [-15, 15]), {
+    stiffness: 100,
+    damping: 30
+  })
 
   return (
     <motion.div
       ref={ref}
-      style={{ skewX: skew }}
-      className={`will-change-transform ${className}`}
+      style={{ skewX }}
+      className={`inline-block ${className}`}
     >
       {text ?? children}
     </motion.div>

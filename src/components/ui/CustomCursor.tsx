@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { motion, useMotionValue, useSpring } from 'framer-motion'
 
 export function CustomCursor() {
@@ -50,24 +50,51 @@ export function CustomCursor() {
     return null;
   }
 
+  const dotRef = useRef<HTMLDivElement>(null)
+  const ringRef = useRef<HTMLDivElement>(null)
+  const textRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (window.matchMedia('(hover: none)').matches) return
+
+    const moveCursor = () => {
+      const x = cursorXSpring.get()
+      const y = cursorYSpring.get()
+      
+      if (dotRef.current) {
+        dotRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) scale(${isHovered ? 0.5 : 1})`
+        dotRef.current.style.opacity = isHovered ? '0' : '1'
+      }
+      
+      if (ringRef.current) {
+        ringRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`
+        ringRef.current.style.width = isHovered ? '72px' : '32px'
+        ringRef.current.style.height = isHovered ? '72px' : '32px'
+        ringRef.current.style.opacity = isHovered ? '1' : '0'
+      }
+      
+      requestAnimationFrame(moveCursor)
+    }
+
+    const rafId = requestAnimationFrame(moveCursor)
+    return () => cancelAnimationFrame(rafId)
+  }, [cursorXSpring, cursorYSpring, isHovered])
+
+  if (typeof window !== 'undefined' && window.matchMedia('(hover: none)').matches) {
+    return null
+  }
+
   return (
     <div className="hidden lg:block">
       {/* Disco Ball Dot */}
-      <motion.div
-        className="pointer-events-none fixed top-0 left-0 z-[100] h-3 w-3 rounded-full overflow-hidden shadow-[0_0_10px_rgba(255,255,255,0.4)] border border-white/10"
+      <div
+        ref={dotRef}
+        className="pointer-events-none fixed top-0 left-0 z-[100] h-3 w-3 rounded-full overflow-hidden shadow-[0_0_10px_rgba(255,255,255,0.4)] border border-white/10 transition-opacity duration-300"
         style={{
-          x: cursorXSpring,
-          y: cursorYSpring,
-          translateX: '-50%',
-          translateY: '-50%',
           background: 'radial-gradient(circle at 30% 30%, #ffffff 0%, #808080 45%, #111111 100%)',
-        }}
-        animate={{
-          opacity: isHovered ? 0 : 1,
-          scale: isHovered ? 0.5 : 1,
+          willChange: 'transform, opacity'
         }}
       >
-        {/* Tile Grid */}
         <div 
           className="absolute inset-0 opacity-30"
           style={{
@@ -78,53 +105,23 @@ export function CustomCursor() {
             backgroundSize: '2px 2px',
           }}
         />
+        <div className="absolute inset-0 mix-blend-overlay opacity-20 animate-shimmer" />
+      </div>
 
-        {/* Specular Sparkles */}
-        <motion.div
-          className="absolute inset-[-100%] bg-[conic-gradient(from_0deg,transparent_0,rgba(255,255,255,0.5)_10deg,transparent_20deg,transparent_170deg,rgba(255,255,255,0.5)_180deg,transparent_190deg)]"
-          initial={{ rotate: 0 }}
-          animate={{ rotate: 360 }}
-          transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-        />
-
-        {/* Subtle Color Shimmer */}
-        <motion.div
-          className="absolute inset-0 mix-blend-overlay opacity-20"
-          animate={{
-            background: [
-              'linear-gradient(135deg, #ff0080 0%, #7928ca 100%)',
-              'linear-gradient(135deg, #0070f3 0%, #00dfd8 100%)',
-              'linear-gradient(135deg, #ff0080 0%, #7928ca 100%)',
-            ]
-          }}
-          transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
-        />
-      </motion.div>
       {/* Circle / Ring / Text Container */}
-      <motion.div
-        className="pointer-events-none fixed top-0 left-0 z-[100] flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mix-blend-difference"
-        style={{
-          x: cursorXSpring,
-          y: cursorYSpring,
-          translateX: '-50%',
-          translateY: '-50%',
-        }}
-        animate={{
-          width: isHovered ? 72 : 32,
-          height: isHovered ? 72 : 32,
-          opacity: isHovered ? 1 : 0,
-        }}
+      <div
+        ref={ringRef}
+        className="pointer-events-none fixed top-0 left-0 z-[100] flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mix-blend-difference transition-all duration-300"
+        style={{ willChange: 'transform, width, height, opacity' }}
       >
         {isHovered && cursorText && (
-          <motion.span 
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
+          <span 
             className="text-[10px] font-bold tracking-widest text-white uppercase text-center leading-none"
           >
             {cursorText}
-          </motion.span>
+          </span>
         )}
-      </motion.div>
+      </div>
     </div>
   )
 }
