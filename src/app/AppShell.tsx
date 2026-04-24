@@ -16,12 +16,14 @@ import { portfolio } from '../data/portfolio'
 
 const PortfolioRail = lazy(() => import('../components/sections/PortfolioRail'))
 
+import { ErrorBoundary } from '../components/ui/ErrorBoundary'
+
 export function AppShell() {
   const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
-    // Preload first 2 portfolio images for instant feel — Desktop only to save mobile bandwidth
-    if (window.innerWidth > 768) {
+    // Preload first 2 portfolio images for instant feel
+    if (typeof window !== 'undefined' && window.innerWidth > 768) {
       portfolio.slice(0, 2).forEach(item => {
         const img = new Image()
         img.src = item.image.srcMobile || item.image.src
@@ -30,7 +32,7 @@ export function AppShell() {
   }, [])
 
   return (
-    <>
+    <ErrorBoundary>
       <LoadingScreen />
       <SmoothScroll>
         <ScrollProgress />
@@ -60,7 +62,7 @@ export function AppShell() {
           <SiteFooter />
         </div>
       </SmoothScroll>
-    </>
+    </ErrorBoundary>
   )
 }
 

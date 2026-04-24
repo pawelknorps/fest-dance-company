@@ -39,11 +39,13 @@ body {
   background:
     radial-gradient(circle at top left, rgba(255, 0, 242, 0.1), transparent 28%),
     #0a0a0a;
+  position: relative;
 }
 
 body,
 #root {
   min-height: 100dvh;
+  position: relative;
 }
 
 a {

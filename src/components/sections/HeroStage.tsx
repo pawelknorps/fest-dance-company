@@ -62,24 +62,28 @@ export function HeroStage() {
             />
 
             <motion.div
+              initial={{ rotate: 0 }}
               animate={{ rotate: 360 }}
               transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
               style={{ willChange: 'transform' }}
               className="absolute h-[28vw] w-[54vw] rounded-[50%] border border-white/40 opacity-80 shadow-[0_0_15px_rgba(255,255,255,0.1)_inset]"
             />
             <motion.div
+              initial={{ rotate: 0 }}
               animate={{ rotate: -360 }}
               transition={{ duration: 42, repeat: Infinity, ease: "linear" }}
               style={{ willChange: 'transform' }}
               className="absolute h-[22vw] w-[40vw] rounded-[50%] border border-white/35 opacity-75 shadow-[0_0_12px_rgba(255,255,255,0.08)_inset]"
             />
             <motion.div
+              initial={{ rotate: 0 }}
               animate={{ rotate: 360 }}
               transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
               style={{ willChange: 'transform' }}
               className="absolute h-[36vw] w-[60vw] rounded-[50%] border border-white/30 opacity-65 shadow-[0_0_20px_rgba(255,255,255,0.05)_inset]"
             />
             <motion.div
+              initial={{ rotate: 0 }}
               animate={{ rotate: -360 }}
               transition={{ duration: 38, repeat: Infinity, ease: "linear" }}
               style={{ willChange: 'transform' }}

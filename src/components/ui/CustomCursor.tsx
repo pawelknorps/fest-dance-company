@@ -82,6 +82,7 @@ export function CustomCursor() {
         {/* Specular Sparkles */}
         <motion.div
           className="absolute inset-[-100%] bg-[conic-gradient(from_0deg,transparent_0,rgba(255,255,255,0.5)_10deg,transparent_20deg,transparent_170deg,rgba(255,255,255,0.5)_180deg,transparent_190deg)]"
+          initial={{ rotate: 0 }}
           animate={{ rotate: 360 }}
           transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
         />
