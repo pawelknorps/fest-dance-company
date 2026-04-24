@@ -5,11 +5,6 @@
  * Sampling 4× 20,160-particle grids synchronously on mount was blocking
  * the main thread for 60–120 ms. This worker does all the work and
  * transfers the typed arrays back via zero-copy Transferable.
- *
- * Protocol:
- *   IN  { type: 'SAMPLE_IMAGES', payload: { urls: string[], gridW: number, gridH: number, maxW: number, maxH: number } }
- *   OUT { type: 'SAMPLES_READY', payload: { samples: SampleTransfer[] } }
- *   OUT { type: 'SAMPLE_ERROR',  payload: { message: string } }
  */
 
 interface SampleTransfer {
@@ -52,14 +47,12 @@ async function sampleImageUrl(
 ): Promise<SampleTransfer> {
   const particleCount = gridW * gridH
 
-  // Fetch the image as a Blob and decode via createImageBitmap — works in workers
   const response  = await fetch(url)
   const blob      = await response.blob()
   const bitmap    = await createImageBitmap(blob)
 
   const fitted = getFittedDimensions(bitmap.width, bitmap.height, maxWidth, maxHeight)
 
-  // Draw into an OffscreenCanvas at grid resolution to sample pixel colours
   const canvas  = new OffscreenCanvas(gridW, gridH)
   const ctx     = canvas.getContext('2d', { willReadFrequently: true })!
   ctx.drawImage(bitmap, 0, 0, gridW, gridH)
@@ -126,17 +119,16 @@ self.onmessage = async (e: MessageEvent) => {
   }
 
   try {
-    // Process all images in parallel — each fetch+decode is independent
     const samples = await Promise.all(
       urls.map(url => sampleImageUrl(url, gridW, gridH, maxW, maxH))
     )
 
-    // Transfer all ArrayBuffers to the main thread with zero copy
     const transferables = samples.flatMap(s => [s.positions, s.colors, s.edges])
 
-    self.postMessage({ type: 'SAMPLES_READY', payload: { samples } }, transferables)
+    // Cast self to any to avoid window.postMessage vs worker.postMessage conflict in TS
+    ;(self as any).postMessage({ type: 'SAMPLES_READY', payload: { samples } }, transferables)
   } catch (err) {
-    self.postMessage({
+    ;(self as any).postMessage({
       type: 'SAMPLE_ERROR',
       payload: { message: (err as Error).message ?? String(err) },
     })

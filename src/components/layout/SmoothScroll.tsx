@@ -19,11 +19,6 @@ function ScrollLogic({ children }: { children: ReactNode }) {
         if (element) {
           e.preventDefault();
           
-          // SOTA: Signal portfolio to pre-warm if that's where we are going
-          if (targetId === 'portfolio' && typeof window.__fest_trigger_portfolio === 'function') {
-            window.__fest_trigger_portfolio();
-          }
-          
           // Force Lenis to recalculate dimensions right before scrolling
           lenis.resize();
           
@@ -44,10 +39,6 @@ function ScrollLogic({ children }: { children: ReactNode }) {
     // Immediate and deferred hash handling for deep links
     const handleInitialHash = () => {
       if (window.location.hash) {
-        const targetId = window.location.hash.slice(1);
-        if (targetId === 'portfolio' && typeof window.__fest_trigger_portfolio === 'function') {
-          window.__fest_trigger_portfolio();
-        }
         const element = document.querySelector(window.location.hash);
         if (element) {
           const headerOffset = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-height')) || 0;
@@ -59,7 +50,6 @@ function ScrollLogic({ children }: { children: ReactNode }) {
       }
     };
 
-    // Try multiple times to catch late-loading Three.js height changes
     handleInitialHash();
     const t1 = setTimeout(handleInitialHash, 200);
     const t2 = setTimeout(handleInitialHash, 800);
