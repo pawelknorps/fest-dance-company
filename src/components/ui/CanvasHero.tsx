@@ -1,19 +1,40 @@
-import { memo, Suspense, useEffect, useMemo, useRef } from 'react'
+import { memo, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber'
 import type { MotionValue } from 'framer-motion'
-import * as THREE from 'three'
+import {
+  TextureLoader,
+  ShaderMaterial,
+  BufferGeometry,
+  BufferAttribute,
+  DynamicDrawUsage,
+  NormalBlending,
+  MathUtils,
+  SRGBColorSpace,
+  LinearFilter,
+  MeshBasicMaterial,
+} from 'three'
+import type { Points, Mesh } from 'three'
 
 import hero1 from '../../assets/images/hero1.jpg?format=webp&w=1200&as=url'
 import hero2 from '../../assets/images/hero2.jpg?format=webp&w=1200&as=url'
 import hero3 from '../../assets/images/hero3.jpg?format=webp&w=1200&as=url'
 import hero4 from '../../assets/images/hero4.jpg?format=webp&w=1200&as=url'
+import hero1Mobile from '../../assets/images/hero1.jpg?format=webp&w=800&as=url'
+import hero2Mobile from '../../assets/images/hero2.jpg?format=webp&w=800&as=url'
+import hero3Mobile from '../../assets/images/hero3.jpg?format=webp&w=800&as=url'
+import hero4Mobile from '../../assets/images/hero4.jpg?format=webp&w=800&as=url'
 
 const GRID_W = 180
 const GRID_H = 112
 const PARTICLE_COUNT = GRID_W * GRID_H
 const MAX_IMAGE_WIDTH = 5.15
 const MAX_IMAGE_HEIGHT = 3.18
-const IMAGE_SOURCES = [hero1, hero2, hero3, hero4]
+
+// Pick image resolution based on viewport width — saves ~200 KB on mobile
+const isMobileViewport = typeof window !== 'undefined' && window.innerWidth <= 768
+const IMAGE_SOURCES = isMobileViewport
+  ? [hero1Mobile, hero2Mobile, hero3Mobile, hero4Mobile]
+  : [hero1, hero2, hero3, hero4]
 
 const vertexShader = /* glsl */ `
   attribute vec3 aTargetPosition;
@@ -95,136 +116,165 @@ type Sample = {
   height: number
 }
 
-function getFittedDimensions(
-  imageWidth: number,
-  imageHeight: number,
-  maxWidth: number,
-  maxHeight: number,
-) {
-  const imageRatio = imageWidth / imageHeight
-  const maxRatio = maxWidth / maxHeight
+/**
+ * Kick off the canvas-sampler worker to compute all 4 particle samples
+ * off the main thread. Returns a promise that resolves to the samples array.
+ * The worker processes all images in parallel (Promise.all inside) and
+ * transfers the ArrayBuffers back with zero-copy Transferable messaging.
+ */
+function runSamplerWorker(urls: string[]): Promise<Sample[]> {
+  return new Promise((resolve, reject) => {
+    const worker = new Worker(
+      new URL('../../workers/canvas-sampler-worker.ts', import.meta.url),
+      { type: 'module' }
+    )
 
-  if (imageRatio > maxRatio) {
-    return { width: maxWidth, height: maxWidth / imageRatio }
-  }
+    worker.onmessage = (e: MessageEvent) => {
+      const { type, payload } = e.data
+      if (type === 'SAMPLES_READY') {
+        // Wrap the transferred ArrayBuffers back into typed arrays
+        const samples: Sample[] = payload.samples.map((s: {
+          positions: ArrayBuffer
+          colors: ArrayBuffer
+          edges: ArrayBuffer
+          width: number
+          height: number
+        }) => ({
+          positions: new Float32Array(s.positions),
+          colors:    new Float32Array(s.colors),
+          edges:     new Float32Array(s.edges),
+          width:     s.width,
+          height:    s.height,
+        }))
+        worker.terminate()
+        resolve(samples)
+      } else if (type === 'SAMPLE_ERROR') {
+        worker.terminate()
+        reject(new Error(payload.message))
+      }
+    }
 
-  return { width: maxHeight * imageRatio, height: maxHeight }
+    worker.onerror = (err) => {
+      worker.terminate()
+      reject(err)
+    }
+
+    worker.postMessage({
+      type: 'SAMPLE_IMAGES',
+      payload: {
+        urls,
+        gridW: GRID_W,
+        gridH: GRID_H,
+        maxW:  MAX_IMAGE_WIDTH,
+        maxH:  MAX_IMAGE_HEIGHT,
+      },
+    })
+  })
 }
 
-function createSample(texture: THREE.Texture): Sample {
-  const image = texture.image as CanvasImageSource & { width?: number; height?: number }
-  const canvas = document.createElement('canvas')
-  canvas.width = GRID_W
-  canvas.height = GRID_H
-  const context = canvas.getContext('2d', { willReadFrequently: true })
-
-  if (!context || !image) {
-    return {
-      positions: new Float32Array(PARTICLE_COUNT * 3),
-      colors: new Float32Array(PARTICLE_COUNT * 3),
-      edges: new Float32Array(PARTICLE_COUNT),
-      width: MAX_IMAGE_WIDTH,
-      height: MAX_IMAGE_HEIGHT,
-    }
-  }
-
-  const sourceWidth = image.width ?? GRID_W
-  const sourceHeight = image.height ?? GRID_H
-  const fitted = getFittedDimensions(
-    sourceWidth,
-    sourceHeight,
-    MAX_IMAGE_WIDTH,
-    MAX_IMAGE_HEIGHT,
-  )
-
-  context.drawImage(image, 0, 0, GRID_W, GRID_H)
-  const pixels = context.getImageData(0, 0, GRID_W, GRID_H).data
-  const positions = new Float32Array(PARTICLE_COUNT * 3)
-  const colors = new Float32Array(PARTICLE_COUNT * 3)
-  const edges = new Float32Array(PARTICLE_COUNT)
-
-  for (let y = 0; y < GRID_H; y += 1) {
-    for (let x = 0; x < GRID_W; x += 1) {
-      const index = y * GRID_W + x
-      const pixelIndex = index * 4
-      const alpha = pixels[pixelIndex + 3] / 255
-      const brightness = (pixels[pixelIndex] + pixels[pixelIndex + 1] + pixels[pixelIndex + 2]) / (255 * 3)
-      const depth = (brightness - 0.5) * 0.52
-      positions[index * 3] = (x / (GRID_W - 1) - 0.5) * fitted.width
-      positions[index * 3 + 1] = -(y / (GRID_H - 1) - 0.5) * fitted.height
-      positions[index * 3 + 2] = depth
-
-      const u = x / (GRID_W - 1)
-      const v = y / (GRID_H - 1)
-      const distToEdge = Math.min(u, 1 - u, v, 1 - v)
-      const cornerDistance = Math.min(
-        Math.hypot(u, v),
-        Math.hypot(1 - u, v),
-        Math.hypot(u, 1 - v),
-        Math.hypot(1 - u, 1 - v),
-      )
-      const edgeMask = 1 - THREE.MathUtils.smoothstep(distToEdge, 0.06, 0.2)
-      const cornerMask = 1 - THREE.MathUtils.smoothstep(cornerDistance, 0.12, 0.34)
-      const luminanceMask = (0.2 + alpha * 0.2) + brightness * 0.6
-      edges[index] = THREE.MathUtils.clamp((edgeMask * 0.35 + cornerMask * 0.95) * luminanceMask, 0, 1)
-      colors[index * 3] = pixels[pixelIndex] / 255
-      colors[index * 3 + 1] = pixels[pixelIndex + 1] / 255
-      colors[index * 3 + 2] = pixels[pixelIndex + 2] / 255
-    }
-  }
-
-  return { positions, colors, edges, width: fitted.width, height: fitted.height }
-}
-
-function ParticleImage({ 
-  scrubProgress, 
-  isVisible 
-}: { 
+function ParticleImage({
+  scrubProgress,
+  isVisible
+}: {
   scrubProgress: number | MotionValue<number>,
   isVisible: boolean
 }) {
-  const textures = useLoader(THREE.TextureLoader, IMAGE_SOURCES)
-  const pointsRef = useRef<THREE.Points>(null)
-  const currentPlaneRef = useRef<THREE.Mesh>(null)
-  const nextPlaneRef = useRef<THREE.Mesh>(null)
-  const geometryRef = useRef<THREE.BufferGeometry | null>(null)
-  const materialRef = useRef<THREE.ShaderMaterial | null>(null)
+  const textures = useLoader(TextureLoader, IMAGE_SOURCES)
+  const pointsRef = useRef<Points>(null)
+  const currentPlaneRef = useRef<Mesh>(null)
+  const nextPlaneRef = useRef<Mesh>(null)
+  const geometryRef = useRef<BufferGeometry | null>(null)
+  const materialRef = useRef<ShaderMaterial | null>(null)
   const pairRef = useRef<[number, number]>([0, 1])
   const { size } = useThree()
 
-  const samples = useMemo(() => textures.map((texture) => createSample(texture)), [textures])
+  // Samples start null — populated asynchronously by the worker.
+  // While null, only the texture planes render (no particles yet).
+  const [samples, setSamples] = useState<Sample[] | null>(null)
 
+  useEffect(() => {
+    let cancelled = false
+
+    // Kick off the sampler worker immediately — it runs off the main thread
+    // so the hero UI stays responsive while the heavy pixel-read work runs.
+    runSamplerWorker(IMAGE_SOURCES)
+      .then((result) => {
+        if (!cancelled) setSamples(result)
+      })
+      .catch((err) => {
+        if (!cancelled) console.warn('[CanvasHero] Sampler worker failed:', err)
+      })
+
+    return () => { cancelled = true }
+  }, []) // IMAGE_SOURCES is module-level constant, safe to omit
+
+  useEffect(() => {
+    textures.forEach((texture) => {
+      texture.colorSpace = SRGBColorSpace
+      texture.minFilter = LinearFilter
+      texture.magFilter = LinearFilter
+    })
+
+    return () => {
+      textures.forEach((texture) => texture.dispose())
+    }
+  }, [textures])
+
+  // Pre-allocate reusable typed arrays — avoids 5× ~242 KB .slice() allocations
+  // on every slide transition. TypedArray.set() copies data in-place, zero GC pressure.
+  const scratchBuffers = useMemo(() => ({
+    position:       new Float32Array(PARTICLE_COUNT * 3),
+    color:          new Float32Array(PARTICLE_COUNT * 3),
+    targetPosition: new Float32Array(PARTICLE_COUNT * 3),
+    targetColor:    new Float32Array(PARTICLE_COUNT * 3),
+    edge:           new Float32Array(PARTICLE_COUNT),
+  }), [])
+
+  // Build geometry only once samples arrive from the worker
   const geometry = useMemo(() => {
-    const nextGeometry = new THREE.BufferGeometry()
-    const current = samples[0]
-    const next = samples[1]
-    const seeds = new Float32Array(PARTICLE_COUNT)
+    if (!samples) return null
 
-    for (let i = 0; i < PARTICLE_COUNT; i += 1) {
+    const geo = new BufferGeometry()
+    const seeds = new Float32Array(PARTICLE_COUNT)
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
       seeds[i] = ((i * 48271) % 2147483647) / 2147483647
     }
 
-    nextGeometry.setAttribute('position', new THREE.BufferAttribute(current.positions.slice(), 3))
-    nextGeometry.setAttribute('color', new THREE.BufferAttribute(current.colors.slice(), 3))
-    nextGeometry.setAttribute('aTargetPosition', new THREE.BufferAttribute(next.positions.slice(), 3))
-    nextGeometry.setAttribute('aTargetColor', new THREE.BufferAttribute(next.colors.slice(), 3))
-    nextGeometry.setAttribute('aEdge', new THREE.BufferAttribute(current.edges.slice(), 1))
-    nextGeometry.setAttribute('aSeed', new THREE.BufferAttribute(seeds, 1))
+    // Initialise scratch buffers from the first pair
+    scratchBuffers.position.set(samples[0].positions)
+    scratchBuffers.color.set(samples[0].colors)
+    scratchBuffers.targetPosition.set(samples[1].positions)
+    scratchBuffers.targetColor.set(samples[1].colors)
+    scratchBuffers.edge.set(samples[0].edges)
 
-    return nextGeometry
-  }, [samples])
+    geo.setAttribute('position',        new BufferAttribute(scratchBuffers.position, 3))
+    geo.setAttribute('color',           new BufferAttribute(scratchBuffers.color, 3))
+    geo.setAttribute('aTargetPosition', new BufferAttribute(scratchBuffers.targetPosition, 3))
+    geo.setAttribute('aTargetColor',    new BufferAttribute(scratchBuffers.targetColor, 3))
+    geo.setAttribute('aEdge',           new BufferAttribute(scratchBuffers.edge, 1))
+    geo.setAttribute('aSeed',           new BufferAttribute(seeds, 1))
+
+    // Hint to the GPU that these attributes will update frequently
+    ;(geo.getAttribute('position') as BufferAttribute).usage        = DynamicDrawUsage
+    ;(geo.getAttribute('color') as BufferAttribute).usage           = DynamicDrawUsage
+    ;(geo.getAttribute('aTargetPosition') as BufferAttribute).usage = DynamicDrawUsage
+    ;(geo.getAttribute('aTargetColor') as BufferAttribute).usage    = DynamicDrawUsage
+    ;(geo.getAttribute('aEdge') as BufferAttribute).usage           = DynamicDrawUsage
+
+    return geo
+  }, [samples, scratchBuffers])
 
   const material = useMemo(
     () =>
-      new THREE.ShaderMaterial({
+      new ShaderMaterial({
         vertexShader,
         fragmentShader,
         transparent: true,
         depthWrite: false,
-        blending: THREE.NormalBlending,
+        blending: NormalBlending,
         uniforms: {
-          uProgress: { value: 0 },
-          uTime: { value: 0 },
+          uProgress:   { value: 0 },
+          uTime:       { value: 0 },
           uPointScale: { value: Math.min(size.width / 132, 7.2) },
         },
         vertexColors: true,
@@ -233,6 +283,7 @@ function ParticleImage({
   )
 
   useEffect(() => {
+    if (!geometry) return
     geometryRef.current = geometry
     materialRef.current = material
 
@@ -242,24 +293,12 @@ function ParticleImage({
     }
   }, [geometry, material])
 
-  useEffect(() => {
-    textures.forEach((texture) => {
-      texture.colorSpace = THREE.SRGBColorSpace
-      texture.minFilter = THREE.LinearFilter
-      texture.magFilter = THREE.LinearFilter
-    })
-
-    return () => {
-      textures.forEach((texture) => texture.dispose())
-    }
-  }, [textures])
-
   useFrame((state) => {
     const activeGeometry = geometryRef.current
     const activeMaterial = materialRef.current
     const points = pointsRef.current
 
-    if (!activeGeometry || !activeMaterial || !points || !isVisible) {
+    if (!activeGeometry || !activeMaterial || !points || !isVisible || !samples) {
       return
     }
 
@@ -270,19 +309,19 @@ function ParticleImage({
       typeof scrubProgress === 'number' ? scrubProgress : scrubProgress.get()
 
     const maxSegment = Math.max(samples.length - 1, 1)
-    const segmentFloat = THREE.MathUtils.clamp(resolvedProgress, 0, 0.9999) * maxSegment
+    const segmentFloat = MathUtils.clamp(resolvedProgress, 0, 0.9999) * maxSegment
     const currentIndex = Math.floor(segmentFloat)
     const nextIndex = Math.min(currentIndex + 1, samples.length - 1)
     const progress = segmentFloat - currentIndex
-    const dissolve = THREE.MathUtils.smoothstep(progress, 0.08, 0.92)
+    const dissolve = MathUtils.smoothstep(progress, 0.08, 0.92)
 
     activeMaterial.uniforms.uProgress.value = progress
     activeMaterial.uniforms.uTime.value = state.clock.elapsedTime
     activeMaterial.uniforms.uPointScale.value = Math.min(size.width / 132, 7.2)
 
     if (
-      currentPlane?.material instanceof THREE.MeshBasicMaterial &&
-      nextPlane?.material instanceof THREE.MeshBasicMaterial
+      currentPlane?.material instanceof MeshBasicMaterial &&
+      nextPlane?.material instanceof MeshBasicMaterial
     ) {
       currentPlane.material.opacity = 1 - dissolve * 0.92
       nextPlane.material.opacity = dissolve
@@ -294,27 +333,23 @@ function ParticleImage({
       const current = samples[currentIndex]
       const upcoming = samples[nextIndex]
 
-      const positionAttribute = activeGeometry.getAttribute('position') as THREE.BufferAttribute
-      const colorAttribute = activeGeometry.getAttribute('color') as THREE.BufferAttribute
-      const targetPositionAttribute = activeGeometry.getAttribute('aTargetPosition') as THREE.BufferAttribute
-      const targetColorAttribute = activeGeometry.getAttribute('aTargetColor') as THREE.BufferAttribute
-      const edgeAttribute = activeGeometry.getAttribute('aEdge') as THREE.BufferAttribute
+      // TypedArray.set() — copies into pre-allocated buffers in-place.
+      // Zero heap allocations, zero GC pressure (was: 5× .slice() = 5× 242 KB).
+      scratchBuffers.position.set(current.positions)
+      scratchBuffers.color.set(current.colors)
+      scratchBuffers.targetPosition.set(upcoming.positions)
+      scratchBuffers.targetColor.set(upcoming.colors)
+      scratchBuffers.edge.set(current.edges)
 
-      positionAttribute.array = current.positions.slice()
-      colorAttribute.array = current.colors.slice()
-      targetPositionAttribute.array = upcoming.positions.slice()
-      targetColorAttribute.array = upcoming.colors.slice()
-      edgeAttribute.array = current.edges.slice()
-
-      positionAttribute.needsUpdate = true
-      colorAttribute.needsUpdate = true
-      targetPositionAttribute.needsUpdate = true
-      targetColorAttribute.needsUpdate = true
-      edgeAttribute.needsUpdate = true
+      ;(activeGeometry.getAttribute('position') as BufferAttribute).needsUpdate = true
+      ;(activeGeometry.getAttribute('color') as BufferAttribute).needsUpdate = true
+      ;(activeGeometry.getAttribute('aTargetPosition') as BufferAttribute).needsUpdate = true
+      ;(activeGeometry.getAttribute('aTargetColor') as BufferAttribute).needsUpdate = true
+      ;(activeGeometry.getAttribute('aEdge') as BufferAttribute).needsUpdate = true
 
       if (
-        currentPlane?.material instanceof THREE.MeshBasicMaterial &&
-        nextPlane?.material instanceof THREE.MeshBasicMaterial
+        currentPlane?.material instanceof MeshBasicMaterial &&
+        nextPlane?.material instanceof MeshBasicMaterial
       ) {
         currentPlane.material.map = textures[currentIndex]
         nextPlane.material.map = textures[nextIndex]
@@ -331,12 +366,18 @@ function ParticleImage({
     points.position.y = Math.cos(state.clock.elapsedTime * 0.05) * 0.006
   })
 
+  // Fallback dimensions before samples arrive — use the max viewport dimensions
+  const plane0Width  = samples?.[0].width  ?? MAX_IMAGE_WIDTH
+  const plane0Height = samples?.[0].height ?? MAX_IMAGE_HEIGHT
+  const plane1Width  = samples?.[1].width  ?? MAX_IMAGE_WIDTH
+  const plane1Height = samples?.[1].height ?? MAX_IMAGE_HEIGHT
+
   return (
     <group>
       <mesh
         ref={currentPlaneRef}
         position={[0, 0, -0.22]}
-        scale={[samples[0].width, samples[0].height, 1]}
+        scale={[plane0Width, plane0Height, 1]}
       >
         <planeGeometry args={[1, 1]} />
         <meshBasicMaterial
@@ -359,7 +400,7 @@ function ParticleImage({
       <mesh
         ref={nextPlaneRef}
         position={[0, 0, -0.18]}
-        scale={[samples[1].width, samples[1].height, 1]}
+        scale={[plane1Width, plane1Height, 1]}
       >
         <planeGeometry args={[1, 1]} />
         <meshBasicMaterial
@@ -370,7 +411,10 @@ function ParticleImage({
           toneMapped={false}
         />
       </mesh>
-      <points ref={pointsRef} geometry={geometry} material={material} />
+      {/* Particle system only renders once the worker has finished sampling */}
+      {geometry && (
+        <points ref={pointsRef} geometry={geometry} material={material} />
+      )}
     </group>
   )
 }
@@ -386,10 +430,10 @@ function Atmosphere() {
   )
 }
 
-function Scene({ 
-  scrubProgress, 
-  isVisible 
-}: { 
+function Scene({
+  scrubProgress,
+  isVisible
+}: {
   scrubProgress: number | MotionValue<number>,
   isVisible: boolean
 }) {

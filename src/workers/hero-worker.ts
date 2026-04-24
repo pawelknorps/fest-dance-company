@@ -1,9 +1,18 @@
-import * as THREE from 'three'
+import {
+  WebGLRenderer,
+  Scene,
+  PerspectiveCamera,
+  BufferGeometry,
+  BufferAttribute,
+  PointsMaterial,
+  Points,
+  AdditiveBlending,
+} from 'three'
 
-let renderer: THREE.WebGLRenderer | null = null
-let scene: THREE.Scene | null = null
-let camera: THREE.PerspectiveCamera | null = null
-let points: THREE.Points | null = null
+let renderer: WebGLRenderer | null = null
+let scene: Scene | null = null
+let camera: PerspectiveCamera | null = null
+let points: Points | null = null
 let isVisible = true
 let progress = 0
 
@@ -13,60 +22,60 @@ self.onmessage = (e: MessageEvent) => {
   switch (type) {
     case 'INIT': {
       const { canvas, width, height, dpr } = payload
-      
-      renderer = new THREE.WebGLRenderer({ 
-        canvas, 
-        antialias: true, 
+
+      renderer = new WebGLRenderer({
+        canvas,
+        antialias: true,
         alpha: true,
         powerPreference: 'high-performance'
       })
       renderer.setPixelRatio(dpr)
       renderer.setSize(width, height, false)
 
-      scene = new THREE.Scene()
-      camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100)
+      scene = new Scene()
+      camera = new PerspectiveCamera(40, width / height, 0.1, 100)
       camera.position.z = 5
 
       // Advanced SOTA Particle System
-      const geometry = new THREE.BufferGeometry()
+      const geometry = new BufferGeometry()
       const count = 18000
       const pos = new Float32Array(count * 3)
       const color = new Float32Array(count * 3)
       const sizes = new Float32Array(count)
-      
+
       for (let i = 0; i < count; i++) {
         const i3 = i * 3
         // Initial distribution: sphere
         const r = 2.5 + Math.random() * 0.5
         const theta = Math.random() * Math.PI * 2
         const phi = Math.acos(2 * Math.random() - 1)
-        
-        pos[i3] = r * Math.sin(phi) * Math.cos(theta)
+
+        pos[i3]     = r * Math.sin(phi) * Math.cos(theta)
         pos[i3 + 1] = r * Math.sin(phi) * Math.sin(theta)
         pos[i3 + 2] = r * Math.cos(phi)
-        
+
         // Dynamic colors
-        color[i3] = 0.78 // R
-        color[i3 + 1] = 0.31 // G
-        color[i3 + 2] = 1.0 // B (Purple base)
-        
+        color[i3]     = 0.78  // R
+        color[i3 + 1] = 0.31  // G
+        color[i3 + 2] = 1.0   // B (Purple base)
+
         sizes[i] = Math.random()
       }
-      
-      geometry.setAttribute('position', new THREE.BufferAttribute(pos, 3))
-      geometry.setAttribute('color', new THREE.BufferAttribute(color, 3))
-      geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1))
-      
-      const material = new THREE.PointsMaterial({ 
-        size: 0.012, 
+
+      geometry.setAttribute('position', new BufferAttribute(pos, 3))
+      geometry.setAttribute('color', new BufferAttribute(color, 3))
+      geometry.setAttribute('size', new BufferAttribute(sizes, 1))
+
+      const material = new PointsMaterial({
+        size: 0.012,
         vertexColors: true,
         transparent: true,
         opacity: 0.82,
-        blending: THREE.AdditiveBlending,
+        blending: AdditiveBlending,
         depthWrite: false
       })
-      
-      points = new THREE.Points(geometry, material)
+
+      points = new Points(geometry, material)
       scene.add(points)
 
       animate()

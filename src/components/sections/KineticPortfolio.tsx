@@ -26,7 +26,7 @@ export function KineticPortfolio() {
         setIsIntersecting(entry.isIntersecting)
         if (entry.isIntersecting) setShouldLoad(true)
       },
-      { rootMargin: '600px 0px' }
+      { rootMargin: '1500px 0px' }
     )
     if (sectionRef.current) observer.observe(sectionRef.current)
 

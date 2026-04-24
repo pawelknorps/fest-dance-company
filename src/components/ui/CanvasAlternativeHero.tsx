@@ -1,11 +1,12 @@
 import { useMemo, useRef } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Center, Float, useTexture } from '@react-three/drei'
-import * as THREE from 'three'
+import { AdditiveBlending } from 'three'
+import type { Group } from 'three'
 import festLogo from '../../assets/logo/logo-cropped.png?format=webp&w=1200&as=url'
 
 function LogoMesh({ isVisible }: { isVisible: boolean }) {
-  const meshRef = useRef<THREE.Group>(null)
+  const meshRef = useRef<Group>(null)
   const texture = useTexture(festLogo)
 
   const { viewport } = useThree()
@@ -42,7 +43,7 @@ function LogoMesh({ isVisible }: { isVisible: boolean }) {
               transparent
               opacity={isFront ? 1 : 0.15 - (i * 0.02)}
               color={isFront ? '#ffffff' : '#c850ff'}
-              blending={THREE.AdditiveBlending}
+              blending={AdditiveBlending}
               depthWrite={false}
             />
           </mesh>

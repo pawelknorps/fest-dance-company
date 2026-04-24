@@ -1,6 +1,7 @@
 import { useRef, useState, useMemo, Suspense } from 'react'
 import { Canvas, useFrame, useLoader } from '@react-three/fiber'
-import * as THREE from 'three'
+import { TextureLoader, MathUtils } from 'three'
+import type { ShaderMaterial } from 'three'
 
 const vertexShader = /* glsl */ `
   varying vec2 vUv;
@@ -43,8 +44,8 @@ const fragmentShader = /* glsl */ `
 `
 
 function Scene({ src, hovered }: { src: string; hovered: boolean }) {
-  const texture = useLoader(THREE.TextureLoader, src)
-  const materialRef = useRef<THREE.ShaderMaterial>(null)
+  const texture = useLoader(TextureLoader, src)
+  const materialRef = useRef<ShaderMaterial>(null)
   
   const uniforms = useMemo(() => ({
     uTexture: { value: texture },
@@ -55,7 +56,7 @@ function Scene({ src, hovered }: { src: string; hovered: boolean }) {
   useFrame((state) => {
     if (materialRef.current) {
       materialRef.current.uniforms.uTime.value = state.clock.getElapsedTime()
-      materialRef.current.uniforms.uHover.value = THREE.MathUtils.lerp(
+      materialRef.current.uniforms.uHover.value = MathUtils.lerp(
         materialRef.current.uniforms.uHover.value,
         hovered ? 1 : 0,
         0.08

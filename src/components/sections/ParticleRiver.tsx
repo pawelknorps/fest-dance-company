@@ -1,6 +1,7 @@
 import { useRef, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
-import * as THREE from 'three'
+import { Color, AdditiveBlending } from 'three'
+import type { ShaderMaterial, Points } from 'three'
 
 interface ParticleRiverProps {
   particleCount?: number
@@ -9,7 +10,7 @@ interface ParticleRiverProps {
 }
 
 export function ParticleRiver({ particleCount = 1800, width = 45, velocityRef }: ParticleRiverProps) {
-  const pointsRef = useRef<THREE.Points>(null)
+  const pointsRef = useRef<Points>(null)
 
   const [positions, progress, sizes] = useMemo(() => {
     const pos = new Float32Array(particleCount * 3)
@@ -35,9 +36,9 @@ export function ParticleRiver({ particleCount = 1800, width = 45, velocityRef }:
     uniforms: {
       uTime: { value: 0 },
       uVelocity: { value: 0 },
-      uColorStart: { value: new THREE.Color('#4f46e5') },
-      uColorMid: { value: new THREE.Color('#9333ea') },
-      uColorEnd: { value: new THREE.Color('#fbbf24') }
+      uColorStart: { value: new Color('#4f46e5') },
+      uColorMid: { value: new Color('#9333ea') },
+      uColorEnd: { value: new Color('#fbbf24') }
     },
     vertexShader: `
       uniform float uTime;
@@ -88,7 +89,7 @@ export function ParticleRiver({ particleCount = 1800, width = 45, velocityRef }:
 
   useFrame((state) => {
     if (!pointsRef.current) return
-    const mat = pointsRef.current.material as THREE.ShaderMaterial
+    const mat = pointsRef.current.material as ShaderMaterial
     const vel = velocityRef.current || 0
     
     mat.uniforms.uTime.value = state.clock.elapsedTime
@@ -115,7 +116,7 @@ export function ParticleRiver({ particleCount = 1800, width = 45, velocityRef }:
         args={[shaderArgs]} 
         transparent 
         depthWrite={false} 
-        blending={THREE.AdditiveBlending} 
+        blending={AdditiveBlending}
       />
     </points>
   )

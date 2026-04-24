@@ -1,6 +1,14 @@
 import { useRef, useMemo, Suspense, useState, useEffect, forwardRef, useImperativeHandle } from 'react'
-import { useFrame, useLoader } from '@react-three/fiber'
-import * as THREE from 'three'
+import { useFrame, useLoader, useThree } from '@react-three/fiber'
+import {
+  PlaneGeometry,
+  Texture,
+  SRGBColorSpace,
+  ShaderMaterial,
+  DoubleSide,
+  ImageBitmapLoader,
+} from 'three'
+import type { Group, Mesh } from 'three'
 
 interface KineticCardProps {
   item: any
@@ -10,10 +18,10 @@ interface KineticCardProps {
 }
 
 export interface KineticCardRef {
-  update: (progress: number, velocity: number, mouse: { x: number, y: number }, time: number, isIntersecting: boolean) => void
+  update: (progress: number, velocity: number, mouse: { x: number; y: number }, time: number, isIntersecting: boolean) => void
 }
 
-const sharedPlaneGeometry = new THREE.PlaneGeometry(1, 1, 24, 24)
+const sharedPlaneGeometry = new PlaneGeometry(1, 1, 24, 24)
 
 const vertexShader = `
   varying vec2 vUv;
@@ -58,7 +66,7 @@ export const KineticCard = forwardRef<KineticCardRef, KineticCardProps>((props, 
 
 // Placeholder keeps the object in the parent's loop even before texture is loaded
 const CardPlaceholder = forwardRef<KineticCardRef, KineticCardProps>((props, ref) => {
-  const groupRef = useRef<THREE.Group>(null)
+  const groupRef = useRef<Group>(null)
   const { cardW, cardH } = useMemo(() => {
     const aspect = (props.item.image.width || 567) / (props.item.image.height || 423)
     const cH = 4.8
@@ -92,28 +100,30 @@ const CardPlaceholder = forwardRef<KineticCardRef, KineticCardProps>((props, ref
 
 const CardContent = forwardRef<KineticCardRef, KineticCardProps>((props, ref) => {
   const { item, index, count, isMobile } = props
-  const groupRef = useRef<THREE.Group>(null)
-  const meshRef = useRef<THREE.Mesh>(null)
+  const groupRef = useRef<Group>(null)
+  const meshRef = useRef<Mesh>(null)
   const [isVisible, setIsVisible] = useState(false)
+  const { gl } = useThree()
 
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), index * 50)
     return () => clearTimeout(timer)
   }, [index])
-  
+
   const imageSrc = (isMobile && item.image.srcMobile) ? item.image.srcMobile : item.image.src
-  const imageBitmap = useLoader(THREE.ImageBitmapLoader, imageSrc, (loader: any) => {
+  const imageBitmap = useLoader(ImageBitmapLoader, imageSrc, (loader: any) => {
     if (loader.setOptions) loader.setOptions({ imageOrientation: 'flipY' })
   })
-  
+
   const texture = useMemo(() => {
     if (!imageBitmap) return null
-    const tex = new THREE.Texture(imageBitmap)
-    tex.colorSpace = THREE.SRGBColorSpace
-    tex.anisotropy = 16
-    tex.needsUpdate = true 
+    const tex = new Texture(imageBitmap)
+    tex.colorSpace = SRGBColorSpace
+    // Cap at 4 — imperceptible difference on face-on carousel cards, meaningful GPU savings
+    tex.anisotropy = Math.min(4, gl.capabilities.getMaxAnisotropy())
+    tex.needsUpdate = true
     return tex
-  }, [imageBitmap])
+  }, [imageBitmap, gl])
 
   const uniforms = useMemo(() => ({
     uTexture: { value: texture },
@@ -156,7 +166,7 @@ const CardContent = forwardRef<KineticCardRef, KineticCardProps>((props, ref) =>
       groupRef.current.rotation.z += (velocity * (offset > 0 ? -1 : 1) * 0.15 - groupRef.current.rotation.z) * 0.1
       groupRef.current.scale.setScalar(1.05 - Math.min(absOffset * 0.2, 0.35))
 
-      const mat = meshRef.current.material as THREE.ShaderMaterial
+      const mat = meshRef.current.material as ShaderMaterial
       const baseOpacity = 1 - Math.min(absOffset * 0.45, 0.98)
       mat.uniforms.uOpacity.value += ((isVisible ? baseOpacity : 0) - mat.uniforms.uOpacity.value) * 0.1
       mat.uniforms.uDistortion.value += (Math.min(velocity * 0.3, 0.5) - mat.uniforms.uDistortion.value) * 0.1
@@ -171,7 +181,7 @@ const CardContent = forwardRef<KineticCardRef, KineticCardProps>((props, ref) =>
   return (
     <group ref={groupRef}>
       <mesh ref={meshRef} frustumCulled={false} geometry={sharedPlaneGeometry} scale={[cardW, cardH, 1]}>
-        <shaderMaterial vertexShader={vertexShader} fragmentShader={fragmentShader} uniforms={uniforms} transparent depthWrite={false} side={THREE.DoubleSide} />
+        <shaderMaterial vertexShader={vertexShader} fragmentShader={fragmentShader} uniforms={uniforms} transparent depthWrite={false} side={DoubleSide} />
       </mesh>
     </group>
   )

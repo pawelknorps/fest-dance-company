@@ -1,20 +1,21 @@
 import { PerspectiveCamera } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { useRef } from 'react'
-import * as THREE from 'three'
+import { MathUtils } from 'three'
+import type { PointLight, PerspectiveCamera as PerspectiveCameraType } from 'three'
 import { ParticleRiver } from './ParticleRiver'
 
-export function KineticScene({ 
-  isMobile, 
+export function KineticScene({
+  isMobile,
   velocityRef,
   isIntersecting
-}: { 
+}: {
   isMobile?: boolean,
   velocityRef: React.MutableRefObject<number>,
   isIntersecting: boolean
 }) {
-  const accentLightRef = useRef<THREE.PointLight>(null)
-  const cameraRef = useRef<THREE.PerspectiveCamera>(null)
+  const accentLightRef = useRef<PointLight>(null)
+  const cameraRef = useRef<PerspectiveCameraType>(null)
 
   useFrame((state) => {
     if (!isIntersecting) return
@@ -22,7 +23,7 @@ export function KineticScene({
 
     if (cameraRef.current) {
       const targetFOV = 40 + velocity * 1.5
-      cameraRef.current.fov = THREE.MathUtils.lerp(cameraRef.current.fov, targetFOV, 0.05)
+      cameraRef.current.fov = MathUtils.lerp(cameraRef.current.fov, targetFOV, 0.05)
       cameraRef.current.updateProjectionMatrix()
       
       cameraRef.current.position.x = Math.sin(state.clock.elapsedTime * 0.3) * 0.08
