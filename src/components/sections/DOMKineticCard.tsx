@@ -42,7 +42,7 @@ export function DOMKineticCard({ item, index, count, progress }: Props) {
 
   const scale = useTransform(relativeProgress,
     [-1, 0, 1],
-    [0.85, 1, 1.15]
+    [0.9, 1, 1.1]
   )
 
   const rotateY = useTransform(smoothVelocity, [-0.1, 0, 0.1], [-15, 0, 15])
@@ -85,7 +85,7 @@ export function DOMKineticCard({ item, index, count, progress }: Props) {
 
       <div className="relative pointer-events-auto overflow-hidden rounded-xl bg-[#0a0a0f] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.1),_0_0_20px_rgba(0,0,0,0.3)]">
         <div 
-          className="relative aspect-[3/4] w-[82vw] max-w-[450px] overflow-hidden" 
+          className="relative aspect-[3/4] w-[90vw] max-w-[500px] overflow-hidden" 
           style={{ 
             transformStyle: 'preserve-3d',
             filter: `url(#liquid-${item.id})` // Apply the liquid effect
