@@ -28,7 +28,8 @@ export function useDeviceTier() {
 
       const debugInfo = gl.getExtension('WEBGL_debug_renderer_info')
       const renderer = debugInfo ? (gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) as string) : ''
-      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || 
+                       (navigator.maxTouchPoints > 0 && /Macintosh/.test(navigator.userAgent)); // Modern iPad detection
       
       // 2. Hardware-specific Low Tiers (e.g., low-end Android, old iPhones)
       const lowEndGpus = ['Mali-G', 'Adreno (TM) 4', 'Adreno (TM) 5', 'PowerVR']
@@ -39,10 +40,10 @@ export function useDeviceTier() {
       const connection = nav.connection || nav.mozConnection || nav.webkitConnection
       const isSlow = connection && (connection.saveData || /2g|3g/.test(connection.effectiveType))
 
-      if (isLowEndGpu || isSlow || (isMobile && !window.devicePixelRatio)) {
+      if (isLowEndGpu || isSlow || isMobile) {
+        // SOTA 2026 Decision: Mobile always gets the optimized DOM engine 
+        // to guarantee 60fps and 100% render reliability on touch devices.
         setTier(DeviceTier.LOW)
-      } else if (isMobile) {
-        setTier(DeviceTier.MEDIUM)
       } else {
         setTier(DeviceTier.HIGH)
       }

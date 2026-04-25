@@ -22,9 +22,13 @@ class TextureManager {
   private subscribers: Map<string, ((tex: Texture) => void)[]> = new Map();
   private dummyTexture: DataTexture;
   private queue: string[] = [];
+  private loading: Set<string> = new Set();
   private isProcessing = false;
   private abortController: AbortController = new AbortController();
   private ktx2Loader: KTX2Loader | null = null;
+  private maxAnisotropy = 1;
+  private initPromise: Promise<void>;
+  private resolveInit!: () => void;
   
   // High-priority (Tier 1) tracking
   private priorityTotal = 0;
@@ -32,9 +36,40 @@ class TextureManager {
   private onPriorityReady: (() => void) | null = null;
 
   constructor() {
-    const data = new Uint8Array([5, 3, 10, 255]);
+    // 1x1 Dummy black texture to prevent GL unbound warnings
+    const data = new Uint8Array([5, 3, 10, 255]); // Matches #05030a
     this.dummyTexture = new DataTexture(data, 1, 1, RGBAFormat, UnsignedByteType);
     this.dummyTexture.needsUpdate = true;
+    
+    this.initPromise = new Promise((resolve) => {
+      this.resolveInit = resolve;
+    });
+  }
+
+  /**
+   * Global Preload for critical assets
+   * Uses a dual-stage approach:
+   * 1. Network Warmup: Fetch file into browser cache immediately.
+   * 2. GPU Preparation: Decode and upload once KTX2Loader is initialized.
+   */
+  public preload(items: { id: string, url: string, priority?: 1 | 2 }[]) {
+    // SOTA: Auto-initialize priority tracking from the preload set
+    const p1Count = items.filter(i => i.priority === 1).length;
+    if (p1Count > this.priorityTotal) {
+      this.priorityTotal = p1Count;
+    }
+
+    items.forEach(item => {
+      // Stage 1: Network Warmup (Bypass queue logic)
+      if (!this.cache.has(item.url)) {
+        // High priority for the first few cards to hit browser cache ASAP
+        const fetchPriority = item.priority === 1 ? 'high' : 'low';
+        fetch(item.url, { priority: fetchPriority } as any).catch(() => {});
+      }
+      
+      // Stage 2: Queue for full processing (Decodes once loader is ready)
+      this.requestTexture(item.id, item.url, item.priority || 2);
+    });
   }
 
   /**
@@ -42,9 +77,11 @@ class TextureManager {
    */
   public init(gl: WebGLRenderer) {
     if (this.ktx2Loader) return;
+    this.maxAnisotropy = gl.capabilities.getMaxAnisotropy();
     this.ktx2Loader = new KTX2Loader();
     this.ktx2Loader.setTranscoderPath('/basis/');
     this.ktx2Loader.detectSupport(gl);
+    this.resolveInit();
   }
 
   public getDummyTexture(): Texture {
@@ -97,9 +134,11 @@ class TextureManager {
     }
 
     if (priority === 1) {
+      // If it was in the idle queue, remove it so we don't process it twice
+      this.queue = this.queue.filter(u => u !== url);
       this.loadTexture(id, url, true);
     } else {
-      if (!this.queue.includes(url)) {
+      if (!this.queue.includes(url) && !this.cache.has(url) && !this.loading.has(url)) {
         this.queue.push(url);
         this.processQueue();
       }
@@ -124,40 +163,41 @@ class TextureManager {
   }
 
   private async loadTexture(id: string, url: string, isPriority = false) {
-    if (this.cache.has(url)) return;
+    if (this.cache.has(url) || this.loading.has(url)) return;
+    this.loading.add(url);
 
     try {
       let texture: Texture;
       const isKTX2 = url.endsWith('.ktx2');
 
-      if (isKTX2 && this.ktx2Loader) {
-        texture = await this.ktx2Loader.loadAsync(url);
-        // SOTA: Hardware Mipmapping via pre-baked container data
-        texture.generateMipmaps = false;
-        texture.minFilter = LinearMipmapLinearFilter;
-        texture.magFilter = LinearFilter;
+      if (isKTX2) {
+        // Always wait for the renderer to be ready before KTX2 loading
+        await this.initPromise;
+        if (this.ktx2Loader) {
+          texture = await this.ktx2Loader.loadAsync(url);
+          // SOTA: Hardware Mipmapping via pre-baked container data
+          texture.generateMipmaps = false;
+          texture.minFilter = LinearMipmapLinearFilter;
+          texture.magFilter = LinearFilter;
+        } else {
+          throw new Error('KTX2Loader not initialized');
+        }
       } else {
         const loader = new ImageBitmapLoader();
         loader.setOptions({ imageOrientation: 'flipY' });
         const imageBitmap = await loader.loadAsync(url);
         texture = new Texture(imageBitmap);
-        texture.minFilter = LinearFilter;
+        texture.generateMipmaps = true;
+        texture.minFilter = LinearMipmapLinearFilter;
         texture.magFilter = LinearFilter;
       }
 
       texture.colorSpace = SRGBColorSpace;
+      texture.anisotropy = this.maxAnisotropy;
       texture.needsUpdate = true;
 
       this.cache.set(url, texture);
 
-      if (isPriority) {
-        this.priorityLoaded++;
-        if (this.priorityLoaded >= this.priorityTotal && this.onPriorityReady) {
-          this.onPriorityReady();
-          this.onPriorityReady = null;
-        }
-      }
-      
       const subs = this.subscribers.get(url);
       if (subs) {
         subs.forEach(cb => cb(texture));
@@ -165,6 +205,15 @@ class TextureManager {
       }
     } catch (err) {
       console.warn(`[TextureManager] Failed to load ${url}:`, err);
+    } finally {
+      this.loading.delete(url);
+      if (isPriority) {
+        this.priorityLoaded++;
+        if (this.priorityLoaded >= this.priorityTotal && this.onPriorityReady) {
+          this.onPriorityReady();
+          this.onPriorityReady = null;
+        }
+      }
     }
   }
 
@@ -172,19 +221,34 @@ class TextureManager {
     if (this.isProcessing || this.queue.length === 0) return;
     this.isProcessing = true;
 
-    // Use requestIdleCallback to avoid blocking the main thread
     const schedule = (window as any).requestIdleCallback || ((cb: any) => setTimeout(cb, 1));
     
     schedule(async () => {
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      
+      // SOTA Prioritization: Wait for "Tier 1" critical items to finish
+      // before starting the background trickle. This ensures zero-jank entrance.
+      while (this.priorityTotal > 0 && this.priorityLoaded < this.priorityTotal) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+
       while (this.queue.length > 0) {
         const url = this.queue.shift();
-        if (url) await this.loadTexture('idle', url, false);
-        
-        // Yield every 2 textures to keep main thread fluid
-        if (this.queue.length > 0 && Math.random() > 0.5) break;
+        if (url && !this.cache.has(url)) {
+          await this.loadTexture('idle', url, false);
+          
+          // Yield to main thread and allow other tasks to breathe
+          // 60ms is a sweet spot for "idle" background activity
+          await new Promise(resolve => setTimeout(resolve, isMobile ? 120 : 60));
+        }
       }
+      
       this.isProcessing = false;
-      if (this.queue.length > 0) this.processQueue();
+      
+      // Safety check: if more items were added during processing, restart
+      if (this.queue.length > 0) {
+        this.processQueue();
+      }
     });
   }
 
@@ -192,6 +256,8 @@ class TextureManager {
     this.abortController.abort();
     this.cache.forEach(tex => tex.dispose());
     this.cache.clear();
+    this.thumbCache.forEach(tex => tex.dispose());
+    this.thumbCache.clear();
     this.subscribers.clear();
     this.queue = [];
     this.isProcessing = false;

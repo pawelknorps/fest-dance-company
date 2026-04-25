@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { ReactLenis, useLenis } from 'lenis/react';
+import { useDeviceTier, DeviceTier } from '../../hooks/useDeviceTier';
 
 function ScrollLogic({ children }: { children: ReactNode }) {
   const lenis = useLenis();
@@ -67,10 +68,14 @@ function ScrollLogic({ children }: { children: ReactNode }) {
 }
 
 export function SmoothScroll({ children }: { children: ReactNode }) {
+  const tier = useDeviceTier();
+  
   // Check for reduced motion preference
   const media = typeof window !== 'undefined' ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
   
-  if (media?.matches) {
+  // SOTA Performance: Disable Lenis on low-tier devices (Mobile) and reduced-motion users
+  // to maximize INP (Interaction to Next Paint) and overall responsiveness.
+  if (media?.matches || tier === DeviceTier.LOW) {
     return <>{children}</>;
   }
 

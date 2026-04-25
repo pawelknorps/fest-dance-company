@@ -1,6 +1,7 @@
 import { memo, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber'
 import { useLoadOrchestrator } from '../../lib/LoadOrchestrator'
+import { textureManager } from '../../lib/TextureManager'
 import type { MotionValue } from 'framer-motion'
 import {
   TextureLoader,
@@ -474,6 +475,9 @@ const CanvasHero = memo(function CanvasHero({ isVisible, prefersReducedMotion, s
       camera={{ position: [0, 0, 5.4], fov: 40 }}
       style={{ position: 'absolute', inset: 0, background: 'transparent' }}
       gl={{ alpha: true, antialias: true, powerPreference: 'high-performance' }}
+      onCreated={({ gl }) => {
+        textureManager.init(gl)
+      }}
       dpr={window.matchMedia('(max-width: 1024px)').matches ? 1 : [1, 2]}
       frameloop={isVisible ? 'always' : 'never'}
     >

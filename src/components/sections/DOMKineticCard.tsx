@@ -11,43 +11,43 @@ interface Props {
 
 /**
  * SOTA DOM Kinetic Card (Z-Depth Architecture)
- * Uses CSS 3D Transforms and GPU-accelerated compositor thread.
+ * Ultra-light SVG Liquid Distortion fallback for high-fidelity mobile.
  */
 export function DOMKineticCard({ item, index, count, progress }: Props) {
   const t = useTranslation()
   const cardRef = useRef<HTMLDivElement>(null)
   const [isRendered, setIsRendered] = useState(false)
 
-  // Map scroll progress to relative offset (-1 to 1 range is the active window)
+  // Map scroll progress
   const relativeProgress = useTransform(progress, (p) => {
     const scrollPos = p * (count - 1)
     return index - scrollPos
   })
 
-  // Velocity tracking for kinetic distortion
   const velocity = useVelocity(progress)
   const smoothVelocity = useSpring(velocity, { stiffness: 60, damping: 20 })
-  const skewY = useTransform(smoothVelocity, [-0.1, 0, 0.1], [-5, 0, 5])
-  const rotateX = useTransform(smoothVelocity, [-0.1, 0, 0.1], [10, 0, -10])
+  
+  // SOTA 2026: Liquid Distortion via SVG Filter Displacement
+  const distortionScale = useTransform(smoothVelocity, [-0.1, 0, 0.1], [25, 0, 25])
 
-  // Z-Depth Mapping
-  // translateZ: -2000px (far) -> 0px (active) -> 1000px (past)
   const z = useTransform(relativeProgress, 
     [-2, -1, 0, 1, 2], 
-    [-2000, -1000, 0, 500, 1000]
+    [-2000, -1000, 0, 400, 800]
   )
   
   const opacity = useTransform(relativeProgress,
-    [-1.5, -1, 0, 0.5, 1],
-    [0, 0.8, 1, 0.3, 0]
+    [-1.2, -0.8, 0, 0.4, 0.8],
+    [0, 0.9, 1, 0.4, 0]
   )
 
   const scale = useTransform(relativeProgress,
     [-1, 0, 1],
-    [0.8, 1, 1.2]
+    [0.85, 1, 1.15]
   )
 
-  // Render Culling: only mount image when potentially visible
+  const rotateY = useTransform(smoothVelocity, [-0.1, 0, 0.1], [-15, 0, 15])
+  const skewX = useTransform(smoothVelocity, [-0.1, 0, 0.1], [-5, 0, 5])
+
   useMotionValueEvent(relativeProgress, "change", (val) => {
     const visible = Math.abs(val) < 2
     if (visible !== isRendered) setIsRendered(visible)
@@ -63,52 +63,61 @@ export function DOMKineticCard({ item, index, count, progress }: Props) {
         z,
         opacity,
         scale,
-        skewY,
-        rotateX,
+        rotateY,
+        skewX,
         display: isRendered ? 'flex' : 'none',
         transformStyle: 'preserve-3d',
         willChange: 'transform, opacity',
       }}
     >
-      <div className="relative pointer-events-auto overflow-hidden rounded-xl bg-[#0a0a0f] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)]">
-        <div className="relative aspect-[3/4] w-[80vw] max-w-[450px] overflow-hidden" style={{ transformStyle: 'preserve-3d' }}>
+      {/* Inline SVG Filter for Liquid Effect */}
+      <svg className="hidden">
+        <filter id={`liquid-${item.id}`}>
+          <feTurbulence type="fractalNoise" baseFrequency="0.01 0.05" numOctaves="2" result="noise" />
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="0" />
+          <motion.feDisplacementMap 
+             in="SourceGraphic" 
+             in2="noise" 
+             scale={distortionScale} 
+          />
+        </filter>
+      </svg>
+
+      <div className="relative pointer-events-auto overflow-hidden rounded-xl bg-[#0a0a0f] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.6)]">
+        <div 
+          className="relative aspect-[3/4] w-[82vw] max-w-[450px] overflow-hidden" 
+          style={{ 
+            transformStyle: 'preserve-3d',
+            filter: `url(#liquid-${item.id})` // Apply the liquid effect
+          }}
+        >
           {isRendered && (
             <motion.img
               src={imageSrc}
               alt={item.title}
+              decoding="async"
               className="h-full w-full object-cover"
               style={{
-                translateZ: '-20px', // Slight parallax push back
+                translateZ: '-1px',
                 scale: 1.1
               }}
               initial={{ opacity: 0 }}
-              animate={{ opacity: 0.85 }}
+              animate={{ opacity: 0.9 }}
             />
           )}
           
-          {/* Parallax Content Layers */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/10 to-transparent" />
           
           <motion.div 
-            className="absolute bottom-10 left-10 right-10"
-            style={{ translateZ: '50px' }} // Floating above image
+            className="absolute bottom-10 left-8 right-8"
+            style={{ translateZ: '40px' }}
           >
-            <motion.p 
-              className="text-[10px] font-bold uppercase tracking-[0.5em] text-fuchsia-500/80"
-              style={{ translateZ: '20px' }}
-            >
+            <p className="text-[9px] font-bold uppercase tracking-[0.4em] text-fuchsia-500/90 mb-1">
               {item.category}
-            </motion.p>
-            <h3 className="mt-2 font-display text-4xl uppercase leading-none tracking-tight text-white md:text-5xl">
+            </p>
+            <h3 className="font-display text-3xl uppercase leading-none tracking-tight text-white">
               {item.title}
             </h3>
-            
-            <div className="mt-6 flex items-center gap-4">
-              <div className="h-px w-8 bg-white/20" />
-              <p className="text-[9px] uppercase tracking-[0.3em] text-white/40">
-                {item.client}
-              </p>
-            </div>
           </motion.div>
         </div>
       </div>

@@ -70,6 +70,7 @@ export function FounderFeature() {
                     width={founder.portrait.width}
                     height={founder.portrait.height}
                     loading="lazy"
+                    decoding="async"
                     className="h-full w-full object-cover grayscale transition-all duration-1000 group-hover:grayscale-0 group-hover:scale-[1.05]"
                   />
                 </picture>
