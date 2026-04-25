@@ -46,6 +46,7 @@ export function AppShell() {
       <Helmet>
         <title>FEST Dance Company | Choreography & Movement Direction</title>
         <meta name="description" content="Premium Choreography, Movement Direction & Performance Design for concerts, music videos, and fashion campaigns." />
+        <meta name="google-site-verification" content="lsJb2MLxlUnH0GyUJMdhwCUa64zwGK0Xgqyi5T4t-AM" />
       </Helmet>
       <SemanticShadow />
       <LoadingScreen />
