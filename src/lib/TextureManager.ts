@@ -112,7 +112,7 @@ class TextureManager {
       texture.colorSpace = SRGBColorSpace;
       texture.minFilter = LinearFilter;
       texture.magFilter = LinearFilter;
-      // Removed texture.flipY = true to match flipped UVs in shader
+      texture.flipY = true; // Match KTX2 orientation (flip row 0 to top)
       texture.needsUpdate = true;
 
       this.thumbCache.set(id, texture);
@@ -184,10 +184,10 @@ class TextureManager {
         }
       } else {
         const loader = new ImageBitmapLoader();
-        loader.setOptions({ imageOrientation: 'none' }); // Matched to KTX2/ThumbHash top-to-bottom orientation
+        loader.setOptions({ imageOrientation: 'none' }); // Decode row 0 at top
         const imageBitmap = await loader.loadAsync(url);
         texture = new Texture(imageBitmap);
-        texture.flipY = false; // Match KTX2 and DataTexture behavior (top-to-bottom in memory)
+        texture.flipY = true; // Flip row 0 to top during upload to match KTX2
         texture.generateMipmaps = true;
         texture.minFilter = LinearMipmapLinearFilter;
         texture.magFilter = LinearFilter;

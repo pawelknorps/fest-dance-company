@@ -30,8 +30,7 @@ const vertexShader = `
   uniform float uOffset;
   
   void main() {
-    // Flip UV vertically to fix upside-down KTX2 textures
-    vUv = vec2(uv.x, 1.0 - uv.y);
+    vUv = uv;
     vec3 pos = position;
     
     #if LOW_TIER
