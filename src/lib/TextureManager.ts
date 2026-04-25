@@ -175,6 +175,7 @@ class TextureManager {
         await this.initPromise;
         if (this.ktx2Loader) {
           texture = await this.ktx2Loader.loadAsync(url);
+          texture.flipY = false; // KTX2/Basis textures are typically pre-flipped or top-left oriented
           // SOTA: Hardware Mipmapping via pre-baked container data
           texture.generateMipmaps = false;
           texture.minFilter = LinearMipmapLinearFilter;
@@ -184,10 +185,10 @@ class TextureManager {
         }
       } else {
         const loader = new ImageBitmapLoader();
-        loader.setOptions({ imageOrientation: 'none' }); // Decode row 0 at top
+        loader.setOptions({ imageOrientation: 'flipY' }); // SOTA: Decode with flipY in browser (faster)
         const imageBitmap = await loader.loadAsync(url);
         texture = new Texture(imageBitmap);
-        texture.flipY = true; // Flip row 0 to top during upload to match KTX2
+        texture.flipY = false; // Already flipped by ImageBitmapLoader
         texture.generateMipmaps = true;
         texture.minFilter = LinearMipmapLinearFilter;
         texture.magFilter = LinearFilter;
@@ -229,8 +230,17 @@ class TextureManager {
       
       // SOTA Prioritization: Wait for "Tier 1" critical items to finish
       // before starting the background trickle. This ensures zero-jank entrance.
+      // SOTA: Safety timeout to prevent indefinite blocking of background queue
+      // If priority items take more than 5s, we start the background trickle anyway
+      const safetyTimeout = new Promise(resolve => setTimeout(resolve, 5000));
+      
       while (this.priorityTotal > 0 && this.priorityLoaded < this.priorityTotal) {
-        await new Promise(resolve => setTimeout(resolve, 100));
+        const checkPromise = new Promise(resolve => setTimeout(resolve, 100));
+        const winner = await Promise.race([checkPromise, safetyTimeout]);
+        if (winner === undefined) { // safetyTimeout resolved
+          console.warn('[TextureManager] Priority load safety timeout reached. Starting background queue.');
+          break;
+        }
       }
 
       while (this.queue.length > 0) {
