@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 import { processSteps } from '../../data/process'
 import { SectionHeading } from '../ui/SectionHeading'
 import { useTranslation } from '../../lib/i18n'
@@ -17,7 +17,7 @@ export function ProcessStrip() {
         {processSteps.map((step, index) => {
           const translated = t.processStepsItems?.[`step${step.id}` as keyof typeof t.processStepsItems] || step
           return (
-            <motion.article
+            <m.article
               key={step.id}
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -34,7 +34,7 @@ export function ProcessStrip() {
               <p className="mt-2 max-w-[25ch] text-sm leading-6 text-white/58">
                 {translated.description}
               </p>
-            </motion.article>
+            </m.article>
           )
         })}
       </div>

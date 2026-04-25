@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 import { useTranslation } from '../../lib/i18n'
 
 
@@ -10,7 +10,7 @@ export function CredibilityBand() {
     <section className="section-shell pt-4 pb-4">
       <div className="overflow-hidden rounded-[40px] border border-white/10 bg-white/[0.02] px-8 py-12 md:px-16 md:py-20">
         <div className="grid gap-16 lg:grid-cols-[0.9fr_1.1fr] lg:gap-24">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-10% 0px' }}
@@ -22,9 +22,9 @@ export function CredibilityBand() {
             <h3 className="max-w-[15ch] font-display text-5xl uppercase leading-[0.85] tracking-[0.04em] text-white md:text-7xl">
               <span className="text-glow opacity-90">{t.credibilityHeadline}</span>
             </h3>
-          </motion.div>
+          </m.div>
 
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-10% 0px' }}
@@ -37,7 +37,7 @@ export function CredibilityBand() {
             
             <div className="mt-16 grid gap-8 md:grid-cols-3 lg:mt-24">
               {pillars.map((pillar, index) => (
-                <motion.div
+                <m.div
                   key={pillar}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -49,10 +49,10 @@ export function CredibilityBand() {
                   <p className="text-xs font-medium leading-relaxed tracking-wider text-white/50 transition-colors duration-500 group-hover:text-white/90">
                     {pillar}
                   </p>
-                </motion.div>
+                </m.div>
               ))}
             </div>
-          </motion.div>
+          </m.div>
         </div>
       </div>
     </section>

@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { m, useScroll, useTransform } from 'framer-motion'
 import { founder } from '../../data/founder'
 import { useTranslation } from '../../lib/i18n'
 
@@ -13,7 +13,7 @@ export function FounderFeature() {
     <section ref={sectionRef} id="founder" className="section-premium relative pt-8 pb-4 md:pt-16 md:pb-8">
       <div className="section-shell w-full max-w-[1300px]">
         <div className="grid items-center gap-16 lg:grid-cols-[1fr_1.1fr] lg:gap-20">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: '-10% 0px' }}
@@ -41,9 +41,9 @@ export function FounderFeature() {
                 <p key={paragraph} className="max-w-[45ch]">{paragraph}</p>
               ))}
             </div>
-          </motion.div>
+          </m.div>
 
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.95, x: 30 }}
             whileInView={{ opacity: 1, scale: 1, x: 0 }}
             viewport={{ once: true, margin: '-10% 0px' }}
@@ -83,14 +83,14 @@ export function FounderFeature() {
               {/* Dynamic light streak */}
               <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none" />
             </div>
-          </motion.div>
+          </m.div>
         </div>
 
         <div className="mt-12 grid gap-10 border-t border-white/10 pt-12 md:mt-16 md:grid-cols-3 lg:gap-16">
           {founder.metrics.map((metric, index) => {
             const translatedLabel = t.founderMetrics?.[index]?.label || metric.label
             return (
-              <motion.div
+              <m.div
                 key={metric.label}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -106,7 +106,7 @@ export function FounderFeature() {
                     {translatedLabel}
                   </p>
                 </div>
-              </motion.div>
+              </m.div>
             )
           })}
         </div>

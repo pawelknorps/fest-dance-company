@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, m } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 import { brand } from '../../data/brand'
 import { contact } from '../../data/contact'
@@ -135,7 +135,7 @@ export function SiteHeader({ open, setOpen }: SiteHeaderProps) {
       {/* ── Full-screen nav overlay ── */}
       <AnimatePresence>
         {open && (
-          <motion.aside
+          <m.aside
             key="nav-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -149,7 +149,7 @@ export function SiteHeader({ open, setOpen }: SiteHeaderProps) {
                 <div className="absolute bottom-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-[radial-gradient(circle_at_center,rgba(168,63,255,0.2)_0%,transparent_70%)] blur-[100px]" />
             </div>
 
-            <motion.nav
+            <m.nav
               initial={{ opacity: 0, scale: 0.98, x: 20 }}
               animate={{ opacity: 1, scale: 1, x: 0 }}
               exit={{ opacity: 0, scale: 1.02, x: 10 }}
@@ -171,7 +171,7 @@ export function SiteHeader({ open, setOpen }: SiteHeaderProps) {
               {/* Nav links — RIGHT-aligned */}
               <div className="flex flex-col items-end gap-2 md:gap-4 pt-10">
                 {navItems.map((item, i) => (
-                  <motion.a
+                  <m.a
                     key={item.href}
                     href={item.href}
                     data-cursor={t.cursorLink}
@@ -185,7 +185,7 @@ export function SiteHeader({ open, setOpen }: SiteHeaderProps) {
                       {(i + 1).toString().padStart(2, '0')}
                     </span>
                     <span className="text-glow">{item.label}</span>
-                  </motion.a>
+                  </m.a>
                 ))}
               </div>
 
@@ -214,8 +214,8 @@ export function SiteHeader({ open, setOpen }: SiteHeaderProps) {
                     ))}
                 </div>
               </div>
-            </motion.nav>
-          </motion.aside>
+            </m.nav>
+          </m.aside>
         )}
       </AnimatePresence>
     </>

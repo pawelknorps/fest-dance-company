@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { motion, useScroll, useTransform, useVelocity, useSpring } from 'framer-motion'
+import { m, useScroll, useTransform, useVelocity, useSpring } from 'framer-motion'
 import type { ReactNode } from 'react'
 
 interface Props {
@@ -29,12 +29,12 @@ export function KineticText({ text, children, className = '', inView }: Partial<
   })
 
   return (
-    <motion.div
+    <m.div
       ref={ref}
       style={{ skewX }}
       className={`inline-block ${className}`}
     >
       {text ?? children}
-    </motion.div>
+    </m.div>
   )
 }

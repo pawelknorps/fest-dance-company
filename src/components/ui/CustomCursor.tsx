@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
-import { motion, useMotionValue, useSpring } from 'framer-motion'
+import { m, useMotionValue, useSpring } from 'framer-motion'
 
 export function CustomCursor() {
   const cursorX = useMotionValue(-100)

@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 import { brand } from '../../data/brand'
 import { useHeroMediaVisibility } from '../../hooks/useHeroMediaVisibility'
 import { PrimaryButton } from '../ui/PrimaryButton'
@@ -38,22 +38,22 @@ export function AlternativeHeroStage() {
         <div className="grid w-full gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(260px,0.34fr)] lg:items-end">
           
           <div className="max-w-[620px] mix-blend-difference">
-            <motion.p
+            <m.p
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.65, delay: 0.15 }}
               className="mb-5 text-[0.68rem] uppercase tracking-[0.42em] text-white/70 md:text-xs"
             >
               {t.heroKicker}
-            </motion.p>
-            <motion.p
+            </m.p>
+            <m.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.22 }}
               className="mb-6 text-[0.72rem] uppercase tracking-[0.34em] text-white/50"
             >
               {brand.name}
-            </motion.p>
+            </m.p>
 
             <h1
               className="max-w-[8ch] font-display text-[clamp(3.2rem,8vw,6.7rem)] uppercase leading-[0.88] tracking-[0.05em] text-white"
@@ -61,7 +61,7 @@ export function AlternativeHeroStage() {
               <KineticText text={t.claim} className="text-glow" delay={0.26} />
             </h1>
 
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.66, delay: 0.54 }}
@@ -71,10 +71,10 @@ export function AlternativeHeroStage() {
               <PrimaryButton href="#portfolio" variant="ghost">
                 {t.ctaSecondary}
               </PrimaryButton>
-            </motion.div>
+            </m.div>
           </div>
 
-          <motion.ul
+          <m.ul
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.78, delay: 0.42 }}
@@ -89,7 +89,7 @@ export function AlternativeHeroStage() {
                 <p className="mt-2 leading-5">{note}</p>
               </li>
             ))}
-          </motion.ul>
+          </m.ul>
         </div>
       </div>
     </section>

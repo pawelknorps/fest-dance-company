@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { motion, useScroll, useSpring, useMotionValueEvent } from 'framer-motion'
+import { m, useScroll, useSpring, useMotionValueEvent } from 'framer-motion'
 import { portfolio } from '../../data/portfolio'
 import { DOMKineticCard } from './DOMKineticCard'
 import { useTranslation } from '../../lib/i18n'
@@ -84,12 +84,12 @@ export function DOMKineticPortfolio() {
 
         {/* Animated Background Text Elements - Hidden on Mobile */}
         <div className="absolute inset-0 hidden md:flex items-center justify-center pointer-events-none overflow-hidden select-none">
-           <motion.div 
+           <m.div 
              className="font-display text-[15vw] uppercase leading-none text-white/[0.02] whitespace-nowrap"
              style={{ rotateZ: -10 }}
            >
              PORTFOLIO 2026
-           </motion.div>
+           </m.div>
         </div>
       </div>
     </section>

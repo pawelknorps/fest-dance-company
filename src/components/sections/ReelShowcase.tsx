@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 import { featuredReel } from '../../data/portfolio'
 import { SectionHeading } from '../ui/SectionHeading'
 import { useTranslation } from '../../lib/i18n'
@@ -13,7 +13,7 @@ export function ReelShowcase() {
         copy={t.reelCopy}
       />
 
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 28 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-10% 0px' }}
@@ -46,7 +46,7 @@ export function ReelShowcase() {
             </div>
           </div>
         </div>
-      </motion.div>
+      </m.div>
     </section>
   )
 }

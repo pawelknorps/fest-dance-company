@@ -56,8 +56,10 @@ export function AppShell() {
           <main className="relative z-10">
             <HeroStage tier={tier} />
             <ServiceGrid />
-            <FounderFeature />
-            <CredibilityBand />
+            <Suspense fallback={<div />}>
+              <FounderFeature />
+              <CredibilityBand />
+            </Suspense>
             
             <div id="portfolio">
               <Suspense fallback={<div className="h-[100vh] bg-[#05030a]" />}>
@@ -69,11 +71,15 @@ export function AppShell() {
               </Suspense>
             </div>
 
-            <ProcessStrip />
-            <InquiryForm />
+            <Suspense fallback={<div />}>
+              <ProcessStrip />
+              <InquiryForm />
+            </Suspense>
           </main>
 
-          <SiteFooter />
+          <Suspense fallback={<div />}>
+            <SiteFooter />
+          </Suspense>
         </div>
       </SmoothScroll>
     </ErrorBoundary>

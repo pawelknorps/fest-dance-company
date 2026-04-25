@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -92,7 +92,7 @@ export function InquiryForm() {
           </div>
         </div>
 
-        <motion.form
+        <m.form
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-10% 0px' }}
@@ -181,7 +181,7 @@ export function InquiryForm() {
               ) : null}
             </div>
           </div>
-        </motion.form>
+        </m.form>
       </div>
     </section>
   )

@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { motion, useTransform, MotionValue, useMotionValueEvent } from 'framer-motion'
+import { m, useTransform, MotionValue, useMotionValueEvent } from 'framer-motion'
 import { useTranslation } from '../../lib/i18n'
 
 interface Props {
@@ -49,7 +49,7 @@ export function DOMKineticCard({ item, index, count, progress }: Props) {
   const imageSrc = item.image.srcMobile || item.image.src
 
   return (
-    <motion.div
+    <m.div
       ref={cardRef}
       className="absolute inset-0 flex items-center justify-center pointer-events-none"
       style={{
@@ -81,7 +81,7 @@ export function DOMKineticCard({ item, index, count, progress }: Props) {
           }}
         >
 
-          <motion.img
+          <m.img
             src={imageSrc}
             alt={item.title}
             decoding="async"
@@ -110,6 +110,6 @@ export function DOMKineticCard({ item, index, count, progress }: Props) {
           </div>
         </div>
       </div>
-    </motion.div>
+    </m.div>
   )
 }

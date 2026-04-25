@@ -77,6 +77,28 @@ const vertexShader = /* glsl */ `
     finalPosition.x += sin(uTime * 0.14 + aSeed * 12.0) * 0.016;
     finalPosition.y += cos(uTime * 0.1 + aSeed * 8.0) * 0.012;
 
+    // Apply global sway in shader to avoid mutating JS matrix every frame
+    float swayX = sin(uTime * 0.07) * 0.008;
+    float swayY = cos(uTime * 0.05) * 0.006;
+    
+    // Rotate slightly
+    float rotY = sin(uTime * 0.05) * 0.022;
+    float rotX = cos(uTime * 0.035) * 0.01;
+    
+    mat3 rotMat = mat3(
+      cos(rotY), 0.0, sin(rotY),
+      0.0, 1.0, 0.0,
+      -sin(rotY), 0.0, cos(rotY)
+    ) * mat3(
+      1.0, 0.0, 0.0,
+      0.0, cos(rotX), -sin(rotX),
+      0.0, sin(rotX), cos(rotX)
+    );
+    
+    finalPosition = rotMat * finalPosition;
+    finalPosition.x += swayX;
+    finalPosition.y += swayY;
+
     vec4 mvPosition = modelViewMatrix * vec4(finalPosition, 1.0);
     gl_Position = projectionMatrix * mvPosition;
 
@@ -329,7 +351,7 @@ function ParticleImage({
 
     activeMaterial.uniforms.uProgress.value = progress
     activeMaterial.uniforms.uTime.value = state.clock.elapsedTime
-    activeMaterial.uniforms.uPointScale.value = Math.min(size.width / 132, 7.2)
+    activeMaterial.uniforms.uPointScale.value = pointScale
 
     if (
       currentPlane?.material instanceof MeshBasicMaterial &&
@@ -371,11 +393,6 @@ function ParticleImage({
         nextPlane.material.needsUpdate = true
       }
     }
-
-    points.rotation.y = Math.sin(state.clock.elapsedTime * 0.05) * 0.022
-    points.rotation.x = Math.cos(state.clock.elapsedTime * 0.035) * 0.01
-    points.position.x = Math.sin(state.clock.elapsedTime * 0.07) * 0.008
-    points.position.y = Math.cos(state.clock.elapsedTime * 0.05) * 0.006
   })
 
   // Fallback dimensions before samples arrive — use the max viewport dimensions

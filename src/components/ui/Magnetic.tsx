@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 
 export function Magnetic({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null)
@@ -19,7 +19,7 @@ export function Magnetic({ children }: { children: React.ReactNode }) {
 
   const { x, y } = position
   return (
-    <motion.div
+    <m.div
       ref={ref}
       style={{ position: 'relative' }}
       onMouseMove={handleMouse}
@@ -28,6 +28,6 @@ export function Magnetic({ children }: { children: React.ReactNode }) {
       transition={{ type: 'spring', stiffness: 150, damping: 15, mass: 0.1 }}
     >
       {children}
-    </motion.div>
+    </m.div>
   )
 }

@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { motion, useSpring, useTransform } from 'framer-motion'
+import { m, useSpring, useTransform } from 'framer-motion'
 import type { ReactNode } from 'react'
 
 interface Props {
@@ -59,13 +59,13 @@ export function MagneticButton({
       className="relative"
       style={{ padding: hitPadding }} // Hit area expansion
     >
-      <motion.div
+      <m.div
         style={{ x, y }}
         onClick={onClick}
         className={className}
       >
         {children}
-      </motion.div>
+      </m.div>
     </div>
   )
 }

@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react'
-import { motion, useScroll, useTransform, MotionValue } from 'framer-motion'
+import { m, useScroll, useTransform, MotionValue } from 'framer-motion'
 
 interface Props {
   isVisible: boolean
@@ -19,7 +19,7 @@ export function DOMHero({ isVisible, scrubProgress }: Props) {
   const opacity = useTransform(scrubProgress, [0, 0.4], [1, 0.3])
 
   return (
-    <motion.div 
+    <m.div 
       ref={containerRef}
       style={{ y, scale, opacity }}
       className="absolute inset-0 z-0 overflow-hidden bg-[#060609]"
@@ -56,6 +56,6 @@ export function DOMHero({ isVisible, scrubProgress }: Props) {
 
       {/* SOTA Grain Mask */}
       <div className="noise-mask absolute inset-0 opacity-15" />
-    </motion.div>
+    </m.div>
   )
 }

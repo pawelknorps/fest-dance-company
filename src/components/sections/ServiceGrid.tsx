@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { motion, useScroll, useTransform, useVelocity, useSpring } from 'framer-motion'
+import { m, useScroll, useTransform, useVelocity, useSpring } from 'framer-motion'
 import { services } from '../../data/services'
 import { SectionHeading } from '../ui/SectionHeading'
 import { useTranslation } from '../../lib/i18n'

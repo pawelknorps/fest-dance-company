@@ -112,7 +112,7 @@ class TextureManager {
       texture.colorSpace = SRGBColorSpace;
       texture.minFilter = LinearFilter;
       texture.magFilter = LinearFilter;
-      texture.flipY = true; // ThumbHash is top-left, WebGL is bottom-left
+      // Removed texture.flipY = true to match flipped UVs in shader
       texture.needsUpdate = true;
 
       this.thumbCache.set(id, texture);

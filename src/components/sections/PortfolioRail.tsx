@@ -1,5 +1,5 @@
 import { useRef, useMemo, useEffect } from 'react'
-import { motion, useScroll, useTransform, useSpring, useVelocity } from 'framer-motion'
+import { m, useScroll, useTransform, useSpring, useVelocity } from 'framer-motion'
 import { portfolio } from '../../data/portfolio'
 import { SectionHeading } from '../ui/SectionHeading'
 import { useTranslation } from '../../lib/i18n'
@@ -83,7 +83,7 @@ export function PortfolioRail() {
           />
         </div>
 
-        <motion.div 
+        <m.div 
           ref={containerRef}
           style={{ x }}
           className="relative z-10 flex gap-6 md:gap-12 px-[clamp(1.25rem,1.05rem+0.9vw,2rem)] w-[max-content]"
@@ -91,7 +91,7 @@ export function PortfolioRail() {
           {portfolio.map((item, index) => (
             <PortfolioCard key={item.id} item={item} index={index} t={t} />
           ))}
-        </motion.div>
+        </m.div>
         
         {/* Visual progress indicator */}
         <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex gap-3 z-20">

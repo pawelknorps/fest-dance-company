@@ -1,11 +1,11 @@
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 import { brand } from '../../data/brand'
 import { MagneticButton } from '../ui/MagneticButton'
 
 export function NotFound() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-night px-6 text-center text-white">
-      <motion.div
+      <m.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
@@ -30,7 +30,7 @@ export function NotFound() {
             </a>
           </MagneticButton>
         </div>
-      </motion.div>
+      </m.div>
 
       <div className="absolute bottom-12 opacity-20">
         <img src={brand.logo} alt="FEST" className="h-6 grayscale" />

@@ -1,7 +1,6 @@
 // Kinetic Portfolio — 2026 Premium Choreography Showcase
 import { Suspense, useRef, useState, useEffect, useCallback, lazy } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { EffectComposer, Vignette } from '@react-three/postprocessing'
 import { portfolio } from '../../data/portfolio'
 import { KineticCard, type KineticCardRef } from './KineticCard'
 import { KineticScene } from './KineticScene'
