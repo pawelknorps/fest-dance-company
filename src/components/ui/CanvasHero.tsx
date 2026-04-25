@@ -1,5 +1,6 @@
 import { memo, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber'
+import { useLoadOrchestrator } from '../../lib/LoadOrchestrator'
 import type { MotionValue } from 'framer-motion'
 import {
   TextureLoader,
@@ -179,7 +180,15 @@ function ParticleImage({
   scrubProgress: number | MotionValue<number>,
   isVisible: boolean
 }) {
-  const textures = useLoader(TextureLoader, IMAGE_SOURCES)
+  const registerItem = useLoadOrchestrator(s => s.registerItem)
+  const completeItem = useLoadOrchestrator(s => s.completeItem)
+
+  const textures = useLoader(TextureLoader, IMAGE_SOURCES, (loader: any) => {
+    IMAGE_SOURCES.forEach((url, i) => {
+      completeItem(`hero-${i}`)
+    })
+  })
+  
   const pointsRef = useRef<Points>(null)
   const currentPlaneRef = useRef<Mesh>(null)
   const nextPlaneRef = useRef<Mesh>(null)
@@ -193,6 +202,8 @@ function ParticleImage({
   const [samples, setSamples] = useState<Sample[] | null>(null)
 
   useEffect(() => {
+    IMAGE_SOURCES.forEach((_, i) => registerItem(`hero-${i}`))
+    
     let cancelled = false
 
     // Kick off the sampler worker immediately — it runs off the main thread

@@ -1,23 +1,30 @@
 import { useRef, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { Color, AdditiveBlending } from 'three'
+import { Color, AdditiveBlending, NormalBlending } from 'three'
 import type { ShaderMaterial, Points } from 'three'
 
 interface ParticleRiverProps {
   particleCount?: number
   width?: number
   velocityRef: React.MutableRefObject<number>
+  isMobile?: boolean
 }
 
-export function ParticleRiver({ particleCount = 1800, width = 45, velocityRef }: Partial<ParticleRiverProps>) {
+export function ParticleRiver({ 
+  particleCount = 1800, 
+  width = 45, 
+  velocityRef,
+  isMobile = false
+}: Partial<ParticleRiverProps>) {
   const pointsRef = useRef<Points>(null)
 
   const [positions, progress, sizes] = useMemo(() => {
-    const pos = new Float32Array(particleCount * 3)
-    const prog = new Float32Array(particleCount)
-    const sz = new Float32Array(particleCount)
+    const finalCount = isMobile ? Math.min(particleCount, 800) : particleCount
+    const pos = new Float32Array(finalCount * 3)
+    const prog = new Float32Array(finalCount)
+    const sz = new Float32Array(finalCount)
 
-    for (let i = 0; i < particleCount; i++) {
+    for (let i = 0; i < finalCount; i++) {
       const x = (Math.random() - 0.5) * width
       const y = (Math.random() - 0.5) * 3.5
       const z = (Math.random() - 0.5) * 6
@@ -30,7 +37,9 @@ export function ParticleRiver({ particleCount = 1800, width = 45, velocityRef }:
       sz[i] = 0.5 + Math.random() * 0.5
     }
     return [pos, prog, sz]
-  }, [particleCount, width])
+  }, [particleCount, width, isMobile])
+  
+  const blending = isMobile ? NormalBlending : AdditiveBlending
 
   const shaderArgs = useMemo(() => ({
     uniforms: {
@@ -116,7 +125,7 @@ export function ParticleRiver({ particleCount = 1800, width = 45, velocityRef }:
         args={[shaderArgs]} 
         transparent 
         depthWrite={false} 
-        blending={AdditiveBlending}
+        blending={blending}
       />
     </points>
   )

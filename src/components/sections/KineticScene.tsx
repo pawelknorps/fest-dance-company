@@ -48,11 +48,14 @@ export function KineticScene({
       <pointLight ref={accentLightRef} position={[0, 3, -7]} intensity={2.5} color="#c084fc" distance={25} />
 
       {/* SOTA Particle River — True kinetic flowing light river */}
-      {!isMobile && (
-        <group position={[0, 0, -1]}>
-          <ParticleRiver particleCount={2500} width={45} velocityRef={velocityRef} />
-        </group>
-      )}
+      <group position={[0, 0, -1]}>
+        <ParticleRiver 
+          particleCount={isMobile ? 800 : 2500} 
+          width={45} 
+          velocityRef={velocityRef} 
+          isMobile={isMobile}
+        />
+      </group>
     </>
   )
 }

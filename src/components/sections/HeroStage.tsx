@@ -6,15 +6,22 @@ import { useHeroMediaVisibility } from '../../hooks/useHeroMediaVisibility'
 import { PrimaryButton } from '../ui/PrimaryButton'
 import festLogo from '../../assets/logo/fest-logo.png?format=webp&w=1400&q=90&as=url'
 import { OffscreenHero } from '../ui/OffscreenHero'
-import { KineticText } from '../ui/KineticText'
+import { useLoadOrchestrator } from '../../lib/LoadOrchestrator'
 import { useTranslation } from '../../lib/i18n'
+import { DeviceTier, type DeviceTierType } from '../../hooks/useDeviceTier'
+import { DOMHero } from '../ui/DOMHero'
 
-// CanvasHero is code-split into its own chunk — Three.js doesn't load until needed
-const CanvasHero = lazy(() => import('../ui/CanvasHero'))
-
-export function HeroStage() {
+export function HeroStage({ tier }: { tier: DeviceTierType }) {
   const t = useTranslation()
+  const registerItem = useLoadOrchestrator(s => s.registerItem)
+  const completeItem = useLoadOrchestrator(s => s.completeItem)
+
+  useEffect(() => {
+    registerItem('hero-logo')
+  }, [registerItem])
+
   const prefersReducedMotion = useReducedMotion() ?? false
+
   const { ref: visRef, isVisible } = useHeroMediaVisibility<HTMLDivElement>(0.1)
   const sectionRef = useRef<HTMLElement>(null)
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start start', 'end end'] })
@@ -71,10 +78,14 @@ export function HeroStage() {
               <div className="h-full w-full bg-[radial-gradient(circle_at_60%_42%,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0.03)_20%,transparent_60%)]" />
             }
           >
-            <OffscreenHero 
-              isVisible={isVisible} 
-              scrubProgress={scrubProgress} 
-            />
+            {tier === DeviceTier.LOW ? (
+              <DOMHero isVisible={isVisible} scrubProgress={scrubProgress} />
+            ) : (
+              <OffscreenHero 
+                isVisible={isVisible} 
+                scrubProgress={scrubProgress} 
+              />
+            )}
           </Suspense>
         </div>
 
@@ -96,6 +107,7 @@ export function HeroStage() {
               loading="eager"
               width={1400}
               height={360}
+              onLoad={() => completeItem('hero-logo')}
               className="pointer-events-none absolute left-1/2 w-[85vw] max-w-[1400px] -translate-x-1/2 object-contain opacity-55 md:opacity-65"
               style={{
                 willChange: 'transform',

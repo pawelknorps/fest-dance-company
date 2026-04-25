@@ -13,13 +13,16 @@ import { StructuredData } from '../components/seo/StructuredData'
 import { LoadingScreen } from '../components/ui/LoadingScreen'
 import { ScrollProgress } from '../components/ui/ScrollProgress'
 import { portfolio } from '../data/portfolio'
+import { useDeviceTier, DeviceTier } from '../hooks/useDeviceTier'
 
 const KineticPortfolio = lazy(() => import('../components/sections/KineticPortfolio'))
+const DOMKineticPortfolio = lazy(() => import('../components/sections/DOMKineticPortfolio'))
 
 import { ErrorBoundary } from '../components/ui/ErrorBoundary'
 
 export function AppShell() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const tier = useDeviceTier()
 
   return (
     <ErrorBoundary>
@@ -33,14 +36,18 @@ export function AppShell() {
           <SiteHeader open={menuOpen} setOpen={setMenuOpen} />
 
           <main className="relative z-10">
-            <HeroStage />
+            <HeroStage tier={tier} />
             <ServiceGrid />
             <FounderFeature />
             <CredibilityBand />
             
             <div id="portfolio">
               <Suspense fallback={<div className="h-[100vh] bg-[#05030a]" />}>
-                <KineticPortfolio />
+                {tier === DeviceTier.LOW ? (
+                  <DOMKineticPortfolio />
+                ) : (
+                  <KineticPortfolio />
+                )}
               </Suspense>
             </div>
 

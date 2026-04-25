@@ -55,4 +55,26 @@ export default defineConfig({
     }),
     heroAssetsPreloadPlugin(),
   ],
+  build: {
+    modulePreload: {
+      polyfill: true,
+    },
+    rollupOptions: {
+      output: {
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            if (id.includes('three') || id.includes('@react-three')) {
+              return 'vendor-three';
+            }
+            if (id.includes('postprocessing')) {
+              return 'vendor-post';
+            }
+            if (id.includes('framer-motion') || id.includes('lenis') || id.includes('react')) {
+              return 'vendor-core';
+            }
+          }
+        },
+      },
+    },
+  },
 })

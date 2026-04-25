@@ -21,6 +21,7 @@ self.onmessage = async (e: MessageEvent) => {
       decoder = new VideoDecoder({
         output: (frame) => {
           if (isVisible && ctx) {
+            // Render and immediately close to free GPU memory
             ctx.drawImage(frame, 0, 0, canvas!.width, canvas!.height)
           }
           frame.close()

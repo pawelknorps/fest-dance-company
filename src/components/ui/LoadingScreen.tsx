@@ -1,50 +1,36 @@
 import { useEffect, useState } from 'react'
 import { brand } from '../../data/brand'
+import { useLoadOrchestrator } from '../../lib/LoadOrchestrator'
 
 export function LoadingScreen() {
+  const realProgress = useLoadOrchestrator(s => s.totalProgress)
   const [progress, setProgress] = useState(0)
   const [isVisible, setIsVisible] = useState(true)
   const [isFinishing, setIsFinishing] = useState(false)
 
   useEffect(() => {
-    let interval: ReturnType<typeof setInterval>
+    const interval = setInterval(() => {
+      setProgress(prev => {
+        const target = realProgress > 0 ? Math.max(prev, realProgress * 100) : prev + 0.5
+        if (target >= 100) return 100
+        const diff = target - prev
+        return prev + diff * 0.1 + 0.05
+      })
+    }, 16)
     
-    // Fast initial tick for "feel"
-    const startProgress = () => {
-      interval = setInterval(() => {
-        setProgress((prev) => {
-          if (prev >= 90) { // Hold at 90% until real load if fast
-            return prev
-          }
-          const diff = Math.random() * 12 + 4
-          return Math.min(prev + diff, 90)
-        });
-      }, 60)
-    }
-
-    const handleLoad = () => {
-      clearInterval(interval)
+    // Safety: Hide after 3 seconds anyway if it's stuck
+    const safety = setTimeout(() => {
       setProgress(100)
-    }
+    }, 3000)
 
-    startProgress()
-
-    if (document.readyState === 'complete') {
-      handleLoad()
-    } else {
-      window.addEventListener('load', handleLoad)
-      // Safety timeout to ensure loader doesn't hang indefinitely
-      const safety = setTimeout(handleLoad, 2500)
-      return () => {
-        clearInterval(interval)
-        clearTimeout(safety)
-        window.removeEventListener('load', handleLoad)
-      }
+    return () => {
+      clearInterval(interval)
+      clearTimeout(safety)
     }
-  }, [])
+  }, [realProgress])
 
   useEffect(() => {
-    if (progress === 100) {
+    if (progress >= 99.9) {
       const finishTimer = setTimeout(() => setIsFinishing(true), 150)
       const hideTimer = setTimeout(() => setIsVisible(false), 550)
       return () => {

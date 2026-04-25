@@ -8,4 +8,5 @@ export interface PortfolioItem {
   optionalVideo?: string
   role: string
   client: string
+  thumbHash?: string
 }

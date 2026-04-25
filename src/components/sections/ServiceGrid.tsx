@@ -8,10 +8,15 @@ export function ServiceGrid() {
   const t = useTranslation()
   const sectionRef = useRef<HTMLElement>(null)
   
-  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start end', 'end end'] })
+  const { scrollYProgress } = useScroll({ 
+    target: sectionRef, 
+    offset: ['start start', 'end end'] 
+  })
   
-  const imageY = useTransform(scrollYProgress, [0.3, 1], ['-15%', '15%'])
-  const x = useTransform(scrollYProgress, [0.3, 0.9], ['0%', '-68%'])
+  // SOTA Parallax & Horizontal Shift
+  // -68% is calculated to show all cards in the horizontal layout
+  const imageY = useTransform(scrollYProgress, [0, 1], ['-15%', '15%'])
+  const x = useTransform(scrollYProgress, [0, 1], ['0%', '-68%'])
 
   const containerRef = useRef<HTMLDivElement>(null)
   const imageRefs = useRef<(HTMLImageElement | null)[]>([])
@@ -36,7 +41,7 @@ export function ServiceGrid() {
   }, [x, imageY])
 
   return (
-    <section ref={sectionRef} id="oferta" className="section-premium relative h-[200dvh]">
+    <section ref={sectionRef} id="oferta" className="section-premium relative h-[300dvh]">
       <div className="sticky top-0 flex h-[100dvh] w-full flex-col justify-center overflow-hidden py-10 md:py-20">
         <div className="w-full px-[clamp(1rem,0.8rem+1vw,2.5rem)] max-w-[1440px] mx-auto mb-8 md:mb-12">
             <SectionHeading

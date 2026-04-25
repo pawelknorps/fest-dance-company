@@ -125,10 +125,11 @@ self.onmessage = async (e: MessageEvent) => {
 
     const transferables = samples.flatMap(s => [s.positions, s.colors, s.edges])
 
-    // Cast self to any to avoid window.postMessage vs worker.postMessage conflict in TS
-    ;(self as any).postMessage({ type: 'SAMPLES_READY', payload: { samples } }, transferables)
+    // @ts-ignore - self is a DedicatedWorkerGlobalScope in this context
+    self.postMessage({ type: 'SAMPLES_READY', payload: { samples } }, transferables)
   } catch (err) {
-    ;(self as any).postMessage({
+    // @ts-ignore
+    self.postMessage({
       type: 'SAMPLE_ERROR',
       payload: { message: (err as Error).message ?? String(err) },
     })

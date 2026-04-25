@@ -25,6 +25,7 @@
     "react-hook-form": "^7.72.1",
     "tailwind-merge": "^3.5.0",
     "three": "^0.184.0",
+    "thumbhash": "^0.1.1",
     "vite-imagetools": "^10.0.0",
     "zod": "^4.3.6",
     "zustand": "^5.0.12"
@@ -40,6 +41,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.5.0",
+    "ktx2-encoder": "^0.5.1",
     "sharp": "^0.34.5",
     "svgo": "^4.0.1",
     "tailwindcss": "^4.2.2",

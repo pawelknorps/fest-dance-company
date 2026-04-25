@@ -1,5 +1,5 @@
 // Kinetic Portfolio — 2026 Premium Choreography Showcase
-import { Suspense, useRef, useState, useEffect, useCallback } from 'react'
+import { Suspense, useRef, useState, useEffect, useCallback, lazy } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { EffectComposer, Vignette } from '@react-three/postprocessing'
 import { portfolio } from '../../data/portfolio'
@@ -7,6 +7,12 @@ import { KineticCard, type KineticCardRef } from './KineticCard'
 import { KineticScene } from './KineticScene'
 import { useScroll, useSpring, useMotionValueEvent, type MotionValue } from 'framer-motion'
 import { useLenis } from 'lenis/react'
+import { useLoadOrchestrator } from '../../lib/LoadOrchestrator'
+import { textureManager } from '../../lib/TextureManager'
+
+const PortfolioEffects = lazy(() => import('./PortfolioEffects'))
+
+const POOL_SIZE = 6 // Fixed number of mesh slots for the carousel
 
 export function KineticPortfolio() {
   const sectionRef = useRef<HTMLElement>(null)
@@ -14,10 +20,15 @@ export function KineticPortfolio() {
   const [shouldLoad, setShouldLoad] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [isIntersecting, setIsIntersecting] = useState(false)
+  const [effectsReady, setEffectsReady] = useState(false)
 
   useEffect(() => {
     const mql = window.matchMedia('(max-width: 768px)')
     setIsMobile(mql.matches)
+    
+    // Configure Texture Manager priority signaling
+    textureManager.setPriorityCount(3, () => setEffectsReady(true))
+
     const handleMql = (e: MediaQueryListEvent) => setIsMobile(e.matches)
     mql.addEventListener('change', handleMql)
 
@@ -33,6 +44,8 @@ export function KineticPortfolio() {
     return () => {
       mql.removeEventListener('change', handleMql)
       observer.disconnect()
+      // SOTA Cleanup: Prevent memory leaks across page navigations
+      textureManager.dispose()
     }
   }, [])
 
@@ -94,7 +107,7 @@ export function KineticPortfolio() {
           <>
             <Canvas
               camera={{ position: [0, 0, 8], fov: 40 }}
-              dpr={[1, 1.5]}
+              dpr={[1, Math.min(1.5, typeof window !== 'undefined' ? window.devicePixelRatio : 1)]}
               frameloop={isIntersecting ? 'always' : 'never'}
               gl={{ 
                 antialias: true, 
@@ -105,6 +118,7 @@ export function KineticPortfolio() {
               }}
               onCreated={({ gl }) => {
                 gl.setClearColor('#05030a')
+                textureManager.init(gl)
               }}
             >
               <KineticScene isMobile={isMobile} velocityRef={velocityRef} isIntersecting={isIntersecting} />
@@ -117,10 +131,10 @@ export function KineticPortfolio() {
                 isIntersecting={isIntersecting}
               />
 
-              {!isMobile && (
-                <EffectComposer>
-                  <Vignette eskil={false} offset={0.1} darkness={1.1} />
-                </EffectComposer>
+              {!isMobile && effectsReady && (
+                <Suspense fallback={null}>
+                  <PortfolioEffects />
+                </Suspense>
               )}
             </Canvas>
 
@@ -155,7 +169,8 @@ function KineticContent({
   isMobile: boolean,
   isIntersecting: boolean
 }) {
-  const cardRefs = useRef<(KineticCardRef | null)[]>([])
+  const cardRefs = useRef<(KineticCardRef | null)[]>(new Array(portfolio.length).fill(null))
+  const [activeRange, setActiveRange] = useState<number[]>([0, 1, 2, 3, 4, 5])
 
   useFrame((state) => {
     const p = progress.get()
@@ -163,19 +178,40 @@ function KineticContent({
     const m = mouseRef.current
     const t = state.clock.elapsedTime
     
+    // Dynamic Windowing based on velocity
+    const baseIndex = p * (portfolio.length - 1)
+    const lookAhead = Math.floor(Math.abs(v) * 0.4)
+    const windowSize = isMobile ? 2 : 3
+    
+    const start = Math.max(0, Math.floor(baseIndex - windowSize))
+    const end = Math.min(portfolio.length - 1, Math.ceil(baseIndex + windowSize + (v > 0 ? lookAhead : 0)))
+    
+    // Create mapping of pool slots to portfolio indices
+    const indices = []
+    for (let i = start; i <= end; i++) {
+      indices.push(i)
+    }
+    
+    // We only update the state if the range of visible indices changed significantly
+    // to avoid unnecessary re-renders while keeping the pooling logic efficient
+    if (JSON.stringify(indices) !== JSON.stringify(activeRange)) {
+      setActiveRange(indices)
+    }
+
     for (let i = 0; i < cardRefs.current.length; i++) {
       cardRefs.current[i]?.update(p, v, m, t, isIntersecting)
     }
   })
 
+  // Pool-based rendering: we only render cards that are within the active range
   return (
     <>
-      {portfolio.map((item, index) => (
+      {activeRange.map((portfolioIndex) => (
         <KineticCard
-          key={item.id}
-          ref={(el) => { cardRefs.current[index] = el }}
-          item={item}
-          index={index}
+          key={portfolio[portfolioIndex].id}
+          ref={(el) => { cardRefs.current[portfolioIndex] = el }}
+          item={portfolio[portfolioIndex]}
+          index={portfolioIndex}
           count={portfolio.length}
           isMobile={isMobile}
         />
