@@ -167,8 +167,8 @@ const CardContent = forwardRef<KineticCardRef, KineticCardProps>((props, ref) =>
 
   const { cardW, cardH } = useMemo(() => {
     const aspect = (item.image.width || 567) / (item.image.height || 423)
-    const cH = 5.8
-    const cW = aspect < 1 ? cH * aspect : Math.min(aspect * 3.5, 8.0)
+    const cH = 4.8
+    const cW = aspect < 1 ? cH * aspect : Math.min(aspect * 3.0, 7.0)
     return { cardW: cW, cardH: cH }
   }, [item.image.width, item.image.height])
 
@@ -182,7 +182,7 @@ const CardContent = forwardRef<KineticCardRef, KineticCardProps>((props, ref) =>
       meshRef.current.visible = isCardVisible
       if (!isCardVisible) return
 
-      const radius = 14
+      const radius = 12
       const angle = offset * 0.35
       const targetX = Math.sin(angle) * radius + (mouse.x * 0.15)
       const targetY = -(mouse.y * 0.08)
@@ -197,7 +197,7 @@ const CardContent = forwardRef<KineticCardRef, KineticCardProps>((props, ref) =>
       groupRef.current.rotation.y += (angle * 1.1 + mouse.x * 0.1 - groupRef.current.rotation.y) * 0.1
       groupRef.current.rotation.x += (absOffset * 0.08 - mouse.y * 0.1 - groupRef.current.rotation.x) * 0.1
       groupRef.current.rotation.z += (velocity * (offset > 0 ? -1 : 1) * 0.15 - groupRef.current.rotation.z) * 0.1
-      groupRef.current.scale.setScalar(1.15 - Math.min(absOffset * 0.15, 0.25))
+      groupRef.current.scale.setScalar(1.05 - Math.min(absOffset * 0.2, 0.35))
 
       const mat = meshRef.current.material as ShaderMaterial
       const baseOpacity = 1 - Math.min(absOffset * 0.45, 0.98)
