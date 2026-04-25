@@ -11,8 +11,7 @@ export const brand: BrandData = {
   ctaPrimary: 'Umów konsultację',
   ctaSecondary: 'Zobacz portfolio',
   socialLinks: [
-    { label: 'Instagram', href: 'https://instagram.com/' },
-    { label: 'TikTok', href: 'https://tiktok.com/' },
-    { label: 'Vimeo', href: 'https://vimeo.com/' },
+    { label: 'Instagram', href: 'https://www.instagram.com/fest_dancecompany' },
+    { label: 'TikTok', href: 'https://www.tiktok.com/@fest.dancecompany' },
   ],
 } as const

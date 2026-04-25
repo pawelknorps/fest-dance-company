@@ -17,7 +17,7 @@ export function StructuredData() {
     url: 'https://festdance.company',
     logo: `https://festdance.company${brand.logo}`,
     description: t.intro,
-    sameAs: [...sameAs, 'https://www.instagram.com/fest_dance_company/', 'https://vimeo.com/festdance', 'https://www.linkedin.com/company/fest-dance-company'],
+    sameAs: [...sameAs, 'https://www.instagram.com/fest_dancecompany', 'https://www.tiktok.com/@fest.dancecompany'],
     contactPoint: {
       '@type': 'ContactPoint',
       contactType: 'inquiry',
