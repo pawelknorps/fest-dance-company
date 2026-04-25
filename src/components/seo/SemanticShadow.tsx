@@ -20,7 +20,7 @@ export function SemanticShadow() {
             <h3>{item.title}</h3>
             <p>Kategoria: {item.category} | Rola: {item.role} | Klient: {item.client}</p>
             <img 
-              src={item.image.src as string} 
+              src={item.image.srcMobile as string} 
               alt={`Wizualizacja choreografii: ${item.title} - ${item.role} w kategorii ${item.category}.`} 
               width={item.image.width}
               height={item.image.height}

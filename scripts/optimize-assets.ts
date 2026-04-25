@@ -6,8 +6,8 @@ import { fileURLToPath } from 'node:url'
 import * as thumbhash from 'thumbhash'
 
 // Configuration
-const TARGET_RES = 2048 // 2K Baseline for SOTA 2026
-const AVIF_RES = 1024   // Fallback for Tier 3 DOM
+const TARGET_RES = 1280 // Reduced from 2K to 1280px for massive performance and load speed improvements
+const AVIF_RES = 800   // Fallback for Tier 3 DOM
 const KTX2_WAS_URL = path.resolve('node_modules/ktx2-encoder/dist/basis/basis_encoder.wasm')
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
