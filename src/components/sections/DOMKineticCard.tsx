@@ -24,6 +24,9 @@ export function DOMKineticCard({ item, index, count, progress }: Props) {
     return index - scrollPos
   })
 
+  // Initialize visibility on mount
+  const [isRendered, setIsRendered] = useState(() => Math.abs(relativeProgress.get()) < 2)
+
   const velocity = useVelocity(progress)
   const smoothVelocity = useSpring(velocity, { stiffness: 60, damping: 20 })
   

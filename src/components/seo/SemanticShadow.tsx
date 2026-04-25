@@ -6,7 +6,10 @@ import { portfolio } from '../../data/portfolio'
  */
 export function SemanticShadow() {
   return (
-    <div className="sr-only" aria-hidden="true">
+    <div 
+      className="sr-only !opacity-0 !h-0 !overflow-hidden !absolute" 
+      aria-hidden="true"
+    >
       <h1>FEST Dance Company - Premium Choreography & Movement Direction</h1>
       <p>FEST Dance Company to studio specjalizujące się w choreografii, movement direction oraz performance design dla koncertów, teledysków, kampanii reklamowych i eventów na całym świecie. Nasza siedziba znajduje się w Poznaniu, w Polsce.</p>
       
