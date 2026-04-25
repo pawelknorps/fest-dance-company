@@ -184,9 +184,10 @@ class TextureManager {
         }
       } else {
         const loader = new ImageBitmapLoader();
-        loader.setOptions({ imageOrientation: 'flipY' });
+        loader.setOptions({ imageOrientation: 'none' }); // Matched to KTX2/ThumbHash top-to-bottom orientation
         const imageBitmap = await loader.loadAsync(url);
         texture = new Texture(imageBitmap);
+        texture.flipY = false; // Match KTX2 and DataTexture behavior (top-to-bottom in memory)
         texture.generateMipmaps = true;
         texture.minFilter = LinearMipmapLinearFilter;
         texture.magFilter = LinearFilter;
