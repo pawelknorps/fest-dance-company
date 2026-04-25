@@ -83,7 +83,7 @@ export function DOMKineticCard({ item, index, count, progress }: Props) {
         </filter>
       </svg>
 
-      <div className="relative pointer-events-auto overflow-hidden rounded-xl bg-[#0a0a0f] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.6)]">
+      <div className="relative pointer-events-auto overflow-hidden rounded-xl bg-[#0a0a0f] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.1),_0_0_20px_rgba(0,0,0,0.3)]">
         <div 
           className="relative aspect-[3/4] w-[82vw] max-w-[450px] overflow-hidden" 
           style={{ 
