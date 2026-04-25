@@ -1,0 +1,10 @@
+# SOTA Navigation Skill
+
+Before executing `find`, `grep`, or reading full files, you must review `repomap.md`.
+Navigate directly to the required files identified in the map.
+
+## Guidelines
+1. **Map First**: Always start exploration by reading `repomap.md`.
+2. **Deterministic Search**: Use the symbol lists in the map to locate specific logic.
+3. **Context Pinning**: Assume `repomap.md` is the ground truth for structural overview.
+4. **Efficiency**: Do not perform recursive directory listings if the map covers the target area.

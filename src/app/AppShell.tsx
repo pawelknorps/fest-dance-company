@@ -21,6 +21,9 @@ const DOMKineticPortfolio = lazy(() => import('../components/sections/DOMKinetic
 import { ErrorBoundary } from '../components/ui/ErrorBoundary'
 import { textureManager } from '../lib/TextureManager'
 
+import { SemanticShadow } from '../components/seo/SemanticShadow'
+import { Helmet } from 'react-helmet-async'
+
 export function AppShell() {
   const [menuOpen, setMenuOpen] = useState(false)
   const tier = useDeviceTier()
@@ -40,7 +43,13 @@ export function AppShell() {
 
   return (
     <ErrorBoundary>
+      <Helmet>
+        <title>FEST Dance Company | Choreography & Movement Direction</title>
+        <meta name="description" content="Premium Choreography, Movement Direction & Performance Design for concerts, music videos, and fashion campaigns." />
+      </Helmet>
+      <SemanticShadow />
       <LoadingScreen />
+
       <SmoothScroll>
         <ScrollProgress />
         <StructuredData />

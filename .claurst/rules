@@ -1,0 +1,8 @@
+# Repository Mapping Rules
+
+Review `repomap.md` before any file system operations.
+
+## Instructions
+- Identify target files via `repomap.md`.
+- Avoid blind exploration.
+- Use the map to minimize token overhead.

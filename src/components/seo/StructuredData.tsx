@@ -2,6 +2,7 @@ import { brand } from '../../data/brand'
 import { contact } from '../../data/contact'
 import { portfolio } from '../../data/portfolio'
 import { useTranslation } from '../../lib/i18n'
+import { Helmet } from 'react-helmet-async'
 
 export function StructuredData() {
   const t = useTranslation()
@@ -16,7 +17,7 @@ export function StructuredData() {
     url: 'https://festdance.company',
     logo: `https://festdance.company${brand.logo}`,
     description: t.intro,
-    sameAs,
+    sameAs: [...sameAs, 'https://www.instagram.com/fest_dance_company/', 'https://vimeo.com/festdance', 'https://www.linkedin.com/company/fest-dance-company'],
     contactPoint: {
       '@type': 'ContactPoint',
       contactType: 'inquiry',
@@ -36,17 +37,10 @@ export function StructuredData() {
         '@type': 'CreativeWork',
         name: item.title,
         headline: item.title,
-        alternativeHeadline: item.role,
         creator: {
           '@type': 'Organization',
           name: brand.name
         },
-        publisher: {
-          '@type': 'Organization',
-          name: brand.name
-        },
-        genre: item.category,
-        keywords: `${item.category}, ${item.role}, ${item.client}`,
         image: `https://festdance.company${item.image.src}`,
         description: `${item.role} for ${item.client} in ${item.category} category.`
       }
@@ -54,15 +48,13 @@ export function StructuredData() {
   }
 
   return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(creativeWorkSchema) }}
-      />
-    </>
+    <Helmet>
+      <script type="application/ld+json">
+        {JSON.stringify(organizationSchema)}
+      </script>
+      <script type="application/ld+json">
+        {JSON.stringify(creativeWorkSchema)}
+      </script>
+    </Helmet>
   )
 }
