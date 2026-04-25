@@ -13,11 +13,12 @@ export type DeviceTierType = typeof DeviceTier[keyof typeof DeviceTier]
  * Categorizes devices based on GPU capabilities and connection.
  */
 export function useDeviceTier() {
-  const [tier, setTier] = useState<DeviceTierType>(DeviceTier.MEDIUM)
+  // Domyślnie LOW (DOM Fallback) dla środowiska serwerowego/SSG
+  const [tier, setTier] = useState<DeviceTierType>(
+    typeof window === 'undefined' ? DeviceTier.LOW : DeviceTier.MEDIUM
+  )
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    
     const checkTier = () => {
       // 1. Basic Capabilities Check
       const canvas = document.createElement('canvas')
@@ -33,11 +34,11 @@ export function useDeviceTier() {
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || 
                        (navigator.maxTouchPoints > 0 && /Macintosh/.test(navigator.userAgent)); // Modern iPad detection
       
-      // 2. Hardware-specific Low Tiers (e.g., low-end Android, old iPhones)
+      // 2. Hardware-specific Low Tiers
       const lowEndGpus = ['Mali-G', 'Adreno (TM) 4', 'Adreno (TM) 5', 'PowerVR']
       const isLowEndGpu = lowEndGpus.some(gpu => renderer.includes(gpu))
 
-      // 3. Connection Check (Data Saver / Slow 3G)
+      // 3. Connection Check
       const nav = navigator as any
       const connection = nav.connection || nav.mozConnection || nav.webkitConnection
       const isSlow = connection && (connection.saveData || /2g|3g/.test(connection.effectiveType))
