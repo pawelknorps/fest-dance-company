@@ -1,4 +1,4 @@
-import { MagneticButton } from './MagneticButton'
+import { Magnetic } from './Magnetic'
 import { useTranslation } from '../../lib/i18n'
 
 type PrimaryButtonProps = {
@@ -26,7 +26,7 @@ export function PrimaryButton({
   }
 
   return (
-    <MagneticButton hitPadding={32}>
+    <Magnetic>
       <a
         href={href}
         data-cursor={t.cursorClick}
@@ -34,6 +34,6 @@ export function PrimaryButton({
       >
         {children}
       </a>
-    </MagneticButton>
+    </Magnetic>
   )
 }

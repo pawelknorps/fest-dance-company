@@ -220,7 +220,18 @@ const CardContent = forwardRef<KineticCardRef, KineticCardProps>((props, ref) =>
 
   return (
     <group ref={groupRef}>
-      <mesh ref={meshRef} frustumCulled={false} geometry={geometry} scale={[cardW, cardH, 1]}>
+      <mesh 
+        ref={meshRef} 
+        frustumCulled={false} 
+        geometry={geometry} 
+        scale={[cardW, cardH, 1]}
+        onPointerOver={() => {
+          document.dispatchEvent(new CustomEvent('cursor-hover', { detail: 'Zobacz projekt' }));
+        }}
+        onPointerOut={() => {
+          document.dispatchEvent(new CustomEvent('cursor-leave'));
+        }}
+      >
         <shaderMaterial 
           vertexShader={vertexShader} 
           fragmentShader={fragmentShader} 

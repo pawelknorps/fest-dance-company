@@ -1,9 +1,10 @@
 import { AppShell } from './app/AppShell'
 import { HelmetProvider } from 'react-helmet-async'
 
-function App() {
+function App({ helmetContext }: { helmetContext?: any }) {
+  console.log('App received helmetContext:', !!helmetContext);
   return (
-    <HelmetProvider>
+    <HelmetProvider context={helmetContext}>
       <AppShell />
     </HelmetProvider>
   )

@@ -1,15 +1,22 @@
-import { EffectComposer, Vignette } from '@react-three/postprocessing'
+import { EffectComposer } from '@react-three/postprocessing'
+import { SOTAEffect } from '../../lib/SOTAEffect'
 
 /**
  * SOTA Deferred Effects
- * Only link and compile shaders after Priority 1 textures are active.
+ * Unified custom shader pass: Grain + Vignette + Displacement
  */
 export function PortfolioEffects() {
   return (
-    <EffectComposer>
-      <Vignette eskil={false} offset={0.1} darkness={1.1} />
+    <EffectComposer disableNormalPass>
+      <primitive object={new SOTAEffect({ 
+        grainIntensity: 0.03,
+        vignetteDarkness: 1.2,
+        vignetteOffset: 0.5,
+        distortion: 0.2
+      })} />
     </EffectComposer>
   )
 }
+
 
 export default PortfolioEffects

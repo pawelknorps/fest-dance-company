@@ -36,12 +36,26 @@ export function CustomCursor() {
       }
     }
 
+    const handleCustomCursorHover = (e: any) => {
+      setIsHovered(true)
+      setCursorText(e.detail)
+    }
+
+    const handleCustomCursorLeave = () => {
+      setIsHovered(false)
+      setCursorText('')
+    }
+
     window.addEventListener('mousemove', handleMouseMove)
     window.addEventListener('mouseover', handleMouseOver)
+    window.addEventListener('cursor-hover', handleCustomCursorHover)
+    window.addEventListener('cursor-leave', handleCustomCursorLeave)
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove)
       window.removeEventListener('mouseover', handleMouseOver)
+      window.removeEventListener('cursor-hover', handleCustomCursorHover)
+      window.removeEventListener('cursor-leave', handleCustomCursorLeave)
     }
   }, [cursorX, cursorY])
 

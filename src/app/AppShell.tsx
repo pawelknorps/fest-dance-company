@@ -29,17 +29,10 @@ export function AppShell() {
   const tier = useDeviceTier()
 
   useEffect(() => {
-    // SOTA Early Hydration: Start loading portfolio textures immediately after mount.
-    // We prioritize the first 3 items (Tier 1) to ensure they are ready before the user scrolls.
-    const preloadItems = portfolio.map((item, index) => ({
-      id: item.id,
-      url: tier === DeviceTier.LOW ? item.image.srcMobile! : item.image.src,
-      priority: (index < 3 ? 1 : 2) as 1 | 2
-    }))
-    
-    // Execute immediately on mount to hit browser cache
-    textureManager.preload(preloadItems)
+    // ...
   }, [tier])
+
+  console.log('AppShell rendering');
 
   return (
     <ErrorBoundary>
@@ -49,6 +42,7 @@ export function AppShell() {
         <meta name="google-site-verification" content="lsJb2MLxlUnH0GyUJMdhwCUa64zwGK0Xgqyi5T4t-AM" />
       </Helmet>
       <SemanticShadow />
+
       <LoadingScreen />
 
       <SmoothScroll>

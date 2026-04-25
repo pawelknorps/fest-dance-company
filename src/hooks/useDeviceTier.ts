@@ -16,6 +16,8 @@ export function useDeviceTier() {
   const [tier, setTier] = useState<DeviceTierType>(DeviceTier.MEDIUM)
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     const checkTier = () => {
       // 1. Basic Capabilities Check
       const canvas = document.createElement('canvas')
