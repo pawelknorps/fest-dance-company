@@ -42,7 +42,7 @@ export function ServiceGrid() {
 
   return (
     <section ref={sectionRef} id="oferta" className="section-premium relative h-[300dvh]">
-      <div className="sticky top-0 flex h-[100dvh] w-full flex-col justify-center overflow-hidden py-10 md:py-20">
+      <div className="sticky top-0 flex h-[100dvh] w-full flex-col justify-center overflow-hidden py-6 md:py-16">
         <div className="w-full px-[clamp(1rem,0.8rem+1vw,2.5rem)] max-w-[1440px] mx-auto mb-8 md:mb-12">
             <SectionHeading
               eyebrow={t.servicesEyebrow}

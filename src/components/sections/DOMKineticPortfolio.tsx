@@ -35,26 +35,27 @@ export function DOMKineticPortfolio() {
   return (
     <section 
       ref={sectionRef} 
-      className="relative h-[650vh] w-full bg-[#05030a]"
+      className="relative h-[800vh] w-full bg-[#05030a]"
     >
       {/* Viewport Container: establishes perspective context */}
       <div className="sticky top-0 h-screen w-full overflow-hidden perspective-1000">
         
         {/* SOTA Ambient Atmosphere */}
-        <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,rgba(25,10,50,0.4)_0%,#05030a_100%)]" />
+        <div className="absolute inset-0 z-0 bg-[#05030a]" />
         
         <div className="noise-mask absolute inset-0 opacity-10 pointer-events-none" />
 
         {/* 3. Card Wrapper: forces hardware acceleration */}
         <div className="relative h-full w-full preserve-3d">
           {portfolio.map((item, index) => (
-            <DOMKineticCard
-              key={item.id}
-              item={item}
-              index={index}
-              count={portfolio.length}
-              progress={smoothProgress}
-            />
+            <div key={item.id} className="absolute inset-0 flex items-center justify-center">
+              <DOMKineticCard
+                item={item}
+                index={index}
+                count={portfolio.length}
+                progress={smoothProgress}
+              />
+            </div>
           ))}
         </div>
 
@@ -81,10 +82,10 @@ export function DOMKineticPortfolio() {
           </div>
         </div>
 
-        {/* Animated Background Text Elements */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden select-none">
+        {/* Animated Background Text Elements - Hidden on Mobile */}
+        <div className="absolute inset-0 hidden md:flex items-center justify-center pointer-events-none overflow-hidden select-none">
            <motion.div 
-             className="font-display text-[25vw] uppercase leading-none text-white/[0.02] whitespace-nowrap"
+             className="font-display text-[15vw] uppercase leading-none text-white/[0.02] whitespace-nowrap"
              style={{ rotateZ: -10 }}
            >
              PORTFOLIO 2026

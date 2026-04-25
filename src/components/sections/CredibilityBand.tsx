@@ -7,7 +7,7 @@ export function CredibilityBand() {
   const t = useTranslation()
   const pillars = t.credibilityPillars
   return (
-    <section className="section-shell pt-4 md:pt-8 pb-16 md:pb-24">
+    <section className="section-shell pt-4 pb-4">
       <div className="overflow-hidden rounded-[40px] border border-white/10 bg-white/[0.02] px-8 py-12 md:px-16 md:py-20">
         <div className="grid gap-16 lg:grid-cols-[0.9fr_1.1fr] lg:gap-24">
           <motion.div

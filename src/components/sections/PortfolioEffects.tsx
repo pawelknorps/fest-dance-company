@@ -10,8 +10,8 @@ export function PortfolioEffects() {
     <EffectComposer disableNormalPass>
       <primitive object={new SOTAEffect({ 
         grainIntensity: 0.03,
-        vignetteDarkness: 1.2,
-        vignetteOffset: 0.5,
+        vignetteDarkness: 0,
+        vignetteOffset: 0,
         distortion: 0.2
       })} />
     </EffectComposer>

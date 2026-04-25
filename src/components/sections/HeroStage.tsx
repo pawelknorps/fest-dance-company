@@ -63,7 +63,7 @@ export function HeroStage({ tier }: { tier: DeviceTierType }) {
   }, [canvasOpacity, festOpacity, festScale, textY, textOpacity])
 
   return (
-    <section ref={sectionRef} id="top" className="relative isolate h-[250dvh] bg-[#060609]">
+    <section ref={sectionRef} id="top" className="relative isolate h-[150dvh] md:h-[250dvh] bg-[#060609]">
       <div className="sticky top-0 h-[100dvh] w-full overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_62%_42%,rgba(184,92,255,0.16),transparent_0_18%),linear-gradient(180deg,#060609_0%,#07070a_52%,#050507_100%)]" />
         <div className="noise-mask absolute inset-0 opacity-18" />
@@ -95,9 +95,55 @@ export function HeroStage({ tier }: { tier: DeviceTierType }) {
           className="pointer-events-none absolute inset-0 z-[1] flex items-center justify-center overflow-hidden"
         >
           <div className="relative flex h-full w-full items-center justify-center">
+            {/* High-performance Glow Core */}
             <div 
               className="absolute w-[65vw] max-w-[1000px] h-[35vw] max-h-[500px] rounded-[50%] bg-[#ba54ff]/15 blur-[120px] pointer-events-none opacity-60" 
               style={{ willChange: 'transform' }}
+            />
+
+            <motion.div
+              animate={{ rotate: [0, 360], scale: [1, 1.05, 1], x: ['-2%', '2%', '-2%'], y: ['-1%', '3%', '-1%'] }}
+              transition={{
+                rotate: { duration: 35, repeat: Infinity, ease: "linear" },
+                scale: { duration: 18, repeat: Infinity, ease: "easeInOut" },
+                x: { duration: 15, repeat: Infinity, ease: "easeInOut" },
+                y: { duration: 21, repeat: Infinity, ease: "easeInOut" }
+              }}
+              style={{ willChange: 'transform' }}
+              className="absolute h-[28vw] w-[54vw] rounded-[50%] border border-white/40 opacity-80 shadow-[0_0_15px_rgba(255,255,255,0.1)_inset]"
+            />
+            <motion.div
+              animate={{ rotate: [45, -315], scale: [1, 1.08, 1], x: ['1%', '-3%', '1%'], y: ['2%', '-2%', '2%'] }}
+              transition={{
+                rotate: { duration: 42, repeat: Infinity, ease: "linear" },
+                scale: { duration: 22, repeat: Infinity, ease: "easeInOut" },
+                x: { duration: 19, repeat: Infinity, ease: "easeInOut" },
+                y: { duration: 17, repeat: Infinity, ease: "easeInOut" }
+              }}
+              style={{ willChange: 'transform' }}
+              className="absolute h-[22vw] w-[40vw] rounded-[50%] border border-white/35 opacity-75 shadow-[0_0_12px_rgba(255,255,255,0.08)_inset]"
+            />
+            <motion.div
+              animate={{ rotate: [-20, 340], scale: [1, 1.04, 1], x: ['-1.5%', '1.5%', '-1.5%'], y: ['-1.5%', '1.5%', '-1.5%'] }}
+              transition={{
+                rotate: { duration: 50, repeat: Infinity, ease: "linear" },
+                scale: { duration: 25, repeat: Infinity, ease: "easeInOut" },
+                x: { duration: 24, repeat: Infinity, ease: "easeInOut" },
+                y: { duration: 28, repeat: Infinity, ease: "easeInOut" }
+              }}
+              style={{ willChange: 'transform' }}
+              className="absolute h-[36vw] w-[60vw] rounded-[50%] border border-white/30 opacity-65 shadow-[0_0_20px_rgba(255,255,255,0.05)_inset]"
+            />
+            <motion.div
+              animate={{ rotate: [10, -350], scale: [1, 1.06, 1], x: ['2%', '-2%', '2%'], y: ['-2%', '2%', '-2%'] }}
+              transition={{
+                rotate: { duration: 38, repeat: Infinity, ease: "linear" },
+                scale: { duration: 16, repeat: Infinity, ease: "easeInOut" },
+                x: { duration: 14, repeat: Infinity, ease: "easeInOut" },
+                y: { duration: 19, repeat: Infinity, ease: "easeInOut" }
+              }}
+              style={{ willChange: 'transform' }}
+              className="absolute h-[18vw] w-[32vw] rounded-[50%] border border-white/30 opacity-70 shadow-[0_0_10px_rgba(255,255,255,0.08)_inset]"
             />
 
             <img
@@ -108,7 +154,7 @@ export function HeroStage({ tier }: { tier: DeviceTierType }) {
               width={1400}
               height={360}
               onLoad={() => completeItem('hero-logo')}
-              className="pointer-events-none absolute left-1/2 w-[85vw] max-w-[1400px] -translate-x-1/2 object-contain opacity-55 md:opacity-65"
+              className="pointer-events-none absolute left-1/2 w-[70vw] max-w-[1400px] -translate-x-1/2 object-contain opacity-55 md:w-[85vw] md:opacity-65"
               style={{
                 willChange: 'transform',
               }}
@@ -119,11 +165,12 @@ export function HeroStage({ tier }: { tier: DeviceTierType }) {
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(6,6,9,0.88)_0%,rgba(6,6,9,0.64)_28%,rgba(6,6,9,0.16)_58%,rgba(6,6,9,0.74)_100%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(6,6,9,0.28)_0%,rgba(6,6,9,0.08)_24%,rgba(6,6,9,0.16)_66%,rgba(6,6,9,0.72)_100%)]" />
 
-        <div
+          <div
           ref={textRef}
           style={{ opacity: 1, transform: 'translateY(0%)', willChange: 'transform, opacity' }}
-          className="relative z-10 mx-auto flex min-h-[100dvh] w-full max-w-[1440px] flex-col justify-center px-[clamp(1rem,0.8rem+1vw,2.5rem)] pt-[12dvh] pb-[6dvh]"
+          className="relative z-10 mx-auto flex min-h-[100dvh] w-full max-w-[1440px] flex-col justify-center px-[clamp(1rem,0.8rem+1vw,2.5rem)] py-[2dvh]"
         >
+
           <div className="grid w-full gap-6 lg:grid-cols-[minmax(0,0.82fr)_minmax(260px,0.34fr)] lg:items-end">
             <div className="max-w-[620px]">
               <motion.p
@@ -163,10 +210,11 @@ export function HeroStage({ tier }: { tier: DeviceTierType }) {
                 initial={{ opacity: 0, y: 18 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.72, delay: 0.36 }}
-                className="mt-3 max-w-[30rem] text-fluid-body leading-relaxed text-white/76 md:mt-6"
+                className="mt-12 max-w-[30rem] text-fluid-body leading-relaxed text-white/76 md:mt-6 invisible md:visible"
               >
                 {t.heroHeadline}
               </motion.p>
+
 
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
