@@ -20,11 +20,12 @@ export function LoadingScreen() {
       })
     }, 16)
     
-    // Safety: Hide after 2 seconds on mobile, 4 on desktop
+    // Safety: maximum wait before forcing the screen away.
+    // Kept short on mobile so LCP isn't gated on slow asset loads.
     const isMobile = window.innerWidth <= 768
     const safety = setTimeout(() => {
       setProgress(100)
-    }, isMobile ? 2000 : 4000)
+    }, isMobile ? 800 : 2500)
 
     return () => {
       clearInterval(interval)

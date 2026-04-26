@@ -26,7 +26,12 @@ export default defineConfig({
   ],
   build: {
     modulePreload: {
-      polyfill: true,
+      polyfill: false,
+      // Don't eagerly fetch vendor-three — Three.js is only needed on desktop for
+      // the 3D portfolio. Mobile never uses it (DeviceTier.LOW), and TextureManager
+      // is now dynamically imported, so vendor-three is no longer in the critical path.
+      resolveDependencies: (_filename, deps) =>
+        deps.filter(dep => !dep.includes('vendor-three')),
     },
     rollupOptions: {
       output: {

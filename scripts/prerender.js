@@ -25,19 +25,23 @@ if (cssFile) {
   cssContent = fs.readFileSync(path.join(assetsDir, cssFile), 'utf-8');
 }
 
-// 2. Font Preloading (find hashed woff2 files)
-// SOTA 2026: Prioritize Latin-subset for the fastest paint
+// 2. Font Preloading — latin-only subsets for fastest first paint (Polish ext loads after)
 const fontFiles = files.filter(f => f.endsWith('.woff2') && (f.includes('teko-latin.') || f.includes('manrope-latin.')));
 const fontPreloads = fontFiles.map(f => `<link rel="preload" href="/assets/${f}" as="font" type="font/woff2" crossorigin>`).join('\n');
 
-// 3. Logo Preloading (find hashed logo images)
-// We need both the large background logo and the small header logo
+// 3. Logo Preloading — smallest avif gets fetchpriority=high (LCP element on mobile)
 const logoFiles = files.filter(f => (f.includes('logo-') || f.includes('fest-logo')) && (f.endsWith('.avif') || f.endsWith('.webp')));
-const logoPreloads = logoFiles.map(f => `<link rel="preload" href="/assets/${f}" as="image" type="image/${f.split('.').pop()}">`).join('\n');
+// Sort by file size ascending so the mobile (smaller) variant gets high priority
+const logoFilesWithSize = logoFiles.map(f => ({
+  name: f,
+  size: fs.statSync(path.join(assetsDir, f)).size,
+})).sort((a, b) => a.size - b.size);
 
-let finalHtml = template.replace('<!--ssr-outlet-->', html);
+const logoPreloads = logoFilesWithSize.map((f, i) =>
+  `<link rel="preload" href="/assets/${f.name}" as="image" type="image/${f.name.split('.').pop()}"${i === 0 ? ' fetchpriority="high"' : ''}>`
+).join('\n');
 
-// Prepare head content
+// 4. Build head injection block
 const headContent = `
   ${title}
   ${meta}
@@ -47,14 +51,40 @@ const headContent = `
   ${cssContent ? `<style>${cssContent}</style>` : ''}
 `;
 
-finalHtml = finalHtml.replace('<!--ssr-head-->', headContent);
+// 5. Inject SSR content — handle both the comment placeholder and the stripped fallback
+let finalHtml = template;
 
-// Cleanup
-// Remove the external CSS link tag
-finalHtml = finalHtml.replace(/<link rel="stylesheet"[^>]*href="\/assets\/index-[^>]*\.css"[^>]*>/, '');
+if (finalHtml.includes('<!--ssr-outlet-->')) {
+  finalHtml = finalHtml.replace('<!--ssr-outlet-->', html);
+} else {
+  // Vite may strip HTML comments inside elements during build
+  finalHtml = finalHtml.replace('<div id="root"></div>', `<div id="root">${html}</div>`);
+}
 
-// Remove stale manual font preloads from the template
+// 6. Inject head content — prefer the comment placeholder, fall back to </head>
+if (finalHtml.includes('<!--ssr-head-->')) {
+  finalHtml = finalHtml.replace('<!--ssr-head-->', headContent);
+} else {
+  finalHtml = finalHtml.replace('</head>', `${headContent}\n</head>`);
+}
+
+// 7. Cleanup
+// Remove the now-redundant external CSS link (we inlined it above)
+finalHtml = finalHtml.replace(/<link rel="stylesheet"[^>]*href="\/assets\/index-[^>]*\.css"[^>]*>/g, '');
+
+// Remove stale dev-mode font preloads pointing at /src/assets/
 finalHtml = finalHtml.replace(/<link rel="preload"[^>]*href="\/src\/assets\/fonts\/[^>]*"[^>]*>/g, '');
+
+// Deduplicate any double <title> injected by Helmet + original template
+const titleTagMatches = finalHtml.match(/<title>[^<]*<\/title>/g) || [];
+if (titleTagMatches.length > 1) {
+  // Keep only the first occurrence
+  let firstSeen = false;
+  finalHtml = finalHtml.replace(/<title>[^<]*<\/title>/g, (match) => {
+    if (!firstSeen) { firstSeen = true; return match; }
+    return '';
+  });
+}
 
 fs.writeFileSync(toAbsolute('../dist/index.html'), finalHtml);
 console.log('✅ SSG Prerender with Optimized Preloads completed successfully.');
