@@ -14,6 +14,9 @@ import { LoadingScreen } from '../components/ui/LoadingScreen'
 import { ScrollProgress } from '../components/ui/ScrollProgress'
 import { portfolio } from '../data/portfolio'
 import { useDeviceTier, DeviceTier } from '../hooks/useDeviceTier'
+import { useTranslation } from '../lib/i18n'
+import { textureManager } from '../lib/TextureManager'
+
 
 const KineticPortfolio = lazy(() => import('../components/sections/KineticPortfolio'))
 const DOMKineticPortfolio = lazy(() => import('../components/sections/DOMKineticPortfolio'))
@@ -24,13 +27,13 @@ import { SemanticShadow } from '../components/seo/SemanticShadow'
 import { Helmet } from 'react-helmet-async'
 
 export function AppShell() {
+  const t = useTranslation()
   const [menuOpen, setMenuOpen] = useState(false)
   const tier = useDeviceTier()
 
   useEffect(() => {
-    // SOTA 2026: Warm up the first 3 portfolio assets early (AVIF is tiny)
-    // This pre-fills the browser cache before the user even reaches the section.
-    const preloadItems = portfolio.slice(0, 3).map(item => ({
+    // SOTA 2026: Warm up the first 5 portfolio assets early (AVIF/KTX2)
+    const preloadItems = portfolio.slice(0, 5).map(item => ({
       id: item.id,
       url: item.image.srcMobile || item.image.src,
       priority: 1 as const
@@ -41,10 +44,18 @@ export function AppShell() {
 
   return (
     <ErrorBoundary>
-      <Helmet>
-        <title>FEST Dance Company | Choreography & Movement Direction</title>
-        <meta name="description" content="Premium Choreography, Movement Direction & Performance Design for concerts, music videos, and fashion campaigns." />
+      <Helmet 
+        htmlAttributes={{ lang: t.lang }}
+      >
+        <title>{t.metaTitle || 'FEST Dance Company | Choreography & Movement Direction'}</title>
+        <meta name="description" content={t.metaDescription || 'Premium Choreography, Movement Direction & Performance Design for concerts, music videos, and fashion campaigns.'} />
         <meta name="google-site-verification" content="lsJb2MLxlUnH0GyUJMdhwCUa64zwGK0Xgqyi5T4t-AM" />
+        
+        {/* SEO Language Prioritization */}
+        <link rel="canonical" href="https://festdance.company" />
+        <link rel="alternate" hreflang="pl" href="https://festdance.company" />
+        <link rel="alternate" hreflang="x-default" href="https://festdance.company" />
+        <link rel="alternate" hreflang="en" href="https://festdance.company" />
       </Helmet>
       <SemanticShadow />
 

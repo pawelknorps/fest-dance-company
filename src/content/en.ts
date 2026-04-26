@@ -1,4 +1,6 @@
 export const en = {
+  metaTitle: 'FEST Dance Company | Choreography & Movement Direction',
+  metaDescription: 'Professional choreography, movement direction, and performance design for concerts, music videos, and brand campaigns. Poznań / Poland.',
   heroVisualLines: ['MOVEMENT', 'MEETS', 'THE', 'VISION'],
   heroKicker: 'Choreography / Movement direction / Performance design',
   heroHeadline: 'Movement that leaves a trace on stage, on screen, and in the audience\'s memory.',
