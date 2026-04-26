@@ -87,6 +87,7 @@ export function SiteHeader({ open, setOpen }: SiteHeaderProps) {
           scrolled ? 'h-12 md:h-14' : 'h-20 md:h-24'
         }`}>
 
+          {/* Left side: Logo + Language */}
           <div className="flex items-center gap-6">
             <a href="#top" className="pointer-events-auto inline-flex items-center min-h-[48px]">
               <img
@@ -99,7 +100,7 @@ export function SiteHeader({ open, setOpen }: SiteHeaderProps) {
               />
             </a>
 
-            {/* Language Switcher — SOTA Stage 3 */}
+            {/* Language Switcher */}
             <div className={`pointer-events-auto flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 transition-all duration-500 ${
               scrolled ? 'ml-4' : 'ml-6 md:ml-10'
             }`}>
@@ -130,24 +131,25 @@ export function SiteHeader({ open, setOpen }: SiteHeaderProps) {
               className="pointer-events-auto"
               onClick={() => setOpen(!open)}
             >
-            <button
-              type="button"
-              data-cursor={t.cursorMenu}
-              aria-expanded={open}
-              aria-label={open ? t.menuClose : t.menuOpen}
-              className={`flex items-center justify-center rounded-full border border-white/16 bg-white/4 backdrop-blur-sm transition-all duration-500 hover:border-white/32 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white ${
-                scrolled ? 'h-10 w-10 md:h-11 md:w-11' : 'h-14 w-14 md:h-15 md:w-15'
-              }`}
-            >
-              <span className={`relative block transition-all duration-500 ${scrolled ? 'h-3.5 w-4.5' : 'h-5 w-6'}`}>
-                <span className={`absolute left-0 top-0 h-[1.5px] w-full bg-white transition-all duration-300 ${open ? 'translate-y-[9px] rotate-45' : ''}`} />
-                <span className={`absolute left-0 h-[1.5px] w-full bg-white transition-all duration-300 ${scrolled ? 'top-[6px]' : 'top-[9px]'} ${open ? 'opacity-0 scale-x-0' : ''}`} />
-                <span className={`absolute left-0 h-[1.5px] w-full bg-white transition-all duration-300 ${scrolled ? 'top-[12px]' : 'top-[18px]'} ${open ? '-translate-y-[9px] -rotate-45' : ''}`} />
-              </span>
-            </button>
+              <button
+                type="button"
+                data-cursor={t.cursorMenu}
+                aria-expanded={open}
+                aria-label={open ? t.menuClose : t.menuOpen}
+                className={`flex items-center justify-center rounded-full border border-white/16 bg-white/4 backdrop-blur-sm transition-all duration-500 hover:border-white/32 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white ${
+                  scrolled ? 'h-10 w-10 md:h-11 md:w-11' : 'h-14 w-14 md:h-15 md:w-15'
+                }`}
+              >
+                <span className={`relative block transition-all duration-500 ${scrolled ? 'h-3.5 w-4.5' : 'h-5 w-6'}`}>
+                  <span className={`absolute left-0 top-0 h-[1.5px] w-full bg-white transition-all duration-300 ${open ? 'translate-y-[9px] rotate-45' : ''}`} />
+                  <span className={`absolute left-0 h-[1.5px] w-full bg-white transition-all duration-300 ${scrolled ? 'top-[6px]' : 'top-[9px]'} ${open ? 'opacity-0 scale-x-0' : ''}`} />
+                  <span className={`absolute left-0 h-[1.5px] w-full bg-white transition-all duration-300 ${scrolled ? 'top-[12px]' : 'top-[18px]'} ${open ? '-translate-y-[9px] -rotate-45' : ''}`} />
+                </span>
+              </button>
           </MagneticButton>
         </div>
-      </header>
+      </div>
+    </header>
 
       {/* ── Full-screen nav overlay ── */}
       <AnimatePresence>
