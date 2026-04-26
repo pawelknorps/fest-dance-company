@@ -15,19 +15,20 @@ export const heroAssetsPreloadPlugin = (): Plugin => ({
       `<link rel="preload" href="${url}" as="image" type="image/avif" fetchpriority="high">`
     ).join('\n');
 
-    // 3. First two KTX2 WebGL textures (fetch type, anonymous CORS to match JS fetch)
+    // 3. One KTX2 WebGL texture (fetch type) with a delay to avoid bandwidth competition
     const ktx2Preloads = `
       <script>
         (function() {
           if (window.innerWidth > 768) {
-            const textures = ['/textures/portfolio-1.ktx2', '/textures/portfolio-2.ktx2'];
-            textures.forEach(url => {
-              const link = document.createElement('link');
-              link.rel = 'preload';
-              link.as = 'fetch';
-              link.crossOrigin = 'anonymous';
-              link.href = url;
-              document.head.appendChild(link);
+            window.addEventListener('load', () => {
+              setTimeout(() => {
+                const link = document.createElement('link');
+                link.rel = 'preload';
+                link.as = 'fetch';
+                link.crossOrigin = 'anonymous';
+                link.href = '/textures/portfolio-1.ktx2';
+                document.head.appendChild(link);
+              }, 3000);
             });
           }
         })();

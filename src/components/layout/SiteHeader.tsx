@@ -97,6 +97,8 @@ export function SiteHeader({ open, setOpen }: SiteHeaderProps) {
                 alt="FEST Dance Company - Premium Choreography & Movement Direction"
                 loading="eager"
                 fetchPriority="high"
+                width={200}
+                height={40}
                 style={{ filter: 'drop-shadow(0 0 18px rgba(200,80,255,0.28))' }}
                 className={`w-auto object-contain object-left opacity-92 transition-all duration-500 ${
                   scrolled ? 'h-6 md:h-7' : 'h-8 md:h-9'

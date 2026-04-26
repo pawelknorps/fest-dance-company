@@ -31,12 +31,18 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          if (id.includes('three') || id.includes('@react-three')) {
+          if (id.includes('three') || id.includes('@react-three') || id.includes('postprocessing') || id.includes('n8ao') || id.includes('three-stdlib')) {
             return 'vendor-three';
           }
           if (id.includes('node_modules')) {
             if (id.includes('framer-motion') || id.includes('lenis') || id.includes('react')) {
               return 'vendor-core';
+            }
+            if (id.includes('zod') || id.includes('react-hook-form')) {
+              return 'vendor-forms';
+            }
+            if (id.includes('lucide-react')) {
+              return 'vendor-icons';
             }
             return 'vendor-other';
           }

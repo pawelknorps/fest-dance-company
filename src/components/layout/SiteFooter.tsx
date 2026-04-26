@@ -11,6 +11,8 @@ export function SiteFooter() {
           <img
             src={brand.logo}
             alt="FEST Dance Company - Premium Movement Design"
+            width={120}
+            height={24}
             className="h-auto w-[120px] drop-shadow-[0_0_20px_rgba(255,0,255,0.34)]"
           />
           <p className="mt-4 max-w-xl text-sm leading-7 text-white/54">
