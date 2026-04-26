@@ -15,8 +15,6 @@ import { ScrollProgress } from '../components/ui/ScrollProgress'
 import { portfolio } from '../data/portfolio'
 import { useDeviceTier, DeviceTier } from '../hooks/useDeviceTier'
 import { useTranslation } from '../lib/i18n'
-import { textureManager } from '../lib/TextureManager'
-
 
 const KineticPortfolio = lazy(() => import('../components/sections/KineticPortfolio'))
 const DOMKineticPortfolio = lazy(() => import('../components/sections/DOMKineticPortfolio'))
@@ -35,18 +33,19 @@ export function AppShell() {
   const { ref: portfolioRef, inView: portfolioInView } = useScrollReveal<HTMLDivElement>({ once: true, margin: '400px 0px' })
 
   useEffect(() => {
-    // SOTA 2026: Ultra-aggressive hydration optimization
-    // Only preload the very first texture on mobile to save TBT
-    const isMobile = window.innerWidth < 768
-    const preloadCount = isMobile ? 1 : 3
-
+    // Only desktop/high-tier devices use the WebGL texture pipeline.
+    // Lazy-import TextureManager so Three.js stays out of the mobile critical path.
     if (tier !== DeviceTier.LOW) {
-      const preloadItems = portfolio.slice(0, preloadCount).map(item => ({
-        id: item.id,
-        url: item.image.srcMobile || item.image.src,
-        priority: 1 as const
-      }))
-      textureManager.preload(preloadItems)
+      const isMobile = window.innerWidth < 768
+      const preloadCount = isMobile ? 1 : 3
+      import('../lib/TextureManager').then(({ textureManager }) => {
+        const preloadItems = portfolio.slice(0, preloadCount).map(item => ({
+          id: item.id,
+          url: item.image.srcMobile || item.image.src,
+          priority: 1 as const
+        }))
+        textureManager.preload(preloadItems)
+      })
     }
   }, [tier])
 
