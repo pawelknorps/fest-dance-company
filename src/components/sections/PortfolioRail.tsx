@@ -129,7 +129,6 @@ function PortfolioCard({ item, index, t }: { item: any, index: number, t: any })
             height={item.image.height}
             loading={index < 2 ? "eager" : "lazy"}
             className="h-full w-full object-cover transition duration-1000 ease-out group-hover:scale-[1.1]"
-            style={{ aspectRatio: `${item.image.width} / ${item.image.height}` }}
           />
         </div>
         

@@ -61,7 +61,7 @@ export function ServiceGrid() {
             return (
               <article
                 key={service.id}
-                className="group relative w-[85vw] flex-shrink-0 overflow-hidden rounded-[24px] border border-white/10 bg-black md:w-[50vw] lg:w-[42vw] aspect-[4/5] scroll-snap-align-center"
+                className="group relative w-[85vw] flex-shrink-0 overflow-hidden rounded-[24px] border border-white/10 bg-black md:w-[50vw] lg:w-[42vw] h-[55dvh] min-h-[24rem] max-h-[40rem] scroll-snap-align-center"
               >
                 <div className="absolute inset-0 h-full w-full overflow-hidden">
                   <img
