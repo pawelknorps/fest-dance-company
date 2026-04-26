@@ -1,6 +1,8 @@
 import { brand } from '../../data/brand'
 import { contact } from '../../data/contact'
 import { portfolio } from '../../data/portfolio'
+import { founder } from '../../data/founder'
+import { services } from '../../data/services'
 import { useTranslation } from '../../lib/i18n'
 import { Helmet } from 'react-helmet-async'
 
@@ -24,6 +26,28 @@ export function StructuredData() {
       email: contact.email
     }
   }
+
+  const personSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: founder.name,
+    jobTitle: founder.eyebrow,
+    description: founder.bio.join(' '),
+    image: `https://festdance.company${founder.portrait.src}`,
+    url: 'https://festdance.company/#founder'
+  }
+
+  const serviceSchema = services.map(service => ({
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: service.title,
+    description: service.shortCopy,
+    provider: {
+      '@type': 'Organization',
+      name: brand.name
+    },
+    image: `https://festdance.company${service.coverImage.src}`
+  }))
 
   const creativeWorkSchema = {
     '@context': 'https://schema.org',
@@ -51,6 +75,12 @@ export function StructuredData() {
     <Helmet>
       <script type="application/ld+json">
         {JSON.stringify(organizationSchema)}
+      </script>
+      <script type="application/ld+json">
+        {JSON.stringify(personSchema)}
+      </script>
+      <script type="application/ld+json">
+        {JSON.stringify(serviceSchema)}
       </script>
       <script type="application/ld+json">
         {JSON.stringify(creativeWorkSchema)}

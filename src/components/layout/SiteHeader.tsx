@@ -93,6 +93,8 @@ export function SiteHeader({ open, setOpen }: SiteHeaderProps) {
               <img
                 src={brand.logo}
                 alt="FEST Dance Company"
+                loading="eager"
+                fetchPriority="high"
                 style={{ filter: 'drop-shadow(0 0 18px rgba(200,80,255,0.28))' }}
                 className={`w-auto object-contain object-left opacity-92 transition-all duration-500 ${
                   scrolled ? 'h-6 md:h-7' : 'h-8 md:h-9'

@@ -5,6 +5,7 @@ import { siteCopy as plCopy } from '../../content/site-copy'
 import { useHeroMediaVisibility } from '../../hooks/useHeroMediaVisibility'
 import { PrimaryButton } from '../ui/PrimaryButton'
 import festLogo from '../../assets/logo/fest-logo.png?format=avif&w=800&q=80&as=url'
+import festLogoMobile from '../../assets/logo/fest-logo.png?format=avif&w=400&q=80&as=url'
 import { OffscreenHero } from '../ui/OffscreenHero'
 import { useLoadOrchestrator } from '../../lib/LoadOrchestrator'
 import { useTranslation } from '../../lib/i18n'
@@ -146,20 +147,21 @@ export function HeroStage({ tier }: { tier: DeviceTierType }) {
               className="absolute h-[18vw] w-[32vw] rounded-[50%] border border-white/30 opacity-70 shadow-[0_0_10px_rgba(255,255,255,0.08)_inset]"
             />
 
-            <img
-              src={festLogo}
-              alt="FEST Dance Company Logo"
-              fetchPriority="high"
-              loading="eager"
-              decoding="sync"
-              width={800}
-              height={205}
-              onLoad={() => completeItem('hero-logo')}
-              className="pointer-events-none absolute left-1/2 w-[70vw] max-w-[1400px] -translate-x-1/2 object-contain opacity-55 md:w-[85vw] md:opacity-65"
-              style={{
-                willChange: 'transform',
-              }}
-            />
+              <img
+                src={festLogo}
+                alt="FEST Dance Company Logo"
+                fetchPriority="high"
+                loading="eager"
+                decoding="sync"
+                width={800}
+                height={205}
+                onLoad={() => completeItem('hero-logo')}
+                className="pointer-events-none absolute left-1/2 w-[70vw] max-w-[1400px] -translate-x-1/2 object-contain opacity-55 md:w-[85vw] md:opacity-65"
+                style={{
+                  willChange: 'transform',
+                }}
+              />
+
           </div>
         </div>
 

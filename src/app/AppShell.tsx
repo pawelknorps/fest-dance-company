@@ -21,6 +21,7 @@ import { textureManager } from '../lib/TextureManager'
 const KineticPortfolio = lazy(() => import('../components/sections/KineticPortfolio'))
 const DOMKineticPortfolio = lazy(() => import('../components/sections/DOMKineticPortfolio'))
 
+import { useScrollReveal } from '../hooks/useScrollReveal'
 import { ErrorBoundary } from '../components/ui/ErrorBoundary'
 
 import { SemanticShadow } from '../components/seo/SemanticShadow'
@@ -31,15 +32,7 @@ export function AppShell() {
   const [menuOpen, setMenuOpen] = useState(false)
   const tier = useDeviceTier()
 
-  useEffect(() => {
-    // SOTA 2026: Warm up the first 5 portfolio assets early (AVIF/KTX2)
-    const preloadItems = portfolio.slice(0, 5).map(item => ({
-      id: item.id,
-      url: item.image.srcMobile || item.image.src,
-      priority: 1 as const
-    }))
-    textureManager.preload(preloadItems)
-  }, [])
+  const { ref: portfolioRef, inView: portfolioInView } = useScrollReveal<HTMLDivElement>({ once: true, margin: '400px 0px' })
 
 
   return (
@@ -49,13 +42,6 @@ export function AppShell() {
       >
         <title>{t.metaTitle || 'FEST Dance Company | Choreography & Movement Direction'}</title>
         <meta name="description" content={t.metaDescription || 'Premium Choreography, Movement Direction & Performance Design for concerts, music videos, and fashion campaigns.'} />
-        <meta name="google-site-verification" content="lsJb2MLxlUnH0GyUJMdhwCUa64zwGK0Xgqyi5T4t-AM" />
-        
-        {/* SEO Language Prioritization */}
-        <link rel="canonical" href="https://festdance.company" />
-        <link rel="alternate" hreflang="pl" href="https://festdance.company" />
-        <link rel="alternate" hreflang="x-default" href="https://festdance.company" />
-        <link rel="alternate" hreflang="en" href="https://festdance.company" />
       </Helmet>
       <SemanticShadow />
 
@@ -77,7 +63,7 @@ export function AppShell() {
               <CredibilityBand />
             </Suspense>
             
-            <div id="portfolio">
+            <div id="portfolio" ref={portfolioRef}>
               <Suspense fallback={<div className="h-[100vh] bg-[#05030a]" />}>
                 {tier === DeviceTier.LOW ? (
                   <DOMKineticPortfolio />

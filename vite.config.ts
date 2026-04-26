@@ -31,16 +31,14 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          if (id.includes('three') || id.includes('@react-three') || id.includes('src/lib/TextureManager') || id.includes('src/hooks/useTexture')) {
+          if (id.includes('three') || id.includes('@react-three')) {
             return 'vendor-three';
           }
           if (id.includes('node_modules')) {
-            if (id.includes('postprocessing')) {
-              return 'vendor-post';
-            }
             if (id.includes('framer-motion') || id.includes('lenis') || id.includes('react')) {
               return 'vendor-core';
             }
+            return 'vendor-other';
           }
         },
       },
