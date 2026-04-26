@@ -253,6 +253,26 @@ export function HeroStage({ tier }: { tier: DeviceTierType }) {
             {t.estLine}
           </p>
         </m.div>
+
+        {/* Socials - Visible on Desktop Landing */}
+        <m.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.5, delay: 1.2 }}
+          className="hidden lg:flex absolute bottom-12 left-12 z-20 pointer-events-auto flex-col gap-4"
+        >
+          {brand.socialLinks.map((item) => (
+            <a
+              key={item.label}
+              href={item.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[0.6rem] uppercase tracking-[0.6em] text-white/30 hover:text-white transition-colors [writing-mode:vertical-lr]"
+            >
+              {item.label}
+            </a>
+          ))}
+        </m.div>
       </div>
     </section>
   )
