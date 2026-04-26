@@ -351,7 +351,6 @@ function ParticleImage({
 
     activeMaterial.uniforms.uProgress.value = progress
     activeMaterial.uniforms.uTime.value = state.clock.elapsedTime
-    activeMaterial.uniforms.uPointScale.value = pointScale
 
     if (
       currentPlane?.material instanceof MeshBasicMaterial &&
