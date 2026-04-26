@@ -33,7 +33,7 @@ export function SectionHeading({
           {eyebrow}
         </p>
       ) : null}
-      <h2 className="font-display text-5xl uppercase leading-[0.9] tracking-[0.08em] text-white md:text-7xl">
+      <h2 className="relative font-display text-5xl uppercase leading-[0.9] tracking-[0.08em] text-white md:text-7xl">
         <KineticText text={title} className="text-glow" inView={inView} />
       </h2>
       {copy ? (

@@ -56,7 +56,7 @@ export function AlternativeHeroStage() {
             </m.p>
 
             <h1
-              className="max-w-[8ch] font-display text-[clamp(3.2rem,8vw,6.7rem)] uppercase leading-[0.88] tracking-[0.05em] text-white"
+              className="relative max-w-[8ch] font-display text-[clamp(3.2rem,8vw,6.7rem)] uppercase leading-[0.88] tracking-[0.05em] text-white"
             >
               <KineticText text={t.claim} className="text-glow" delay={0.26} />
             </h1>

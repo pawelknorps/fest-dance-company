@@ -34,6 +34,16 @@ export function AppShell() {
 
   const { ref: portfolioRef, inView: portfolioInView } = useScrollReveal<HTMLDivElement>({ once: true, margin: '400px 0px' })
 
+  useEffect(() => {
+    // SOTA 2026: Warm up the first 5 portfolio assets early (AVIF/KTX2)
+    const preloadItems = portfolio.slice(0, 5).map(item => ({
+      id: item.id,
+      url: item.image.srcMobile || item.image.src,
+      priority: 1 as const
+    }))
+    textureManager.preload(preloadItems)
+  }, [])
+
 
   return (
     <ErrorBoundary>
@@ -42,6 +52,12 @@ export function AppShell() {
       >
         <title>{t.metaTitle || 'FEST Dance Company | Choreography & Movement Direction'}</title>
         <meta name="description" content={t.metaDescription || 'Premium Choreography, Movement Direction & Performance Design for concerts, music videos, and fashion campaigns.'} />
+        
+        {/* SEO Language Prioritization */}
+        <link rel="canonical" href="https://festdance.company" />
+        <link rel="alternate" hreflang="pl" href="https://festdance.company" />
+        <link rel="alternate" hreflang="x-default" href="https://festdance.company" />
+        <link rel="alternate" hreflang="en" href="https://festdance.company" />
       </Helmet>
       <SemanticShadow />
 

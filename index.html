@@ -16,12 +16,15 @@
     <meta property="og:image" content="https://festdance.company/og-image.png" />
     <link rel="canonical" href="https://festdance.company" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-    <!-- Fonts managed locally in src/styles/fonts.css -->
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Teko:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
     <!--ssr-head-->
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"><!--ssr-outlet--></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

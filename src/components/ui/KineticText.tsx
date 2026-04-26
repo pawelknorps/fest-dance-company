@@ -32,7 +32,7 @@ export function KineticText({ text, children, className = '', inView }: Partial<
     <m.div
       ref={ref}
       style={{ skewX }}
-      className={`relative inline-block ${className}`}
+      className={`inline-block ${className}`}
     >
       {text ?? children}
     </m.div>
