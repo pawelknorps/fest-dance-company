@@ -99,6 +99,21 @@ export function SiteHeader({ open, setOpen }: SiteHeaderProps) {
               />
             </a>
 
+            {/* Socials - Visible on Desktop */}
+            <div className="hidden md:flex items-center gap-4 pointer-events-auto">
+              {brand.socialLinks.map((item) => (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/50 hover:text-white transition-colors"
+                >
+                  {item.label}
+                </a>
+              ))}
+            </div>
+
             {/* Language Switcher — SOTA Stage 3 */}
             <div className={`pointer-events-auto flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 transition-all duration-500 ${
               scrolled ? 'ml-4' : 'ml-6 md:ml-10'
