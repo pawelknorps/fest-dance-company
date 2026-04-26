@@ -104,13 +104,14 @@ const CardContent = forwardRef<KineticCardRef, KineticCardProps>((props, ref) =>
   const meshRef = useRef<Mesh>(null)
   const [isVisible, setIsVisible] = useState(false)
   const { gl } = useThree()
-  const registerItem = useLoadOrchestrator(s => s.registerItem)
-  const completeItem = useLoadOrchestrator(s => s.completeItem)
   
   // SOTA Resource Atlas: pull pre-allocated geometries
   const geometry = isMobile ? resourceAtlas.mobilePlane : resourceAtlas.desktopPlane
 
-  const imageSrc = (isMobile && item.image.srcMobile) ? item.image.srcMobile : item.image.src
+  // SOTA 2026: Prefer AVIF even on desktop for ultra-fast LCP (30KB vs 800KB KTX2)
+  // We keep the KTX2 logic in TextureManager for VRAM efficiency if needed, but 
+  // for initial load speed, AVIF is the winner.
+  const imageSrc = item.image.srcMobile || item.image.src
 
   // 1. Instant-On Scenography: Bind ThumbHash placeholder immediately
   const placeholderTexture = useMemo(() => 
@@ -121,11 +122,8 @@ const CardContent = forwardRef<KineticCardRef, KineticCardProps>((props, ref) =>
   const [texture, setTexture] = useState<Texture>(initialTexture)
 
   useEffect(() => {
-    registerItem(`card-${item.id}`)
-    
     const handleTextureReady = (tex: Texture) => {
       setTexture(tex)
-      completeItem(`card-${item.id}`)
     }
 
     textureManager.subscribe(imageSrc, handleTextureReady)

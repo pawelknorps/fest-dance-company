@@ -29,8 +29,15 @@ export function AppShell() {
   const tier = useDeviceTier()
 
   useEffect(() => {
-    // ...
-  }, [tier])
+    // SOTA 2026: Warm up the first 3 portfolio assets early (AVIF is tiny)
+    // This pre-fills the browser cache before the user even reaches the section.
+    const preloadItems = portfolio.slice(0, 3).map(item => ({
+      id: item.id,
+      url: item.image.srcMobile || item.image.src,
+      priority: 1 as const
+    }))
+    textureManager.preload(preloadItems)
+  }, [])
 
   console.log('AppShell rendering');
 

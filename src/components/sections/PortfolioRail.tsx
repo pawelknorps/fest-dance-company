@@ -114,9 +114,7 @@ function PortfolioCard({ item, index, t }: { item: any, index: number, t: any })
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 h-full w-full">
           <img
-            src={item.image.src}
-            srcSet={item.image.srcSet}
-            sizes="(max-width: 768px) 85vw, (max-width: 1024px) 45vw, 32vw"
+            src={item.image.srcMobile || item.image.src}
             alt={t.portfolioAlts?.[item.id as keyof typeof t.portfolioAlts] || item.image.alt}
             width={item.image.width}
             height={item.image.height}

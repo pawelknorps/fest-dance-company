@@ -1,5 +1,5 @@
-import founderPortrait from '../assets/images/10-2.jpg?format=webp&w=800&q=75&as=url'
-import founderPortraitMobile from '../assets/images/10-2.jpg?format=webp&w=500&q=70&as=url'
+import founderPortrait from '../assets/images/10-2.jpg?format=webp&w=1600&q=95&as=url'
+import founderPortraitMobile from '../assets/images/10-2.jpg?format=webp&w=1000&q=90&as=url'
 import type { FounderData } from '../types'
 
 export const founder: FounderData = {

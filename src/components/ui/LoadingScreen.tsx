@@ -12,9 +12,10 @@ export function LoadingScreen() {
     const interval = setInterval(() => {
       setProgress(prev => {
         const target = realProgress > 0 ? Math.max(prev, realProgress * 100) : prev + 0.5
-        if (target >= 100) return 100
+        if (target >= 100 && prev >= 99.9) return 100
+        const isReady = target >= 100
         const diff = target - prev
-        return prev + diff * 0.1 + 0.05
+        return prev + diff * (isReady ? 0.45 : 0.1) + (isReady ? 1.5 : 0.05)
       })
     }, 16)
     
