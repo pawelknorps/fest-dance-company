@@ -55,9 +55,9 @@ export function AppShell() {
         
         {/* SEO Language Prioritization */}
         <link rel="canonical" href="https://festdance.company" />
-        <link rel="alternate" hreflang="pl" href="https://festdance.company" />
-        <link rel="alternate" hreflang="x-default" href="https://festdance.company" />
-        <link rel="alternate" hreflang="en" href="https://festdance.company" />
+        <link rel="alternate" hrefLang="pl" href="https://festdance.company" />
+        <link rel="alternate" hrefLang="x-default" href="https://festdance.company" />
+        <link rel="alternate" hrefLang="en" href="https://festdance.company" />
       </Helmet>
       <SemanticShadow />
 

@@ -140,7 +140,12 @@ export function KineticPortfolio() {
             <div className="absolute inset-0 pointer-events-none z-10">
               <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 items-center pointer-events-auto">
                 {portfolio.map((_, i) => (
-                  <button key={i} onClick={() => navigateTo(i)} className="p-1.5 group">
+                  <button 
+                    key={i} 
+                    onClick={() => navigateTo(i)} 
+                    className="p-1.5 group"
+                    aria-label={`Pokaż projekt ${i + 1}: ${portfolio[i].title}`}
+                  >
                     <div className={`rounded-full transition-all duration-500 ease-out ${
                       i === activeIndex ? 'w-5 h-[5px] bg-white shadow-[0_0_8px_rgba(184,102,255,0.8)]' : 'w-[5px] h-[5px] bg-white/22 group-hover:bg-white/45'
                     }`} />

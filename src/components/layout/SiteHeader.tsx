@@ -12,6 +12,7 @@ function LanguageToggle() {
     <>
       <button 
         onClick={() => setLang('pl')}
+        aria-label="Zmień język na polski"
         className={`hover:text-white transition-colors p-2 min-w-[48px] min-h-[48px] flex items-center justify-center ${lang === 'pl' ? 'text-white' : ''}`}
       >
         PL
@@ -19,6 +20,7 @@ function LanguageToggle() {
       <span className="opacity-20">/</span>
       <button 
         onClick={() => setLang('en')}
+        aria-label="Change language to English"
         className={`hover:text-white transition-colors p-2 min-w-[48px] min-h-[48px] flex items-center justify-center ${lang === 'en' ? 'text-white' : ''}`}
       >
         EN
@@ -89,10 +91,10 @@ export function SiteHeader({ open, setOpen }: SiteHeaderProps) {
 
           {/* Left side: Logo + Language */}
           <div className="flex items-center gap-6">
-            <a href="#top" className="pointer-events-auto inline-flex items-center min-h-[48px]">
+            <a href="#top" className="pointer-events-auto inline-flex items-center min-h-[48px]" aria-label="FEST Dance Company - Strona Główna">
               <img
                 src={brand.logo}
-                alt="FEST Dance Company"
+                alt="FEST Dance Company - Premium Choreography & Movement Direction"
                 loading="eager"
                 fetchPriority="high"
                 style={{ filter: 'drop-shadow(0 0 18px rgba(200,80,255,0.28))' }}
@@ -180,7 +182,10 @@ export function SiteHeader({ open, setOpen }: SiteHeaderProps) {
               {/* Secondary Close Button - Top Right */}
               <div className="absolute top-8 right-8">
                 <MagneticButton hitPadding={32} onClick={() => setOpen(false)}>
-                  <button className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/5 hover:bg-white/10 transition-colors">
+                  <button 
+                    aria-label="Zamknij menu"
+                    className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/5 hover:bg-white/10 transition-colors"
+                  >
                     <span className="relative h-4 w-4">
                         <span className="absolute inset-0 bg-white h-[1px] w-full top-1/2 -translate-y-1/2 rotate-45" />
                         <span className="absolute inset-0 bg-white h-[1px] w-full top-1/2 -translate-y-1/2 -rotate-45" />
