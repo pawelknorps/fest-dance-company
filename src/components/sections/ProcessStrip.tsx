@@ -41,3 +41,5 @@ export function ProcessStrip() {
     </section>
   )
 }
+
+export default ProcessStrip

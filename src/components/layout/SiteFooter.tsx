@@ -52,4 +52,6 @@ export function SiteFooter() {
       </div>
     </footer>
   )
-}
+ }
+ 
+ export default SiteFooter

@@ -58,3 +58,5 @@ export function CredibilityBand() {
     </section>
   )
 }
+
+export default CredibilityBand

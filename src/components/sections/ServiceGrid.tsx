@@ -111,3 +111,5 @@ export function ServiceGrid() {
     </section>
   )
 }
+
+export default ServiceGrid

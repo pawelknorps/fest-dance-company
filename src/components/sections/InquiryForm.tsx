@@ -217,3 +217,5 @@ function FormField({
     </div>
   )
 }
+
+export default InquiryForm

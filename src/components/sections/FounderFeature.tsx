@@ -114,3 +114,5 @@ export function FounderFeature() {
     </section>
   )
 }
+
+export default FounderFeature

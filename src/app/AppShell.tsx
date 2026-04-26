@@ -35,9 +35,13 @@ export function AppShell() {
   const { ref: portfolioRef, inView: portfolioInView } = useScrollReveal<HTMLDivElement>({ once: true, margin: '400px 0px' })
 
   useEffect(() => {
-    // SOTA 2026: Warm up portfolio assets only on high-tier devices
+    // SOTA 2026: Ultra-aggressive hydration optimization
+    // Only preload the very first texture on mobile to save TBT
+    const isMobile = window.innerWidth < 768
+    const preloadCount = isMobile ? 1 : 3
+
     if (tier !== DeviceTier.LOW) {
-      const preloadItems = portfolio.slice(0, 5).map(item => ({
+      const preloadItems = portfolio.slice(0, preloadCount).map(item => ({
         id: item.id,
         url: item.image.srcMobile || item.image.src,
         priority: 1 as const
@@ -75,14 +79,14 @@ export function AppShell() {
 
           <main className="relative z-10">
             <HeroStage tier={tier} />
-            <Suspense fallback={<div />}>
+            <Suspense fallback={<div className="min-h-[50dvh]" />}>
               <ServiceGrid />
               <FounderFeature />
               <CredibilityBand />
             </Suspense>
             
             <div id="portfolio" ref={portfolioRef}>
-              <Suspense fallback={<div className="h-[100vh] bg-[#05030a]" />}>
+              <Suspense fallback={<div className="h-[100dvh] bg-[#05030a]" />}>
                 {tier === DeviceTier.LOW ? (
                   <DOMKineticPortfolio />
                 ) : (
@@ -91,13 +95,13 @@ export function AppShell() {
               </Suspense>
             </div>
 
-            <Suspense fallback={<div />}>
+            <Suspense fallback={<div className="min-h-[100dvh]" />}>
               <ProcessStrip />
               <InquiryForm />
             </Suspense>
           </main>
 
-          <Suspense fallback={<div />}>
+          <Suspense fallback={<div className="h-64" />}>
             <SiteFooter />
           </Suspense>
         </div>
