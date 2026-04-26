@@ -99,6 +99,16 @@ export function SiteHeader({ open, setOpen }: SiteHeaderProps) {
               />
             </a>
 
+            {/* Language Switcher — SOTA Stage 3 */}
+            <div className={`pointer-events-auto flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 transition-all duration-500 ${
+              scrolled ? 'ml-4' : 'ml-6 md:ml-10'
+            }`}>
+              <LanguageToggle />
+            </div>
+          </div>
+
+          {/* Right side: Socials + Hamburger */}
+          <div className="flex items-center gap-6">
             {/* Socials - Visible on Desktop */}
             <div className="hidden md:flex items-center gap-4 pointer-events-auto">
               {brand.socialLinks.map((item) => (
@@ -114,20 +124,12 @@ export function SiteHeader({ open, setOpen }: SiteHeaderProps) {
               ))}
             </div>
 
-            {/* Language Switcher — SOTA Stage 3 */}
-            <div className={`pointer-events-auto flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 transition-all duration-500 ${
-              scrolled ? 'ml-4' : 'ml-6 md:ml-10'
-            }`}>
-              <LanguageToggle />
-            </div>
-          </div>
-
-          {/* Hamburger button – right side */}
-          <MagneticButton
-            hitPadding={24}
-            className="pointer-events-auto"
-            onClick={() => setOpen(!open)}
-          >
+            {/* Hamburger button */}
+            <MagneticButton
+              hitPadding={24}
+              className="pointer-events-auto"
+              onClick={() => setOpen(!open)}
+            >
             <button
               type="button"
               data-cursor={t.cursorMenu}
