@@ -33,9 +33,6 @@ export const useLoadOrchestrator = create<LoadState>((set, get) => ({
       const allValues = Array.from(newItems.values())
       const avg = allValues.reduce((a, b) => a + b, 0) / (allValues.length || 1)
       
-      if (avg >= 1 && !state.isComplete) {
-        console.log('[LoadOrchestrator] All items loaded')
-      }
       
       return { 
         items: newItems, 

@@ -84,6 +84,9 @@ export function DOMKineticCard({ item, index, count, progress }: Props) {
           <m.img
             src={imageSrc}
             alt={item.title}
+            width={item.image.width}
+            height={item.image.height}
+            loading="lazy"
             decoding="async"
             className="h-full w-full object-cover transition-transform duration-1000 ease-out"
             style={{

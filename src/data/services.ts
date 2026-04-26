@@ -15,8 +15,8 @@ export const services: ServiceCard[] = [
     coverImage: {
       src: concertsImage,
       alt: 'Dynamiczny kadr koncertowy z performerami FEST - Choreografia na scenę',
-      width: 4031,
-      height: 2268,
+      width: 800,
+      height: 450,
     },
     tags: ['choreografia', 'ruch sceniczny', 'kostium'],
   },
@@ -30,8 +30,8 @@ export const services: ServiceCard[] = [
     coverImage: {
       src: videosImage,
       alt: 'Zespół tancerek w kadrze stylizowanym do teledysku - Movement Direction FEST',
-      width: 1536,
-      height: 2048,
+      width: 800,
+      height: 1066,
     },
     tags: ['movement direction', 'set coaching', 'storytelling'],
   },
@@ -45,8 +45,8 @@ export const services: ServiceCard[] = [
     coverImage: {
       src: eventsImage,
       alt: 'Performerska kompozycja eventowa w przestrzeni premium - FEST Dance Company',
-      width: 567,
-      height: 423,
+      width: 800,
+      height: 597,
     },
     tags: ['opening act', 'event concept', 'koordynacja'],
   },
@@ -60,8 +60,8 @@ export const services: ServiceCard[] = [
     coverImage: {
       src: campaignsImage,
       alt: 'Backstage sesji reklamowej z kamerą i zespołem performerskim - FEST Production',
-      width: 4016,
-      height: 6016,
+      width: 800,
+      height: 1198,
     },
     tags: ['brand movement', 'casting', 'performance concept'],
   },

@@ -98,7 +98,6 @@ async function startVideoPipeline(worker: Worker, url: string) {
 
     // In a real SOTA implementation, we would use a demuxer here
     // For now, we signal that the worker is ready for chunks
-    console.log('Video pipeline started for:', url)
     
     // Note: WebCodecs requires demuxed chunks (EncodedVideoChunk).
     // This part usually requires a library like 'mp4box' to demux the stream.

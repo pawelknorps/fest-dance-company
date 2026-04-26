@@ -4,7 +4,7 @@ import { brand } from '../../data/brand'
 import { siteCopy as plCopy } from '../../content/site-copy'
 import { useHeroMediaVisibility } from '../../hooks/useHeroMediaVisibility'
 import { PrimaryButton } from '../ui/PrimaryButton'
-import festLogo from '../../assets/logo/fest-logo.png?format=webp&w=1600&q=85&as=url'
+import festLogo from '../../assets/logo/fest-logo.png?format=avif&w=800&q=80&as=url'
 import { OffscreenHero } from '../ui/OffscreenHero'
 import { useLoadOrchestrator } from '../../lib/LoadOrchestrator'
 import { useTranslation } from '../../lib/i18n'
@@ -151,8 +151,9 @@ export function HeroStage({ tier }: { tier: DeviceTierType }) {
               alt="FEST Dance Company Logo"
               fetchPriority="high"
               loading="eager"
-              width={1400}
-              height={360}
+              decoding="sync"
+              width={800}
+              height={205}
               onLoad={() => completeItem('hero-logo')}
               className="pointer-events-none absolute left-1/2 w-[70vw] max-w-[1400px] -translate-x-1/2 object-contain opacity-55 md:w-[85vw] md:opacity-65"
               style={{

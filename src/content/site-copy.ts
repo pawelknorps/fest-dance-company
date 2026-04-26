@@ -1,4 +1,6 @@
 export const siteCopy = {
+  metaTitle: 'FEST Dance Company | Choreografia i Movement Direction',
+  metaDescription: 'Profesjonalna choreografia, movement direction i performance design dla koncertów, teledysków oraz kampanii reklamowych. Poznań / Polska.',
   heroVisualLines: ['RUCH', 'ŁĄCZY', 'SIĘ Z', 'WIZJĄ'],
   heroKicker: 'Choreografia / Movement direction / Performance design',
   heroHeadline: 'Ruch, który zostawia ślad na scenie, w kadrze i w pamięci odbiorcy.',
