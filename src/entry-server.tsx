@@ -10,16 +10,9 @@ export function render() {
     <App helmetContext={helmetContext} />
   );
   
-  console.log('--- SSR HTML DEBUG ---');
-  console.log('HTML snippet:', html.substring(0, 500));
-  console.log('------------------------');
 
   const helmet = helmetContext.helmet;
   
-  console.log('--- SSR HELMET DEBUG ---');
-  console.log('Context content:', JSON.stringify(Object.keys(helmetContext)));
-  console.log('Helmet object:', !!helmet);
-  console.log('------------------------');
   
   return { html, helmet };
 }

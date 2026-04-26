@@ -69,6 +69,10 @@ export function ServiceGrid() {
                     src={service.coverImage.src}
                     srcSet={service.coverImage.srcSet}
                     sizes="(max-width: 768px) 85vw, (max-width: 1024px) 50vw, 42vw"
+                    width={service.coverImage.width}
+                    height={service.coverImage.height}
+                    loading="lazy"
+                    decoding="async"
                     alt={translated.alt || service.coverImage.alt}
                     className="h-full w-full object-cover opacity-80 transition-opacity duration-700 group-hover:opacity-100"
                     style={{ transform: 'translateY(-15%) scale(1.15)', willChange: 'transform' }}

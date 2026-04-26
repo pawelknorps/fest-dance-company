@@ -19,7 +19,6 @@ const KineticPortfolio = lazy(() => import('../components/sections/KineticPortfo
 const DOMKineticPortfolio = lazy(() => import('../components/sections/DOMKineticPortfolio'))
 
 import { ErrorBoundary } from '../components/ui/ErrorBoundary'
-import { textureManager } from '../lib/TextureManager'
 
 import { SemanticShadow } from '../components/seo/SemanticShadow'
 import { Helmet } from 'react-helmet-async'
@@ -39,7 +38,6 @@ export function AppShell() {
     textureManager.preload(preloadItems)
   }, [])
 
-  console.log('AppShell rendering');
 
   return (
     <ErrorBoundary>

@@ -11,6 +11,7 @@ export function LoadingScreen() {
   useEffect(() => {
     const interval = setInterval(() => {
       setProgress(prev => {
+        if (realProgress >= 1) return 100
         const target = realProgress > 0 ? Math.max(prev, realProgress * 100) : prev + 0.5
         if (target >= 100 && prev >= 99.9) return 100
         const isReady = target >= 100
@@ -19,10 +20,11 @@ export function LoadingScreen() {
       })
     }, 16)
     
-    // Safety: Hide after 3 seconds anyway if it's stuck
+    // Safety: Hide after 2 seconds on mobile, 4 on desktop
+    const isMobile = window.innerWidth <= 768
     const safety = setTimeout(() => {
       setProgress(100)
-    }, 3000)
+    }, isMobile ? 2000 : 4000)
 
     return () => {
       clearInterval(interval)
@@ -31,13 +33,10 @@ export function LoadingScreen() {
   }, [realProgress])
 
   useEffect(() => {
-    if (progress >= 99.9) {
-      const finishTimer = setTimeout(() => setIsFinishing(true), 150)
-      const hideTimer = setTimeout(() => setIsVisible(false), 550)
-      return () => {
-        clearTimeout(finishTimer)
-        clearTimeout(hideTimer)
-      }
+    if (progress >= 100) {
+      setIsFinishing(true)
+      const hideTimer = setTimeout(() => setIsVisible(false), 400)
+      return () => clearTimeout(hideTimer)
     }
   }, [progress])
 

@@ -34,7 +34,6 @@ self.onmessage = async (e: MessageEvent) => {
       // This is a simplified version. In a real SOTA implementation, 
       // we'd use a demuxer (like mp4box.js) to extract packets.
       // For now, we simulate the frame-by-frame decoding logic.
-      console.log('WebCodecs Worker: Initialized with', payload.url)
       break
     }
   }
