@@ -40,14 +40,17 @@ export default defineConfig({
             return 'vendor-three';
           }
           if (id.includes('node_modules')) {
-            if (id.includes('framer-motion') || id.includes('lenis') || id.includes('react')) {
+            if (id.includes('framer-motion') || id.includes('motion-') || id.includes('lenis') || id.includes('react') || id.includes('scheduler')) {
               return 'vendor-core';
             }
-            if (id.includes('zod') || id.includes('react-hook-form')) {
+            if (id.includes('zod') || id.includes('react-hook-form') || id.includes('hookform')) {
               return 'vendor-forms';
             }
             if (id.includes('lucide-react')) {
               return 'vendor-icons';
+            }
+            if (id.includes('zustand') || id.includes('thumbhash') || id.includes('lottie-react') || id.includes('tailwind-merge') || id.includes('clsx')) {
+              return 'vendor-misc';
             }
             return 'vendor-other';
           }

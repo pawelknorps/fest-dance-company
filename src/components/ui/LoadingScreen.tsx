@@ -5,8 +5,13 @@ import { useLoadOrchestrator } from '../../lib/LoadOrchestrator'
 export function LoadingScreen() {
   const realProgress = useLoadOrchestrator(s => s.totalProgress)
   const [progress, setProgress] = useState(0)
-  const [isVisible, setIsVisible] = useState(true)
+  const [visible, setVisible] = useState(false)
   const [isFinishing, setIsFinishing] = useState(false)
+
+  useEffect(() => {
+    const showTimer = setTimeout(() => setVisible(true), 500)
+    return () => clearTimeout(showTimer)
+  }, [])
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -19,7 +24,7 @@ export function LoadingScreen() {
         return prev + diff * (isReady ? 0.45 : 0.1) + (isReady ? 1.5 : 0.05)
       })
     }, 16)
-    
+
     // Safety: maximum wait before forcing the screen away.
     // Kept short on mobile so LCP isn't gated on slow asset loads.
     const isMobile = window.innerWidth <= 768
@@ -36,24 +41,24 @@ export function LoadingScreen() {
   useEffect(() => {
     if (progress >= 100) {
       setIsFinishing(true)
-      const hideTimer = setTimeout(() => setIsVisible(false), 400)
+      const hideTimer = setTimeout(() => setVisible(false), 400)
       return () => clearTimeout(hideTimer)
     }
   }, [progress])
 
-  if (!isVisible) return null
-
   return (
-    <div 
-      className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#050505] text-white transition-opacity duration-400 ${isFinishing ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'}`}
+    <div
+      className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#050505] text-white transition-opacity duration-400 ${
+        visible && !isFinishing ? 'opacity-100' : 'opacity-0 pointer-events-none'
+      }`}
     >
       <div className="relative mb-8 h-px w-64 overflow-hidden bg-white/10">
-        <div 
-          className="absolute inset-y-0 left-0 bg-fuchsia-500 shadow-[0_0_15px_rgba(217,70,239,0.5)] transition-all duration-300"
-          style={{ width: `${progress}%` }}
+        <div
+          className="absolute inset-y-0 left-0 origin-left bg-fuchsia-500 shadow-[0_0_15px_rgba(217,70,239,0.5)] transition-transform duration-300"
+          style={{ transform: `scaleX(${progress / 100})` }}
         />
       </div>
-      
+
       <div className="flex flex-col items-center gap-2">
         <img src={brand.logo} alt="FEST" className="h-6 opacity-40 grayscale contrast-200" />
         <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-white/30">

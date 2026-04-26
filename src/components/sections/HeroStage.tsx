@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useRef } from 'react'
-import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
+import { m, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import { brand } from '../../data/brand'
 import { siteCopy as plCopy } from '../../content/site-copy'
 import { useHeroMediaVisibility } from '../../hooks/useHeroMediaVisibility'
@@ -102,50 +102,10 @@ export function HeroStage({ tier }: { tier: DeviceTierType }) {
               style={{ willChange: 'transform' }}
             />
 
-            <motion.div
-              animate={{ rotate: [0, 360], scale: [1, 1.05, 1], x: ['-2%', '2%', '-2%'], y: ['-1%', '3%', '-1%'] }}
-              transition={{
-                rotate: { duration: 35, repeat: Infinity, ease: "linear" },
-                scale: { duration: 18, repeat: Infinity, ease: "easeInOut" },
-                x: { duration: 15, repeat: Infinity, ease: "easeInOut" },
-                y: { duration: 21, repeat: Infinity, ease: "easeInOut" }
-              }}
-              style={{ willChange: 'transform' }}
-              className="absolute h-[28vw] w-[54vw] rounded-[50%] border border-white/40 opacity-80 shadow-[0_0_15px_rgba(255,255,255,0.1)_inset]"
-            />
-            <motion.div
-              animate={{ rotate: [45, -315], scale: [1, 1.08, 1], x: ['1%', '-3%', '1%'], y: ['2%', '-2%', '2%'] }}
-              transition={{
-                rotate: { duration: 42, repeat: Infinity, ease: "linear" },
-                scale: { duration: 22, repeat: Infinity, ease: "easeInOut" },
-                x: { duration: 19, repeat: Infinity, ease: "easeInOut" },
-                y: { duration: 17, repeat: Infinity, ease: "easeInOut" }
-              }}
-              style={{ willChange: 'transform' }}
-              className="absolute h-[22vw] w-[40vw] rounded-[50%] border border-white/35 opacity-75 shadow-[0_0_12px_rgba(255,255,255,0.08)_inset]"
-            />
-            <motion.div
-              animate={{ rotate: [-20, 340], scale: [1, 1.04, 1], x: ['-1.5%', '1.5%', '-1.5%'], y: ['-1.5%', '1.5%', '-1.5%'] }}
-              transition={{
-                rotate: { duration: 50, repeat: Infinity, ease: "linear" },
-                scale: { duration: 25, repeat: Infinity, ease: "easeInOut" },
-                x: { duration: 24, repeat: Infinity, ease: "easeInOut" },
-                y: { duration: 28, repeat: Infinity, ease: "easeInOut" }
-              }}
-              style={{ willChange: 'transform' }}
-              className="absolute h-[36vw] w-[60vw] rounded-[50%] border border-white/30 opacity-65 shadow-[0_0_20px_rgba(255,255,255,0.05)_inset]"
-            />
-            <motion.div
-              animate={{ rotate: [10, -350], scale: [1, 1.06, 1], x: ['2%', '-2%', '2%'], y: ['-2%', '2%', '-2%'] }}
-              transition={{
-                rotate: { duration: 38, repeat: Infinity, ease: "linear" },
-                scale: { duration: 16, repeat: Infinity, ease: "easeInOut" },
-                x: { duration: 14, repeat: Infinity, ease: "easeInOut" },
-                y: { duration: 19, repeat: Infinity, ease: "easeInOut" }
-              }}
-              style={{ willChange: 'transform' }}
-              className="absolute h-[18vw] w-[32vw] rounded-[50%] border border-white/30 opacity-70 shadow-[0_0_10px_rgba(255,255,255,0.08)_inset]"
-            />
+            <div className="hero-ellipse-1 absolute h-[28vw] w-[54vw] rounded-[50%] border border-white/40 opacity-80 shadow-[0_0_15px_rgba(255,255,255,0.1)_inset]" />
+            <div className="hero-ellipse-2 absolute h-[22vw] w-[40vw] rounded-[50%] border border-white/35 opacity-75 shadow-[0_0_12px_rgba(255,255,255,0.08)_inset]" />
+            <div className="hero-ellipse-3 absolute h-[36vw] w-[60vw] rounded-[50%] border border-white/30 opacity-65 shadow-[0_0_20px_rgba(255,255,255,0.05)_inset]" />
+            <div className="hero-ellipse-4 absolute h-[18vw] w-[32vw] rounded-[50%] border border-white/30 opacity-70 shadow-[0_0_10px_rgba(255,255,255,0.08)_inset]" />
 
               <img
                 src={tier === DeviceTier.LOW ? festLogoMobile : festLogo}
@@ -153,6 +113,7 @@ export function HeroStage({ tier }: { tier: DeviceTierType }) {
                 fetchPriority="high"
                 loading="eager"
                 decoding="sync"
+                sizes="(max-width: 768px) 400px, 800px"
                 width={tier === DeviceTier.LOW ? 400 : 800}
                 height={tier === DeviceTier.LOW ? 102 : 205}
                 onLoad={() => completeItem('hero-logo')}
@@ -176,28 +137,28 @@ export function HeroStage({ tier }: { tier: DeviceTierType }) {
 
           <div className="grid w-full gap-6 lg:grid-cols-[minmax(0,0.82fr)_minmax(260px,0.34fr)] lg:items-end">
             <div className="max-w-[620px]">
-              <motion.p
+              <m.p
                 initial={{ opacity: 0, y: 18 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.65, delay: 0.15 }}
                 className="mb-2 text-fluid-small uppercase tracking-[0.42em] text-white/54 md:mb-5"
               >
                 {t.heroKicker}
-              </motion.p>
-              <motion.p
+              </m.p>
+              <m.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.22 }}
                 className="mb-1 text-[0.72rem] uppercase tracking-[0.34em] text-white/36 md:mb-6"
               >
                 {brand.name}
-              </motion.p>
+              </m.p>
 
                 <h1
                   className="font-display text-fluid-hero uppercase leading-[0.82] tracking-[0.02em] text-white"
                 >
                   {t.heroVisualLines.map((line, i) => (
-                    <motion.span
+                    <m.span
                       key={line}
                       initial={{ opacity: 0, y: 40 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -205,21 +166,21 @@ export function HeroStage({ tier }: { tier: DeviceTierType }) {
                       className="block origin-top"
                     >
                       {line}
-                    </motion.span>
+                    </m.span>
                   ))}
                 </h1>
 
-              <motion.p
+              <m.p
                 initial={{ opacity: 0, y: 18 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.72, delay: 0.36 }}
                 className="mt-12 max-w-[30rem] text-fluid-body leading-relaxed text-white/76 md:mt-6 invisible md:visible"
               >
                 {t.heroHeadline}
-              </motion.p>
+              </m.p>
 
 
-              <motion.div
+              <m.div
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.66, delay: 0.54 }}
@@ -229,10 +190,10 @@ export function HeroStage({ tier }: { tier: DeviceTierType }) {
                 <PrimaryButton href="#portfolio" variant="ghost">
                   {t.ctaSecondary}
                 </PrimaryButton>
-              </motion.div>
+              </m.div>
             </div>
 
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 28 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.78, delay: 0.42 }}
@@ -241,12 +202,12 @@ export function HeroStage({ tier }: { tier: DeviceTierType }) {
               <p className="text-[0.88rem] leading-7 text-white/50 md:text-fluid-body md:leading-8">
                 {t.heroBody}
               </p>
-            </motion.div>
+            </m.div>
           </div>
         </div>
 
         {/* Desktop-only vertical detail */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1.5, delay: 1.2 }}
@@ -255,7 +216,7 @@ export function HeroStage({ tier }: { tier: DeviceTierType }) {
           <p className="text-[0.6rem] uppercase tracking-[0.6em] text-white/15 [writing-mode:vertical-lr]">
             {t.estLine}
           </p>
-        </motion.div>
+        </m.div>
       </div>
     </section>
   )
