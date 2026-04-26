@@ -6,7 +6,7 @@ import { useHeroMediaVisibility } from '../../hooks/useHeroMediaVisibility'
 import { PrimaryButton } from '../ui/PrimaryButton'
 import festLogo from '../../assets/logo/fest-logo.png?format=avif&w=800&q=80&as=url'
 import festLogoMobile from '../../assets/logo/fest-logo.png?format=avif&w=400&q=80&as=url'
-import { OffscreenHero } from '../ui/OffscreenHero'
+const OffscreenHero = lazy(() => import('../ui/OffscreenHero').then(m => ({ default: m.OffscreenHero })))
 import { useLoadOrchestrator } from '../../lib/LoadOrchestrator'
 import { useTranslation } from '../../lib/i18n'
 import { DeviceTier, type DeviceTierType } from '../../hooks/useDeviceTier'
@@ -148,13 +148,13 @@ export function HeroStage({ tier }: { tier: DeviceTierType }) {
             />
 
               <img
-                src={festLogo}
+                src={tier === DeviceTier.LOW ? festLogoMobile : festLogo}
                 alt="FEST Dance Company Logo"
                 fetchPriority="high"
                 loading="eager"
                 decoding="sync"
-                width={800}
-                height={205}
+                width={tier === DeviceTier.LOW ? 400 : 800}
+                height={tier === DeviceTier.LOW ? 102 : 205}
                 onLoad={() => completeItem('hero-logo')}
                 className="pointer-events-none absolute left-1/2 w-[70vw] max-w-[1400px] -translate-x-1/2 object-contain opacity-55 md:w-[85vw] md:opacity-65"
                 style={{

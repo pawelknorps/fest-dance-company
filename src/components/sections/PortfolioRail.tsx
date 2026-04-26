@@ -5,6 +5,7 @@ import { SectionHeading } from '../ui/SectionHeading'
 import { useTranslation } from '../../lib/i18n'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { ParticleRiver } from './ParticleRiver'
+import { DeviceTier, useDeviceTier } from '../../hooks/useDeviceTier'
 
 function ProgressDot({ i, count, scrollYProgress }: { i: number, count: number, scrollYProgress: any }) {
   const dotRef = useRef<HTMLDivElement>(null)
@@ -46,6 +47,7 @@ function VelocityTracker({ velocity, velocityRef }: { velocity: any, velocityRef
 
 export function PortfolioRail() {
   const t = useTranslation()
+  const tier = useDeviceTier()
   const sectionRef = useRef<HTMLElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   
@@ -64,15 +66,22 @@ export function PortfolioRail() {
   return (
     <section ref={sectionRef} id="portfolio" className="relative h-[600vh] bg-[#05030a]">
       {/* Background SOTA Light River — Keeping the artistic WebGL soul but lightweight */}
-      <div className="pointer-events-none absolute inset-0 z-0">
-        <Canvas camera={{ position: [0, 0, 8], fov: 40 }} dpr={[1, 1.5]}>
-          <color attach="background" args={['#05030a']} />
-          <VelocityTracker velocity={velocity} velocityRef={velocityRef} />
-          <group position={[0, 0, -2]}>
-            <ParticleRiver particleCount={1500} width={50} velocityRef={velocityRef} />
-          </group>
-        </Canvas>
-      </div>
+      {tier !== DeviceTier.LOW && (
+        <div className="pointer-events-none absolute inset-0 z-0">
+          <Canvas camera={{ position: [0, 0, 8], fov: 40 }} dpr={[1, 1.5]}>
+            <color attach="background" args={['#05030a']} />
+            <VelocityTracker velocity={velocity} velocityRef={velocityRef} />
+            <group position={[0, 0, -2]}>
+              <ParticleRiver 
+                particleCount={1500} 
+                width={50} 
+                velocityRef={velocityRef} 
+                isMobile={tier === DeviceTier.LOW}
+              />
+            </group>
+          </Canvas>
+        </div>
+      )}
 
       <div className="sticky top-0 flex h-screen w-full flex-col justify-center overflow-hidden">
         <div className="relative z-20 w-full px-[clamp(1.25rem,1.05rem+0.9vw,2rem)] max-w-[1440px] mx-auto mb-8 md:mb-16">

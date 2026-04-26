@@ -2,12 +2,12 @@ import { useEffect, useRef, useState, lazy, Suspense } from 'react'
 import { SmoothScroll } from '../components/layout/SmoothScroll'
 import { SiteHeader } from '../components/layout/SiteHeader'
 import { HeroStage } from '../components/sections/HeroStage'
-import { ServiceGrid } from '../components/sections/ServiceGrid'
-import { FounderFeature } from '../components/sections/FounderFeature'
-import { CredibilityBand } from '../components/sections/CredibilityBand'
-import { ProcessStrip } from '../components/sections/ProcessStrip'
-import { InquiryForm } from '../components/sections/InquiryForm'
-import { SiteFooter } from '../components/layout/SiteFooter'
+const ServiceGrid = lazy(() => import('../components/sections/ServiceGrid'))
+const FounderFeature = lazy(() => import('../components/sections/FounderFeature'))
+const CredibilityBand = lazy(() => import('../components/sections/CredibilityBand'))
+const ProcessStrip = lazy(() => import('../components/sections/ProcessStrip'))
+const InquiryForm = lazy(() => import('../components/sections/InquiryForm'))
+const SiteFooter = lazy(() => import('../components/layout/SiteFooter'))
 import { CustomCursor } from '../components/ui/CustomCursor'
 import { StructuredData } from '../components/seo/StructuredData'
 import { LoadingScreen } from '../components/ui/LoadingScreen'
@@ -35,14 +35,16 @@ export function AppShell() {
   const { ref: portfolioRef, inView: portfolioInView } = useScrollReveal<HTMLDivElement>({ once: true, margin: '400px 0px' })
 
   useEffect(() => {
-    // SOTA 2026: Warm up the first 5 portfolio assets early (AVIF/KTX2)
-    const preloadItems = portfolio.slice(0, 5).map(item => ({
-      id: item.id,
-      url: item.image.srcMobile || item.image.src,
-      priority: 1 as const
-    }))
-    textureManager.preload(preloadItems)
-  }, [])
+    // SOTA 2026: Warm up portfolio assets only on high-tier devices
+    if (tier !== DeviceTier.LOW) {
+      const preloadItems = portfolio.slice(0, 5).map(item => ({
+        id: item.id,
+        url: item.image.srcMobile || item.image.src,
+        priority: 1 as const
+      }))
+      textureManager.preload(preloadItems)
+    }
+  }, [tier])
 
 
   return (
@@ -73,8 +75,8 @@ export function AppShell() {
 
           <main className="relative z-10">
             <HeroStage tier={tier} />
-            <ServiceGrid />
             <Suspense fallback={<div />}>
+              <ServiceGrid />
               <FounderFeature />
               <CredibilityBand />
             </Suspense>
