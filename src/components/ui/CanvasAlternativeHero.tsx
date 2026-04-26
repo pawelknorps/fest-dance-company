@@ -3,7 +3,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Center, Float, useTexture } from '@react-three/drei'
 import { AdditiveBlending } from 'three'
 import type { Group } from 'three'
-import festLogo from '../../assets/logo/logo-cropped.png?format=webp&w=1200&as=url'
+import festLogo from '../../assets/logo/logo-cropped.png?format=avif&w=1000&q=70&as=url'
 
 function LogoMesh({ isVisible }: { isVisible: boolean }) {
   const meshRef = useRef<Group>(null)

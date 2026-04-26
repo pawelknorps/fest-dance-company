@@ -17,14 +17,14 @@ import {
 } from 'three'
 import type { Points, Mesh } from 'three'
 
-import hero1 from '../../assets/images/hero1.jpg?format=webp&w=1000&q=75&as=url'
-import hero2 from '../../assets/images/hero2.jpg?format=webp&w=1000&q=75&as=url'
-import hero3 from '../../assets/images/hero3.jpg?format=webp&w=1000&q=75&as=url'
-import hero4 from '../../assets/images/hero4.jpg?format=webp&w=1000&q=75&as=url'
-import hero1Mobile from '../../assets/images/hero1.jpg?format=webp&w=600&q=70&as=url'
-import hero2Mobile from '../../assets/images/hero2.jpg?format=webp&w=600&q=70&as=url'
-import hero3Mobile from '../../assets/images/hero3.jpg?format=webp&w=600&q=70&as=url'
-import hero4Mobile from '../../assets/images/hero4.jpg?format=webp&w=600&q=70&as=url'
+import hero1 from '../../assets/images/hero1.jpg?format=avif&w=1000&q=65&as=url'
+import hero2 from '../../assets/images/hero2.jpg?format=avif&w=1000&q=65&as=url'
+import hero3 from '../../assets/images/hero3.jpg?format=avif&w=1000&q=65&as=url'
+import hero4 from '../../assets/images/hero4.jpg?format=avif&w=1000&q=65&as=url'
+import hero1Mobile from '../../assets/images/hero1.jpg?format=avif&w=600&q=60&as=url'
+import hero2Mobile from '../../assets/images/hero2.jpg?format=avif&w=600&q=60&as=url'
+import hero3Mobile from '../../assets/images/hero3.jpg?format=avif&w=600&q=60&as=url'
+import hero4Mobile from '../../assets/images/hero4.jpg?format=avif&w=600&q=60&as=url'
 
 const GRID_W = 180
 const GRID_H = 112

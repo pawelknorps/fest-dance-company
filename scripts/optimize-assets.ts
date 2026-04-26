@@ -59,13 +59,15 @@ async function processImage(fileName: string) {
   const pngBuffer = await sharp(rgba, { raw: info }).png().toBuffer()
   
   const ktx2Data = await encodeToKTX2(pngBuffer, {
-    isUASTC: true,
+    isUASTC: false, // Switch from UASTC to ETC1S for massively smaller file sizes (~150-300KB instead of 1MB+)
     isYFlip: true, // SOTA: Flip at source to match WebGL (0,0) bottom-left convention
     needSupercompression: true, // Zstandard
     generateMipmap: true,
     isKTX2File: true,
     isPerceptual: true,
     isSetKTX2SRGBTransferFunc: true,
+    qualityLevel: 200, // ETC1S quality level
+    compressionLevel: 3, // ETC1S compression effort
     wasmUrl: KTX2_WAS_URL,
     imageDecoder: async (buffer) => {
       const { data, info } = await sharp(buffer).ensureAlpha().raw().toBuffer({ resolveWithObject: true })

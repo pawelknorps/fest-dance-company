@@ -1,7 +1,7 @@
-import concertsImage from '../assets/images/service-concerts.jpg?format=webp&w=800&q=75&as=url'
-import videosImage from '../assets/images/service-videos.jpeg?format=webp&w=800&q=75&as=url'
-import eventsImage from '../assets/images/service-events.jpg?format=webp&w=800&q=75&as=url'
-import campaignsImage from '../assets/images/service-campaigns.jpeg?format=webp&w=800&q=75&as=url'
+import concertsImage from '../assets/images/service-concerts.jpg?format=avif&w=800&q=65&as=url'
+import videosImage from '../assets/images/service-videos.jpeg?format=avif&w=800&q=65&as=url'
+import eventsImage from '../assets/images/service-events.jpg?format=avif&w=800&q=65&as=url'
+import campaignsImage from '../assets/images/service-campaigns.jpeg?format=avif&w=800&q=65&as=url'
 import type { ServiceCard } from '../types'
 
 export const services: ServiceCard[] = [
